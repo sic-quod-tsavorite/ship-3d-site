@@ -3,6 +3,7 @@
     "Vue.volar",
     "sdras.vue-vscode-snippets",
     "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "vitest.explorer"
   ]
 }
