@@ -1,6 +1,6 @@
 # SHIP-3D-SITE
 
-Website that display information on maritime items aswell as display them as a 3D object.
+Website that displays information on maritime items and also shows them as a 3D object.
 
 ![Github actions build status](https://github.com/sic-quod-tsavorite/ship-3d-site/actions/workflows/main.yaml/badge.svg)
 
