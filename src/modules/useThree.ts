@@ -9,7 +9,10 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 export function useThree(
   container: Ref<HTMLElement | null>,
   modelPath: string
-) {
+): {
+  isLoading: Ref<boolean>;
+  loadingProgress: Ref<number>;
+} {
   const isLoading = ref<boolean>(true);
   const loadingProgress = ref<number>(0);
 
@@ -19,7 +22,7 @@ export function useThree(
   let controls: OrbitControls | undefined;
   let animationFrameId: number | undefined;
 
-  const init = () => {
+  const init = (): void => {
     if (!container.value) return;
 
     // Scene
@@ -75,11 +78,10 @@ export function useThree(
 
         model.traverse((child) => {
           // Narrow to Mesh to access material/isMesh safely
-          const mesh = child as THREE.Mesh;
-          if (mesh.isMesh) {
-            const materials = Array.isArray(mesh.material)
-              ? mesh.material
-              : [mesh.material];
+          if (child instanceof THREE.Mesh) {
+            const materials = Array.isArray(child.material)
+              ? child.material
+              : [child.material];
             // Render texture on both sides of mesh
             materials.forEach((material: THREE.Material) => {
               material.side = THREE.DoubleSide;
@@ -90,15 +92,30 @@ export function useThree(
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         model.position.sub(center);
-        scene!.add(model);
+        if (!scene) return;
+        scene.add(model);
 
         isLoading.value = false;
         animate();
       },
       // Progress Callback (for loading)
       (xhr) => {
-        if (xhr.total > 0) {
-          loadingProgress.value = Math.round((xhr.loaded / xhr.total) * 100);
+        if (
+          typeof xhr.total === "number" &&
+          typeof xhr.loaded === "number" &&
+          xhr.total > 0 &&
+          !Number.isNaN(xhr.total) &&
+          !Number.isNaN(xhr.loaded)
+        ) {
+          const progress = xhr.loaded / xhr.total;
+          if (
+            typeof progress === "number" &&
+            progress >= 0 &&
+            progress <= 1 &&
+            !Number.isNaN(progress)
+          ) {
+            loadingProgress.value = Math.round(progress * 100);
+          }
         }
       },
       (error) => {
@@ -108,15 +125,16 @@ export function useThree(
     );
 
     // Animation Loop
-    const animate = () => {
+    const animate = (): void => {
+      if (!scene || !camera || !controls || !renderer.value) return;
+
       animationFrameId = requestAnimationFrame(animate);
-      // Controls, renderer and camera are set when init runs and model loads
-      controls!.update();
-      renderer.value!.render(scene!, camera!);
+      controls.update();
+      renderer.value.render(scene, camera);
     };
 
     // Handle Resize
-    const onWindowResize = () => {
+    const onWindowResize = (): void => {
       if (!container.value) return;
       if (!camera || !renderer.value) return;
       camera.aspect =
@@ -131,7 +149,12 @@ export function useThree(
 
     // Cleanup on unmount
     onUnmounted(() => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (
+        typeof animationFrameId === "number" &&
+        !Number.isNaN(animationFrameId)
+      ) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener("resize", onWindowResize);
 
       renderer.value?.dispose();
