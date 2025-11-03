@@ -1,4 +1,4 @@
-name: SHIP-3D-SITE CI/CD Pipeline
+name: SHIP-3D-SITE Actions Build Status
 
 on:
   push:
