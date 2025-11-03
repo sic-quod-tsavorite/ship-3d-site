@@ -1,5 +1,73 @@
-# Vue 3 + TypeScript + Vite
+# SHIP-3D-SITE
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Website that display information on maritime items aswell as display them as a 3D object.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+![Github actions build status](https://github.com/sic-quod-tsavorite/ship-3d-site/actions/workflows/main.yaml/badge.svg)
+
+## Documentation for tools used in this project
+
+Look at the [Tailwind CSS documentation](https://tailwindcss.com/docs/installation/using-vite) to learn more.
+
+Look at the [Three.js documentation](https://threejs.org/docs/) to learn more.
+
+Look at the [Typescript documentation](https://www.typescriptlang.org/docs/) to learn more.
+
+Look at the [Vite documentation](https://vite.dev/guide/) to learn more.
+
+Look at the [Vitest documentation](https://vitest.dev/guide/) to learn more.
+
+Look at the [Vue 3 documentation](https://v3.vuejs.org/guide/introduction.html) to learn more.
+
+## Recommended
+
+Use Visual Studio Code with recommended plugins from ".vscode" directory. Or an IDE with similar capabilities and plugins.
+
+## Setup
+
+Make sure to install dependencies:
+
+```bash
+# npm
+npm install
+```
+
+## Development Server
+
+Start the development server on `http://localhost:5173`:
+
+```bash
+# npm
+npm run dev
+```
+
+## Testing
+
+Run vitest on the application:
+
+```bash
+# npm
+npm run test
+```
+
+## Production
+
+Run lint on the application and check for errors/warnings:
+
+```bash
+# npm
+npm run lint
+```
+
+Build the application for production:
+
+```bash
+# npm
+npm run build
+```
+
+Locally preview production build:
+
+```bash
+# npm
+npm run preview
+```
