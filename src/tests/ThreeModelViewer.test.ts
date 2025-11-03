@@ -176,7 +176,7 @@ describe("ThreeModelViewer.vue + useThree composable", () => {
   it("shows loading overlay with progress before model load and hides after load", async () => {
     const wrapper = mount(ThreeModelViewer, {
       props: {
-        modelPath: "/models/optimeret_version_-_standard_vessel_with_LARS.glb",
+        modelPath: "/models/test.gltf",
       },
       attachTo: document.body,
     });
