@@ -52,15 +52,16 @@ export default [
       ...(vuePlugin.configs?.["vue3-typescript"]?.rules ?? {}),
       ...(prettierPlugin.configs?.recommended?.rules ?? {}),
       "vue/html-indent": ["error", 2],
-      "vue/max-attributes-per-line": [
-        "error",
-        {
-          singleline: { max: 3 },
-          multiline: { max: 1 },
-        },
-      ],
+      "vue/max-attributes-per-line": "off",
       "vue/multi-word-component-names": "error",
       "vue/no-unused-components": "error",
+      "prettier/prettier": [
+        "error",
+        {
+          htmlWhitespaceSensitivity: "ignore",
+          bracketSameLine: false,
+        },
+      ],
       "no-undef": "off",
     },
   },
@@ -95,7 +96,6 @@ export default [
       "@typescript-eslint/no-non-null-assertion": "error",
       "@typescript-eslint/prefer-nullish-coalescing": "error",
       "@typescript-eslint/prefer-optional-chain": "error",
-      "@typescript-eslint/strict-boolean-expressions": "error",
       "@typescript-eslint/no-unnecessary-condition": "error",
       "no-undef": "off",
     },

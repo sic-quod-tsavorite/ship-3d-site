@@ -17,6 +17,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "noImplicitAny": true,
 
     /* Additional Options */
     "types": ["vite/client", "node"],
