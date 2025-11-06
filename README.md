@@ -27,7 +27,6 @@ Use Visual Studio Code with recommended plugins from ".vscode" directory. Or an 
 Make sure to install dependencies:
 
 ```bash
-# npm
 npm install
 ```
 
@@ -36,7 +35,6 @@ npm install
 Start the development server on `http://localhost:5173`:
 
 ```bash
-# npm
 npm run dev
 ```
 
@@ -45,7 +43,6 @@ npm run dev
 Run vitest on the application:
 
 ```bash
-# npm
 npm run test
 ```
 
@@ -54,20 +51,17 @@ npm run test
 Run lint on the application and check for errors/warnings:
 
 ```bash
-# npm
 npm run lint
 ```
 
 Build the application for production:
 
 ```bash
-# npm
 npm run build
 ```
 
 Locally preview production build:
 
 ```bash
-# npm
 npm run preview
 ```
