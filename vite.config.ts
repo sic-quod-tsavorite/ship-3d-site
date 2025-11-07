@@ -8,16 +8,35 @@ export default defineConfig({
   base: "./",
   plugins: [vue(), tailwindcss(), vueDevTools()],
   build: {
-    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks(id: string) {
+        manualChunks(id: string): string | undefined {
           if (id.includes("node_modules")) {
-            if (id.includes("three")) {
-              return "three";
+            /**
+             * Split three into separate js files
+             */
+            if (id.includes("three/build/three.module.js")) {
+              return "libraries/three/three-core";
             }
+            if (id.includes("three/examples/jsm/controls/")) {
+              return "libraries/three/three-controls";
+            }
+            if (id.includes("three/examples/jsm/loaders/")) {
+              return "libraries/three/three-loaders";
+            }
+            if (id.includes("three/examples/jsm/libs/")) {
+              return "libraries/three/three-libs";
+            }
+            if (id.includes("three")) {
+              // Catch any other three.js related modules
+              return "libraries/three/three-other";
+            }
+
+            /**
+             * Split vue into separate js file
+             */
             if (id.includes("vue")) {
-              return "vue";
+              return "libraries/vue/vue";
             }
           }
         },
