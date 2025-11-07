@@ -3,6 +3,7 @@ import type { Component } from "vue";
 import HomeView from "../views/HomeView.vue";
 import AdminView from "../views/admin/AdminView.vue";
 import LoginView from "../views/admin/LoginView.vue";
+import NotFound from "../views/NotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,11 @@ const router = createRouter({
       name: "admin",
       component: AdminView as Component,
       meta: { requiresAuth: true },
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: NotFound as Component,
     },
   ],
 });
