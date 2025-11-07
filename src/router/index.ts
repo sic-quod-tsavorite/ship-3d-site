@@ -21,8 +21,20 @@ const router = createRouter({
       path: "/admin",
       name: "admin",
       component: AdminView as Component,
+      meta: { requiresAuth: true },
     },
   ],
+});
+
+router.beforeEach((to, _from, next) => {
+  const isAuthenticated = localStorage.getItem("lsToken");
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !isAuthenticated) {
+    next("/login");
+  } else {
+    next();
+  }
 });
 
 export default router;
