@@ -1,7 +1,7 @@
 {
   "name": "ship-3d-site",
   "private": true,
-  "version": "0.3.2",
+  "version": "1.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
+    "pinia": "^3.0.4",
     "tailwindcss": "^4.1.16",
     "three": "^0.180.0",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@pinia/testing": "^1.0.3",
     "@types/node": "^24.6.0",
     "@types/three": "^0.180.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
