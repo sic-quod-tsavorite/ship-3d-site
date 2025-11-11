@@ -1,11 +1,9 @@
-import type { User } from "./userInterfaces";
-
 export type AuthResponse = {
-  data: { token: string; user: User; userId: string };
+  data: { userId: string };
 };
 
 export type RegisterResponse = {
-  data: { token: string; user: User };
+  data: { _id: string };
 };
 
 export type ErrorResponse = {

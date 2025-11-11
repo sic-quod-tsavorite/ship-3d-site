@@ -1,19 +1,15 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
-import type { User } from "../../interfaces/userInterfaces";
 import type {
   AuthResponse,
   ErrorResponse,
   RegisterResponse,
-} from "../../interfaces/authInterfaces";
-import { state } from "../global/state";
-import router from "../../router";
+} from "@/interfaces/authInterfaces";
+import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
 
 export const useUsers = (): {
-  token: ReturnType<typeof ref<string | null>>;
-  isLoggedIn: { readonly value: boolean };
   error: ReturnType<typeof ref<string | null>>;
-  user: ReturnType<typeof ref<User | null>>;
   name: ReturnType<typeof ref<string>>;
   email: ReturnType<typeof ref<string>>;
   password: ReturnType<typeof ref<string>>;
@@ -23,15 +19,13 @@ export const useUsers = (): {
     email: string,
     password: string
   ) => Promise<void>;
-  logout: () => Promise<void>;
 } => {
   const API_URL = import.meta.env.VITE_API_URL as string;
-  const token = ref<string | null>(null);
   const error = ref<string | null>(null);
-  const user = ref<User | null>(null);
   const name = ref<string>("");
   const email = ref<string>("");
   const password = ref<string>("");
+  const auth = useAuthStore();
 
   //login
   const fetchToken = async (email: string, password: string): Promise<void> => {
@@ -40,9 +34,9 @@ export const useUsers = (): {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("lsToken") ?? "",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       const responseData = (await response.json()) as
@@ -56,18 +50,14 @@ export const useUsers = (): {
       }
 
       const authResponse = responseData as AuthResponse;
-      token.value = authResponse.data.token;
-      user.value = authResponse.data.user;
-      state.isLoggedIn = true;
 
-      localStorage.setItem("lsToken", authResponse.data.token);
-      localStorage.setItem("userIDToken", authResponse.data.userId);
+      await auth.initAuth();
+
       console.log("user is logged in: ", authResponse);
-      console.log("token: ", token.value);
       await router.push("/");
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
-      state.isLoggedIn = false;
+      await auth.logout();
     }
   };
 
@@ -84,6 +74,7 @@ export const useUsers = (): {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
+        credentials: "include",
       });
 
       const responseData = (await response.json()) as RegisterResponse;
@@ -92,35 +83,20 @@ export const useUsers = (): {
         throw new Error("No data available");
       }
 
-      token.value = responseData.data.token;
-      user.value = responseData.data.user;
+      await auth.initAuth();
 
-      localStorage.setItem("lsToken", responseData.data.token);
       console.log("user is registered: ", responseData);
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
     }
   };
 
-  const logout = async (): Promise<void> => {
-    token.value = null;
-    user.value = null;
-    state.isLoggedIn = false;
-    localStorage.removeItem("lsToken");
-    console.warn("user is logged out");
-    await router.push("/login");
-  };
-
   return {
-    token,
-    isLoggedIn: computed(() => state.isLoggedIn),
     error,
-    user,
     name,
     email,
     password,
     fetchToken,
     registerUser,
-    logout,
   };
 };

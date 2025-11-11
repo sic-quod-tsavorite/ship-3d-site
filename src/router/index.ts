@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { Component } from "vue";
-import HomeView from "../views/HomeView.vue";
-import AdminView from "../views/admin/AdminView.vue";
-import LoginView from "../views/admin/LoginView.vue";
-import NotFound from "../views/NotFound.vue";
+import HomeView from "@/views/HomeView.vue";
+import AdminView from "@/views/admin/AdminView.vue";
+import LoginView from "@/views/admin/LoginView.vue";
+import NotFound from "@/views/NotFound.vue";
+import { useAuthStore } from "@/stores/auth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,10 +34,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  const isAuthenticated = localStorage.getItem("lsToken");
+  const auth = useAuthStore();
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-  if (requiresAuth && !isAuthenticated) {
+  if (requiresAuth && !auth.isLoggedIn) {
     next("/login");
   } else {
     next();
