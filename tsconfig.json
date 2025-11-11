@@ -21,6 +21,10 @@
 
     /* Additional Options */
     "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "allowJs": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
