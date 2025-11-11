@@ -1,42 +1,63 @@
 import { test, expect, beforeEach, vi } from "vitest";
-import type { Mock } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
-import AdminView from "../views/admin/AdminView.vue";
+import AdminView from "@/views/admin/AdminView.vue";
+import { createTestingPinia } from "@pinia/testing";
 
-// Mock vue-router's useRouter hook
+// Mock vue-router's useRouter hook, but keep other exports
 const mockRouterPush = vi.fn();
-vi.mock("vue-router", (): { useRouter: () => { push: Mock } } => ({
-  useRouter: () => ({
-    push: mockRouterPush,
-  }),
-}));
+vi.mock(
+  "vue-router",
+  async (importOriginal): Promise<Record<string, unknown>> => {
+    const actual: object = await importOriginal();
+    return {
+      ...actual,
+      useRouter: () => ({
+        push: mockRouterPush,
+      }),
+    } as Record<string, unknown>;
+  }
+);
 
 let wrapper: VueWrapper<InstanceType<typeof AdminView>>;
 
-beforeEach(() => {
-  // Clear all mocks on localStorage before each test
+beforeEach((): void => {
   vi.clearAllMocks();
-  // Ensure isLoggedIn is false by default.
-  vi.spyOn(localStorage, "getItem").mockImplementation((key: string) => {
-    if (key === "isLoggedIn") return "false";
-    return null;
+  wrapper = mount(AdminView, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: {
+            auth: { isLoggedIn: false },
+          },
+          stubActions: false,
+        }),
+      ],
+    },
   });
-  wrapper = mount(AdminView);
 });
 
-test("AdminView renders Loading", () => {
+test("AdminView renders Loading", (): void => {
   expect(wrapper.find("div").text()).toContain("Loading...");
 });
 
-test("AdminView should not render a <p> since not logged in", () => {
+test("AdminView should not render a <p> since not logged in", (): void => {
   expect(wrapper.find("p").exists()).toBe(false);
 });
 
-test("Expect malicious logged in status to fail", () => {
-  // Override the mock for this specific test to simulate being logged in
-  vi.spyOn(localStorage, "getItem").mockReturnValueOnce("true");
-  // Remount the component after changing the mock
-  wrapper = mount(AdminView);
+test("Expect malicious logged in status to fail", (): void => {
+  // Simulate being logged in by setting Pinia store initial state
+  wrapper = mount(AdminView, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: {
+            auth: { isLoggedIn: true },
+          },
+          stubActions: false,
+        }),
+      ],
+    },
+  });
   expect(wrapper.find("p").exists()).toBe(false);
   expect(wrapper.find("div").text()).toContain("Loading...");
 });
