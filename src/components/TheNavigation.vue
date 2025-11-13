@@ -4,6 +4,7 @@
       <RouterLink to="/" class="font-bold text-xl">MySite</RouterLink>
       <div class="space-x-4">
         <RouterLink to="/" class="mr-4">Home</RouterLink>
+        <RouterLink to="/map" class="mr-4">Map</RouterLink>
         <RouterLink v-if="!auth.isLoggedIn" to="/login" class="mr-4">
           Login
         </RouterLink>
