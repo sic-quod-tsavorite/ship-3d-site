@@ -21,6 +21,8 @@ export function useThree(
   let camera: THREE.PerspectiveCamera | undefined;
   let controls: OrbitControls | undefined;
   let animationFrameId: number | undefined;
+  let prevTime = 0;
+  const keyState = new Set<string>();
 
   const init = (): void => {
     if (!container.value) return;
@@ -55,6 +57,10 @@ export function useThree(
     controls.minDistance = 2;
     controls.maxDistance = 80;
     controls.rotateSpeed = 0.3;
+
+    // Keyboard control parameters (alternate control scheme)
+    const KEY_ROTATE_SPEED = 1.5; // radians per second
+    const KEY_ZOOM_SPEED = 1.6; // arbitrary zoom speed scalar
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -96,7 +102,9 @@ export function useThree(
         scene.add(model);
 
         isLoading.value = false;
-        animate();
+        // initialize time for smooth keyboard motion
+        prevTime = performance.now();
+        animate(prevTime);
       },
       // Progress Callback (for loading)
       (xhr) => {
@@ -125,8 +133,63 @@ export function useThree(
     );
 
     // Animation Loop
-    const animate = (): void => {
+    const animate = (time = performance.now()): void => {
       if (!scene || !camera || !controls || !renderer.value) return;
+
+      const delta = Math.max(0, (time - prevTime) / 1000);
+      prevTime = time;
+
+      // Handle keyboard-driven alternate controls (WASD / arrows to orbit, Q/E to zoom)
+      if (keyState.size > 0) {
+        const rotateStep = KEY_ROTATE_SPEED * delta; // radians
+        const zoomFactor = Math.pow(0.9, KEY_ZOOM_SPEED * delta);
+
+        // Use spherical math to update camera position around controls.target
+        const target = controls.target.clone();
+        const offset = camera.position.clone().sub(target);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+
+        // Horizontal orbit: A/D or Left/Right -> adjust theta
+        if (keyState.has("a") || keyState.has("arrowleft")) {
+          spherical.theta += rotateStep;
+        }
+        if (keyState.has("d") || keyState.has("arrowright")) {
+          spherical.theta -= rotateStep;
+        }
+
+        // Vertical orbit: W/S or Up/Down -> adjust phi
+        if (keyState.has("w") || keyState.has("arrowup")) {
+          spherical.phi -= rotateStep;
+        }
+        if (keyState.has("s") || keyState.has("arrowdown")) {
+          spherical.phi += rotateStep;
+        }
+
+        // Zoom in/out with Q / E -> scale radius
+        if (keyState.has("e")) {
+          spherical.radius *= zoomFactor;
+        }
+        if (keyState.has("q")) {
+          spherical.radius /= zoomFactor;
+        }
+
+        // Clamp phi to avoid singularities at poles
+        const EPS = 0.000001;
+        spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
+
+        // Clamp radius using controls' min/max distance
+        spherical.radius = Math.max(
+          controls.minDistance,
+          Math.min(controls.maxDistance, spherical.radius)
+        );
+
+        // Apply new camera position and update controls
+        const newPos = new THREE.Vector3()
+          .setFromSpherical(spherical)
+          .add(target);
+        camera.position.copy(newPos);
+        controls.update();
+      }
 
       animationFrameId = requestAnimationFrame(animate);
       controls.update();
@@ -147,6 +210,36 @@ export function useThree(
     };
     window.addEventListener("resize", onWindowResize);
 
+    // Keyboard handlers for alternate control scheme
+    const onKeyDown = (e: KeyboardEvent): void => {
+      const k = e.key.toLowerCase();
+      // keep only the keys we care about
+      if (
+        [
+          "w",
+          "a",
+          "s",
+          "d",
+          "q",
+          "e",
+          "arrowup",
+          "arrowdown",
+          "arrowleft",
+          "arrowright",
+        ].includes(k)
+      ) {
+        keyState.add(k);
+        e.preventDefault();
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent): void => {
+      keyState.delete(e.key.toLowerCase());
+    };
+
+    window.addEventListener("keydown", onKeyDown, { passive: false });
+    window.addEventListener("keyup", onKeyUp);
+
     // Cleanup on unmount
     onUnmounted(() => {
       if (
@@ -156,6 +249,10 @@ export function useThree(
         cancelAnimationFrame(animationFrameId);
       }
       window.removeEventListener("resize", onWindowResize);
+
+      // remove keyboard handlers
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
 
       renderer.value?.dispose();
       controls?.dispose();
