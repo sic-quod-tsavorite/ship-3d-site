@@ -19,8 +19,8 @@
   >
     <div class="popup-content">
       <p class="text-center mb-4">
-        Venstre klik for at roterer kameraet. Højre klik eller piletaster for at
-        panorerer kameraet. Scroll for at zoom.
+        Venstre klik eller piletaster for at roterer kameraet. Scroll for at
+        zoom.
       </p>
       <ThreeModelViewer
         :model-path="dynamic_path"
