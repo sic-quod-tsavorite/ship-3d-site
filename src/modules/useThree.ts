@@ -51,6 +51,7 @@ export function useThree(
 
     // Controls
     controls = new OrbitControls(camera, renderer.value.domElement);
+    controls.enablePan = false;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
@@ -60,7 +61,7 @@ export function useThree(
 
     // Keyboard control parameters (alternate control scheme)
     const KEY_ROTATE_SPEED = 1.5; // radians per second
-    const KEY_ZOOM_SPEED = 1.6; // arbitrary zoom speed scalar
+    const KEY_ZOOM_SPEED = 2.5; // arbitrary zoom speed scalar
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
