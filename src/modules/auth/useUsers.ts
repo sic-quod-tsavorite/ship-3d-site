@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import type { Ref } from "vue";
 
 import type {
   AuthResponse,
@@ -9,10 +10,11 @@ import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 
 export const useUsers = (): {
-  error: ReturnType<typeof ref<string | null>>;
-  name: ReturnType<typeof ref<string>>;
-  email: ReturnType<typeof ref<string>>;
-  password: ReturnType<typeof ref<string>>;
+  error: Ref<string | null>;
+  loading: Ref<boolean>;
+  name: Ref<string>;
+  email: Ref<string>;
+  password: Ref<string>;
   fetchToken: (email: string, password: string) => Promise<void>;
   registerUser: (
     name: string,
@@ -22,6 +24,7 @@ export const useUsers = (): {
 } => {
   const API_URL = import.meta.env.VITE_API_URL as string;
   const error = ref<string | null>(null);
+  const loading = ref<boolean>(false);
   const name = ref<string>("");
   const email = ref<string>("");
   const password = ref<string>("");
@@ -29,6 +32,9 @@ export const useUsers = (): {
 
   //login
   const fetchToken = async (email: string, password: string): Promise<void> => {
+    loading.value = true;
+    error.value = null;
+
     try {
       const response = await fetch(API_URL + "/user/login", {
         method: "POST",
@@ -44,9 +50,16 @@ export const useUsers = (): {
         | ErrorResponse;
 
       if (!response.ok) {
-        const errorResponse = responseData as ErrorResponse;
-        console.log(errorResponse.error ?? "Error");
-        throw new Error("No data available");
+        // Handle different HTTP status codes with error messages
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Wrong email or password");
+        } else if (response.status === 429) {
+          throw new Error("Too many login attempts, please try again later");
+        } else if (response.status >= 500) {
+          throw new Error("Server error, please try again later");
+        } else {
+          throw new Error("Wrong email or password");
+        }
       }
 
       const authResponse = responseData as AuthResponse;
@@ -56,8 +69,15 @@ export const useUsers = (): {
       console.log("user is logged in: ", authResponse);
       await router.push("/");
     } catch (err) {
-      error.value = err instanceof Error ? err.message : "An error occurred";
+      if (err instanceof TypeError) {
+        // Network error (fetch failed)
+        error.value = "Connection error, please try again";
+      } else {
+        error.value = err instanceof Error ? err.message : "An error occurred";
+      }
       await auth.logout();
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -93,6 +113,7 @@ export const useUsers = (): {
 
   return {
     error,
+    loading,
     name,
     email,
     password,
