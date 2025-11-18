@@ -1,7 +1,7 @@
 {
   "name": "ship-3d-site",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,33 +11,33 @@
     "test": "vitest --ui"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.16",
+    "@tailwindcss/vite": "^4.1.17",
     "pinia": "^3.0.4",
-    "tailwindcss": "^4.1.16",
-    "three": "^0.180.0",
-    "vue": "^3.5.22",
+    "tailwindcss": "^4.1.17",
+    "three": "^0.181.1",
+    "vue": "^3.5.24",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@pinia/testing": "^1.0.3",
-    "@types/node": "^24.6.0",
-    "@types/three": "^0.180.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
+    "@types/node": "^24.10.1",
+    "@types/three": "^0.181.0",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vitest/ui": "^4.0.5",
+    "@vitest/ui": "^4.0.10",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
-    "eslint": "^9.39.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.5.1",
-    "jsdom": "^27.1.0",
+    "jsdom": "^27.2.0",
     "prettier": "^3.6.2",
-    "sass-embedded": "^1.93.2",
+    "sass-embedded": "^1.93.3",
     "typescript": "~5.9.3",
-    "vite": "^7.1.7",
-    "vite-plugin-vue-devtools": "^8.0.3",
-    "vitest": "^4.0.5",
-    "vue-tsc": "^3.1.0"
+    "vite": "^7.2.2",
+    "vite-plugin-vue-devtools": "^8.0.5",
+    "vitest": "^4.0.10",
+    "vue-tsc": "^3.1.4"
   }
 }
