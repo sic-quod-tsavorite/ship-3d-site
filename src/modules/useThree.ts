@@ -109,10 +109,12 @@ export function useThree(
     fxaaPass = new ShaderPass(FXAAShader);
     fxaaPass.enabled = false;
     const pixelRatioPP = renderer.value.getPixelRatio();
-    fxaaPass.material.uniforms["resolution"].value.x =
-      1 / (container.value.clientWidth * pixelRatioPP);
-    fxaaPass.material.uniforms["resolution"].value.y =
-      1 / (container.value.clientHeight * pixelRatioPP);
+    const fxaaResolution = fxaaPass.material.uniforms["resolution"].value as {
+      x: number;
+      y: number;
+    };
+    fxaaResolution.x = 1 / (container.value.clientWidth * pixelRatioPP);
+    fxaaResolution.y = 1 / (container.value.clientHeight * pixelRatioPP);
     composer.addPass(fxaaPass);
 
     // Keyboard control parameters (alternate control scheme)
@@ -193,10 +195,7 @@ export function useThree(
                 material.roughness = 0.7;
 
                 // Add subtle emissive glow to dark materials to lift shadows
-                if (
-                  material.color &&
-                  material.color.getHSL({ h: 0, s: 0, l: 0 }).l < 0.3
-                ) {
+                if (material.color.getHSL({ h: 0, s: 0, l: 0 }).l < 0.3) {
                   const emissiveColor = material.color
                     .clone()
                     .multiplyScalar(0.15);
@@ -213,8 +212,7 @@ export function useThree(
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         model.position.sub(center);
-        if (!scene) return;
-        scene.add(model);
+        if (scene) scene.add(model);
 
         // Create GUI controls only in development mode
         if (import.meta.env.DEV) {
@@ -224,7 +222,7 @@ export function useThree(
             if (style.position === "static") {
               container.value.style.position = "relative";
             }
-            const el = gui.domElement as HTMLElement;
+            const el = gui.domElement;
             el.style.position = "absolute";
             el.style.top = "8px";
             el.style.right = "8px";
@@ -240,7 +238,7 @@ export function useThree(
           const sceneParams = { backgroundColor: 0xebebeb };
           sceneFolder
             .addColor(sceneParams, "backgroundColor")
-            .onChange((value: number) => {
+            .onChange((value: number): void => {
               if (scene) scene.background = new THREE.Color(value);
             });
           sceneFolder.open();
@@ -353,7 +351,7 @@ export function useThree(
             rendererFolder
               .add(rendererParams, "shadowMapEnabled")
               .name("Shadows Enabled")
-              .onChange((value: boolean) => {
+              .onChange((value: boolean): void => {
                 if (renderer.value) renderer.value.shadowMap.enabled = value;
               });
           }
@@ -368,7 +366,7 @@ export function useThree(
             bloomRadius: 0.4,
             bloomThreshold: 0.75,
           };
-          const applyAAMethod = () => {
+          const applyAAMethod = (): void => {
             if (smaaPass) smaaPass.enabled = postParams.aaMethod === "SMAA";
             if (fxaaPass) fxaaPass.enabled = postParams.aaMethod === "FXAA";
           };
@@ -376,7 +374,7 @@ export function useThree(
             .add(postParams, "aaMethod", ["None", "FXAA", "SMAA"])
             .name("AA Method")
             .onChange(applyAAMethod);
-          const updateBloom = () => {
+          const updateBloom = (): void => {
             if (bloomPass) {
               bloomPass.enabled = postParams.bloomEnabled;
               bloomPass.strength = postParams.bloomStrength;
@@ -410,7 +408,7 @@ export function useThree(
             emissiveMultiplier: 0.15,
             emissiveIntensity: 1.0,
           };
-          const updateMaterials = () => {
+          const updateMaterials = (): void => {
             model.traverse((child) => {
               if (child instanceof THREE.Mesh) {
                 const materials = Array.isArray(child.material)
@@ -420,10 +418,7 @@ export function useThree(
                   if (material instanceof THREE.MeshStandardMaterial) {
                     material.metalness = materialParams.metalness;
                     material.roughness = materialParams.roughness;
-                    if (
-                      material.color &&
-                      material.color.getHSL({ h: 0, s: 0, l: 0 }).l < 0.3
-                    ) {
+                    if (material.color.getHSL({ h: 0, s: 0, l: 0 }).l < 0.3) {
                       const emissiveColor = material.color
                         .clone()
                         .multiplyScalar(materialParams.emissiveMultiplier);
@@ -577,16 +572,11 @@ export function useThree(
           bloomPass.resolution.set(width, height);
         }
 
-        if (
-          fxaaPass &&
-          fxaaPass.material &&
-          fxaaPass.material.uniforms &&
-          fxaaPass.material.uniforms["resolution"]
-        ) {
-          fxaaPass.material.uniforms["resolution"].value.x =
-            1 / (width * pixelRatio);
-          fxaaPass.material.uniforms["resolution"].value.y =
-            1 / (height * pixelRatio);
+        if (fxaaPass?.material.uniforms["resolution"]) {
+          const fxaaResolution = fxaaPass.material.uniforms["resolution"]
+            .value as { x: number; y: number };
+          fxaaResolution.x = 1 / (width * pixelRatio);
+          fxaaResolution.y = 1 / (height * pixelRatio);
         }
         // SMAA adjusts internally; no manual update needed.
       }

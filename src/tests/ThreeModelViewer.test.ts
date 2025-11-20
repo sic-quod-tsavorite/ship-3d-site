@@ -31,14 +31,17 @@ vi.mock("three", () => {
     x = 0;
     y = 0;
     z = 0;
-    constructor(x = 0, y = 0, z = 0) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
+    constructor(_x = 0, _y = 0, _z = 0) {
+      this.x = _x;
+      this.y = _y;
+      this.z = _z;
     }
     set(_x: number, _y: number, _z: number): Vector3 {
       return this;
     }
+  }
+  class Vector2 {
+    constructor(_x = 0, _y = 0) {}
   }
   class Box3 {
     setFromObject(_obj: unknown): { getCenter: (_v: unknown) => Vector3 } {
@@ -50,29 +53,86 @@ vi.mock("three", () => {
   class Mesh {
     isMesh = true;
     material: unknown;
+    castShadow = false;
+    receiveShadow = false;
     constructor(material: unknown) {
       this.material = material;
     }
   }
+  class MeshStandardMaterial {
+    side = 0;
+    metalness = 0;
+    roughness = 1;
+    color = {
+      clone: (): { multiplyScalar: () => Record<string, never> } => ({
+        multiplyScalar: (): Record<string, never> => ({}),
+      }),
+      getHSL: (): { h: number; s: number; l: number } => ({
+        h: 0,
+        s: 0,
+        l: 0.5,
+      }),
+    };
+    emissive = {};
+    emissiveIntensity = 0;
+    needsUpdate = false;
+  }
   class AmbientLight {
     constructor(_color: unknown, _intensity?: number) {}
   }
+  class HemisphereLight {
+    constructor(
+      _skyColor: unknown,
+      _groundColor: unknown,
+      _intensity?: number
+    ) {}
+  }
   class DirectionalLight {
-    position: { set: (x: number, y: number, z: number) => void } = {
-      set: () => {},
+    position = { set: (_x: number, _y: number, _z: number): void => {} };
+    castShadow = false;
+    shadow = {
+      mapSize: { width: 1024, height: 1024 },
+      camera: {
+        near: 0.5,
+        far: 50,
+        left: -10,
+        right: 10,
+        top: 10,
+        bottom: -10,
+      },
+      bias: 0,
+      normalBias: 0,
     };
     constructor(_color: unknown, _intensity?: number) {}
   }
   const DoubleSide = 2;
+  const PCFSoftShadowMap = 1;
+  const ACESFilmicToneMapping = 4;
+  const SRGBColorSpace = "srgb";
   class WebGLRenderer {
     domElement: HTMLElement;
+    shadowMap = { enabled: false, type: 0 };
+    toneMapping = 0;
+    toneMappingExposure = 1;
+    outputColorSpace = "";
     constructor(_opts?: unknown) {
       this.domElement = document.createElement("canvas");
     }
     setSize(_w: number, _h: number): void {}
     setPixelRatio(_r: number): void {}
+    getPixelRatio(): number {
+      return 1;
+    }
     render(_scene: unknown, _camera: unknown): void {}
     dispose(): void {}
+  }
+  class Spherical {
+    radius = 1;
+    phi = 0;
+    theta = 0;
+    setFromVector3(_v: unknown): Spherical {
+      return this;
+    }
   }
 
   return {
@@ -80,27 +140,119 @@ vi.mock("three", () => {
     Color,
     PerspectiveCamera,
     Vector3,
+    Vector2,
     Box3,
     Mesh,
+    MeshStandardMaterial,
     AmbientLight,
+    HemisphereLight,
     DirectionalLight,
     WebGLRenderer,
+    Spherical,
     DoubleSide,
+    PCFSoftShadowMap,
+    ACESFilmicToneMapping,
+    SRGBColorSpace,
   };
 });
 
 vi.mock("three/examples/jsm/controls/OrbitControls.js", () => {
   return {
     OrbitControls: class {
-      constructor(_camera: unknown, _dom: unknown) {}
+      target = {
+        clone: (): { x: number; y: number; z: number } => ({
+          x: 0,
+          y: 0,
+          z: 0,
+        }),
+      };
+      enablePan = false;
       enableDamping = false;
       dampingFactor = 0;
       screenSpacePanning = false;
-      minDistance = 0;
-      maxDistance = 0;
+      minDistance = 2;
+      maxDistance = 80;
       rotateSpeed = 0;
+      constructor(_camera: unknown, _dom: unknown) {}
       update(): void {}
       dispose(): void {}
+    },
+  };
+});
+
+vi.mock("three/examples/jsm/postprocessing/EffectComposer.js", () => ({
+  EffectComposer: class {
+    constructor(_renderer: unknown) {}
+    addPass(_pass: unknown): void {}
+    setSize(_w: number, _h: number): void {}
+    render(): void {}
+  },
+}));
+
+vi.mock("three/examples/jsm/postprocessing/RenderPass.js", () => ({
+  RenderPass: class {
+    constructor(_scene: unknown, _camera: unknown) {}
+  },
+}));
+
+vi.mock("three/examples/jsm/postprocessing/SMAAPass.js", () => ({
+  SMAAPass: class {
+    enabled = true;
+  },
+}));
+
+vi.mock("three/examples/jsm/postprocessing/UnrealBloomPass.js", () => ({
+  UnrealBloomPass: class {
+    enabled = true;
+    strength = 0;
+    radius = 0;
+    threshold = 0;
+    resolution = { set: (_w: number, _h: number): void => {} };
+    constructor(
+      _resolution: unknown,
+      _strength: number,
+      _radius: number,
+      _threshold: number
+    ) {}
+  },
+}));
+
+vi.mock("three/examples/jsm/postprocessing/ShaderPass.js", () => ({
+  ShaderPass: class {
+    enabled = false;
+    material = {
+      uniforms: {
+        resolution: { value: { x: 0, y: 0 } },
+      },
+    };
+    constructor(_shader: unknown) {}
+  },
+}));
+
+vi.mock("three/examples/jsm/shaders/FXAAShader.js", () => ({
+  FXAAShader: {},
+}));
+
+vi.mock("dat.gui", () => {
+  const createController = (): unknown => ({
+    name: (): unknown => createController(),
+    onChange: (): unknown => createController(),
+  });
+
+  const createFolder = (): unknown => ({
+    add: (): unknown => createController(),
+    addColor: (): unknown => createController(),
+    addFolder: (_name: string): unknown => createFolder(),
+    open: (): void => {},
+  });
+  return {
+    GUI: class {
+      domElement = document.createElement("div");
+      constructor(_opts?: unknown) {}
+      addFolder(_name: string): unknown {
+        return createFolder();
+      }
+      destroy(): void {}
     },
   };
 });
@@ -138,8 +290,30 @@ vi.mock("three/examples/jsm/loaders/GLTFLoader.js", () => {
             console.error(e);
           }
         }
-        const meshMaterial = [{ side: 0 }];
-        const mesh = { isMesh: true, material: meshMaterial };
+        const material = {
+          side: 0,
+          metalness: 0.3,
+          roughness: 0.7,
+          color: {
+            clone: (): { multiplyScalar: () => Record<string, never> } => ({
+              multiplyScalar: (): Record<string, never> => ({}),
+            }),
+            getHSL: (): { h: number; s: number; l: number } => ({
+              h: 0,
+              s: 0,
+              l: 0.5,
+            }),
+          },
+          emissive: {},
+          emissiveIntensity: 0,
+          needsUpdate: false,
+        };
+        const mesh = {
+          isMesh: true,
+          material: [material],
+          castShadow: false,
+          receiveShadow: false,
+        };
         const model = {
           traverse(cb: (obj: unknown) => void): void {
             cb(mesh);
@@ -191,6 +365,7 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     expect(overlay.exists()).toBe(true);
     expect(overlay.text()).toContain("Loading... 50%");
 
+    await nextTick();
     await nextTick();
     await nextTick();
 
