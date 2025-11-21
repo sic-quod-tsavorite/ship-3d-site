@@ -89,6 +89,12 @@ export function useThree(
   let resetStartPosition = new THREE.Vector3();
   let resetStartTarget = new THREE.Vector3();
 
+  // Recovery and crash handling
+  let recoveryAttempts = 0;
+  const MAX_RECOVERY_ATTEMPTS = 2;
+  let loadTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  let gltfAbortController: AbortController | undefined;
+
   // Helper function to calculate average FPS from frame times
   const calculateAverageFPS = (): number => {
     if (frameTimes.length === 0) return 60; // Default to 60 FPS if no data yet
@@ -183,6 +189,79 @@ export function useThree(
     | undefined;
   let fpsDisplay: { fps: string } | undefined;
 
+  // Helper to clean up and dispose resources
+  const cleanupRenderer = (): void => {
+    if (animationFrameId !== undefined) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = undefined;
+    }
+
+    if (loadTimeoutHandle !== undefined) {
+      clearTimeout(loadTimeoutHandle);
+      loadTimeoutHandle = undefined;
+    }
+
+    if (gltfAbortController) {
+      gltfAbortController.abort();
+      gltfAbortController = undefined;
+    }
+
+    if (composer && typeof composer.dispose === "function") {
+      composer.dispose();
+    }
+    renderer.value?.dispose();
+    controls?.dispose();
+
+    gui?.destroy();
+
+    composer = undefined;
+    renderPass = undefined;
+    bloomPass = undefined;
+    smaaPass = undefined;
+    fxaaPass = undefined;
+    renderer.value = undefined;
+    scene = undefined;
+    camera = undefined;
+    controls = undefined;
+    gui = undefined;
+  };
+
+  // Helper to schedule recovery after crash
+  const scheduleRecovery = (): void => {
+    if (recoveryAttempts >= MAX_RECOVERY_ATTEMPTS) {
+      console.error(
+        "Max recovery attempts reached. 3D viewer unavailable on this device."
+      );
+      isLoading.value = false;
+      return;
+    }
+
+    recoveryAttempts++;
+    console.warn(
+      `Recovery attempt ${recoveryAttempts}/${MAX_RECOVERY_ATTEMPTS}`
+    );
+
+    // Clean up existing state
+    cleanupRenderer();
+
+    // Force degraded mode for recovery
+    performanceStore.setDegradedMode(true);
+    if (currentQuality) {
+      currentQuality.value = "low";
+    }
+    performanceStore.setQualityPreset("low");
+
+    // Clear container
+    if (container.value) {
+      container.value.innerHTML = "";
+    }
+
+    // Retry init after brief delay
+    setTimeout(() => {
+      init();
+    }, 500);
+  };
+
   const init = (): void => {
     if (!container.value) return;
 
@@ -200,16 +279,25 @@ export function useThree(
     camera.position.copy(initialCameraPosition);
 
     // Renderer
-    renderer.value = new THREE.WebGLRenderer({ antialias: true });
+    const useDefaultRenderer =
+      !performanceStore.isDegradedMode && recoveryAttempts === 0;
+    renderer.value = new THREE.WebGLRenderer({
+      antialias: useDefaultRenderer,
+      powerPreference: recoveryAttempts > 0 ? "low-power" : "default",
+    });
     renderer.value.setSize(
       container.value.clientWidth,
       container.value.clientHeight
     );
     renderer.value.setPixelRatio(window.devicePixelRatio);
 
-    // Enable shadows
-    renderer.value.shadowMap.enabled = true;
-    renderer.value.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Enable shadows only in non-degraded mode
+    const shouldUseShadows =
+      !performanceStore.isDegradedMode && recoveryAttempts === 0;
+    renderer.value.shadowMap.enabled = shouldUseShadows;
+    if (shouldUseShadows) {
+      renderer.value.shadowMap.type = THREE.PCFSoftShadowMap;
+    }
 
     // Configure tone mapping and color space
     renderer.value.toneMapping = THREE.ACESFilmicToneMapping;
@@ -217,6 +305,28 @@ export function useThree(
     renderer.value.outputColorSpace = THREE.SRGBColorSpace;
 
     container.value.appendChild(renderer.value.domElement);
+
+    // Add WebGL context loss and restore handlers for crash recovery
+    const onContextLost = (event: Event): void => {
+      event.preventDefault();
+      console.warn("WebGL context lost - attempting recovery...");
+      scheduleRecovery();
+    };
+
+    const onContextRestored = (): void => {
+      console.log("WebGL context restored");
+    };
+
+    renderer.value.domElement.addEventListener(
+      "webglcontextlost",
+      onContextLost,
+      false
+    );
+    renderer.value.domElement.addEventListener(
+      "webglcontextrestored",
+      onContextRestored,
+      false
+    );
 
     // Controls
     controls = new OrbitControls(camera, renderer.value.domElement);
@@ -233,35 +343,80 @@ export function useThree(
     renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
 
-    // Bloom pass
-    bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(
-        container.value.clientWidth,
-        container.value.clientHeight
-      ),
-      0.05,
-      0.4,
-      0.75
-    );
-    bloomPass.enabled = true;
-    composer.addPass(bloomPass);
+    // Check if in degraded mode - skip shader initialization to prevent repeated failures
+    if (performanceStore.isDegradedMode) {
+      console.warn(
+        "Graphics degraded mode active - shaders disabled for compatibility"
+      );
+      // Force low quality when in degraded mode
+      if (currentQuality) {
+        currentQuality.value = "low";
+      }
+      performanceStore.setQualityPreset("low");
+    } else {
+      // Try to initialize post-processing shaders with fallback to degraded mode
 
-    // SMAA pass (default AA method)
-    smaaPass = new SMAAPass();
-    smaaPass.enabled = true;
-    composer.addPass(smaaPass);
+      // Bloom pass
+      try {
+        bloomPass = new UnrealBloomPass(
+          new THREE.Vector2(
+            container.value.clientWidth,
+            container.value.clientHeight
+          ),
+          0.05,
+          0.4,
+          0.75
+        );
+        bloomPass.enabled = true;
+        composer.addPass(bloomPass);
+      } catch (error) {
+        console.warn("Bloom shader compilation failed:", error);
+        bloomPass = undefined;
+        performanceStore.setDegradedMode(true);
+        if (currentQuality) {
+          currentQuality.value = "low";
+        }
+        performanceStore.setQualityPreset("low");
+      }
 
-    // FXAA pass (disabled by default)
-    fxaaPass = new ShaderPass(FXAAShader);
-    fxaaPass.enabled = false;
-    const pixelRatioPP = renderer.value.getPixelRatio();
-    const fxaaResolution = fxaaPass.material.uniforms["resolution"].value as {
-      x: number;
-      y: number;
-    };
-    fxaaResolution.x = 1 / (container.value.clientWidth * pixelRatioPP);
-    fxaaResolution.y = 1 / (container.value.clientHeight * pixelRatioPP);
-    composer.addPass(fxaaPass);
+      // SMAA pass (default AA method)
+      try {
+        smaaPass = new SMAAPass();
+        smaaPass.enabled = true;
+        composer.addPass(smaaPass);
+      } catch (error) {
+        console.warn("SMAA shader compilation failed:", error);
+        smaaPass = undefined;
+        performanceStore.setDegradedMode(true);
+        if (currentQuality) {
+          currentQuality.value = "low";
+        }
+        performanceStore.setQualityPreset("low");
+      }
+
+      // FXAA pass (disabled by default)
+      try {
+        fxaaPass = new ShaderPass(FXAAShader);
+        fxaaPass.enabled = false;
+        const pixelRatioPP = renderer.value.getPixelRatio();
+        const fxaaResolution = fxaaPass.material.uniforms["resolution"]
+          .value as {
+          x: number;
+          y: number;
+        };
+        fxaaResolution.x = 1 / (container.value.clientWidth * pixelRatioPP);
+        fxaaResolution.y = 1 / (container.value.clientHeight * pixelRatioPP);
+        composer.addPass(fxaaPass);
+      } catch (error) {
+        console.warn("FXAA shader compilation failed:", error);
+        fxaaPass = undefined;
+        performanceStore.setDegradedMode(true);
+        if (currentQuality) {
+          currentQuality.value = "low";
+        }
+        performanceStore.setQualityPreset("low");
+      }
+    }
 
     // Keyboard control parameters (alternate control scheme)
     const KEY_ROTATE_SPEED = 1.5; // radians per second
@@ -331,9 +486,30 @@ export function useThree(
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.setMeshoptDecoder(MeshoptDecoder);
 
+    // Set up abort controller for GLTF loading
+    gltfAbortController = new AbortController();
+
+    // Set up timeout watchdog to detect stuck loading
+    const LOAD_TIMEOUT_MS = 8000; // 8 seconds
+    loadTimeoutHandle = setTimeout(() => {
+      if (isLoading.value && loadingProgress.value === 0) {
+        console.warn("Model loading stuck at 0% - triggering recovery");
+        if (gltfAbortController) {
+          gltfAbortController.abort();
+        }
+        scheduleRecovery();
+      }
+    }, LOAD_TIMEOUT_MS);
+
     gltfLoader.load(
       modelPath,
       (gltf) => {
+        // Clear timeout since load succeeded
+        if (loadTimeoutHandle !== undefined) {
+          clearTimeout(loadTimeoutHandle);
+          loadTimeoutHandle = undefined;
+        }
+
         const model = gltf.scene;
 
         model.traverse((child) => {
@@ -522,45 +698,52 @@ export function useThree(
 
           // Post-Processing (AA & Bloom)
           const postFolder = gui.addFolder("Post-Processing");
-          const postParams = {
-            aaMethod: "SMAA" as "None" | "FXAA" | "SMAA",
-            bloomEnabled: true,
-            bloomStrength: 0.05,
-            bloomRadius: 0.4,
-            bloomThreshold: 0.75,
-          };
-          const applyAAMethod = (): void => {
-            if (smaaPass) smaaPass.enabled = postParams.aaMethod === "SMAA";
-            if (fxaaPass) fxaaPass.enabled = postParams.aaMethod === "FXAA";
-          };
-          postFolder
-            .add(postParams, "aaMethod", ["None", "FXAA", "SMAA"])
-            .name("AA Method")
-            .onChange(applyAAMethod);
-          const updateBloom = (): void => {
-            if (bloomPass) {
-              bloomPass.enabled = postParams.bloomEnabled;
-              bloomPass.strength = postParams.bloomStrength;
-              bloomPass.radius = postParams.bloomRadius;
-              bloomPass.threshold = postParams.bloomThreshold;
-            }
-          };
-          postFolder
-            .add(postParams, "bloomEnabled")
-            .name("Bloom Enabled")
-            .onChange(updateBloom);
-          postFolder
-            .add(postParams, "bloomStrength", 0, 3, 0.05)
-            .name("Bloom Strength")
-            .onChange(updateBloom);
-          postFolder
-            .add(postParams, "bloomRadius", 0, 1, 0.01)
-            .name("Bloom Radius")
-            .onChange(updateBloom);
-          postFolder
-            .add(postParams, "bloomThreshold", 0, 1, 0.01)
-            .name("Bloom Threshold")
-            .onChange(updateBloom);
+
+          // Only show post-processing controls if not in degraded mode
+          if (performanceStore.isDegradedMode) {
+            const degradedInfo = { status: "Disabled (Compatibility Mode)" };
+            postFolder.add(degradedInfo, "status").name("Status");
+          } else {
+            const postParams = {
+              aaMethod: "SMAA" as "None" | "FXAA" | "SMAA",
+              bloomEnabled: true,
+              bloomStrength: 0.05,
+              bloomRadius: 0.4,
+              bloomThreshold: 0.75,
+            };
+            const applyAAMethod = (): void => {
+              if (smaaPass) smaaPass.enabled = postParams.aaMethod === "SMAA";
+              if (fxaaPass) fxaaPass.enabled = postParams.aaMethod === "FXAA";
+            };
+            postFolder
+              .add(postParams, "aaMethod", ["None", "FXAA", "SMAA"])
+              .name("AA Method")
+              .onChange(applyAAMethod);
+            const updateBloom = (): void => {
+              if (bloomPass) {
+                bloomPass.enabled = postParams.bloomEnabled;
+                bloomPass.strength = postParams.bloomStrength;
+                bloomPass.radius = postParams.bloomRadius;
+                bloomPass.threshold = postParams.bloomThreshold;
+              }
+            };
+            postFolder
+              .add(postParams, "bloomEnabled")
+              .name("Bloom Enabled")
+              .onChange(updateBloom);
+            postFolder
+              .add(postParams, "bloomStrength", 0, 3, 0.05)
+              .name("Bloom Strength")
+              .onChange(updateBloom);
+            postFolder
+              .add(postParams, "bloomRadius", 0, 1, 0.01)
+              .name("Bloom Radius")
+              .onChange(updateBloom);
+            postFolder
+              .add(postParams, "bloomThreshold", 0, 1, 0.01)
+              .name("Bloom Threshold")
+              .onChange(updateBloom);
+          }
           postFolder.open();
 
           // Material settings (global adjustments)
@@ -626,18 +809,54 @@ export function useThree(
           fpsDisplay = { fps: "0 FPS" };
           perfFolder.add(fpsDisplay, "fps").name("FPS").listen();
 
-          // Quality level display with manual override
+          // Degraded mode indicator
+          const degradedModeDisplay = {
+            mode: performanceStore.isDegradedMode ? "Yes" : "No",
+          };
           perfFolder
-            .add(perfParams, "qualityLevel", ["low", "medium", "high"])
-            .name("Quality Override")
-            .onChange((value: QualityLevel): void => {
-              manualQualityOverride = value;
-              currentQuality.value = value;
-              performanceStore.setQualityPreset(value); // Save to store
-              applyQualityPreset(value);
-              // Update materials on quality change
-              updateMaterialsForQuality(value, model);
-            });
+            .add(degradedModeDisplay, "mode")
+            .name("Degraded Mode")
+            .listen();
+
+          // Quality level display with manual override
+          // Restrict to low quality only when in degraded mode
+          if (performanceStore.isDegradedMode) {
+            perfFolder
+              .add(perfParams, "qualityLevel", ["low"])
+              .name("Quality (Locked)")
+              .onChange((value: QualityLevel): void => {
+                manualQualityOverride = value;
+                currentQuality.value = value;
+                performanceStore.setQualityPreset(value);
+                applyQualityPreset(value);
+                updateMaterialsForQuality(value, model);
+              });
+          } else {
+            perfFolder
+              .add(perfParams, "qualityLevel", ["low", "medium", "high"])
+              .name("Quality Override")
+              .onChange((value: QualityLevel): void => {
+                manualQualityOverride = value;
+                currentQuality.value = value;
+                performanceStore.setQualityPreset(value); // Save to store
+                applyQualityPreset(value);
+                // Update materials on quality change
+                updateMaterialsForQuality(value, model);
+              });
+          }
+
+          // Reset graphics mode button (only show if in degraded mode)
+          if (performanceStore.isDegradedMode) {
+            const resetParams = {
+              reset: (): void => {
+                performanceStore.setDegradedMode(false);
+                alert(
+                  "Graphics mode reset. Please reload the page for changes to take effect."
+                );
+              },
+            };
+            perfFolder.add(resetParams, "reset").name("Reset Graphics Mode");
+          }
 
           perfFolder.open();
         }
@@ -681,207 +900,219 @@ export function useThree(
 
     // Animation Loop
     const animate = (time = performance.now()): void => {
-      if (!scene || !camera || !controls || !renderer.value) return;
+      try {
+        if (!scene || !camera || !controls || !renderer.value) return;
 
-      const delta = Math.max(0, (time - prevTime) / 1000);
-      prevTime = time;
+        const delta = Math.max(0, (time - prevTime) / 1000);
+        prevTime = time;
 
-      // FPS tracking (dev mode only)
-      if (currentFPS && import.meta.env.DEV) {
-        const frameTime = delta * 1000; // Convert to milliseconds
-        frameTimes.push(frameTime);
-        if (frameTimes.length > MAX_FRAME_SAMPLES) {
-          frameTimes.shift();
-        }
-
-        // Update FPS display every 10 frames
-        fpsCheckInterval++;
-        if (fpsCheckInterval >= 10) {
-          fpsCheckInterval = 0;
-          const avgFPS = calculateAverageFPS();
-          currentFPS.value = Math.round(avgFPS);
-
-          // Update GUI display if perfParams exists
-          if (perfParams) {
-            perfParams.currentFPS = currentFPS.value;
-          }
-          // Update FPS display text
-          if (fpsDisplay) {
-            fpsDisplay.fps = `${currentFPS.value} FPS`;
+        // FPS tracking (dev mode only)
+        if (currentFPS && import.meta.env.DEV) {
+          const frameTime = delta * 1000; // Convert to milliseconds
+          frameTimes.push(frameTime);
+          if (frameTimes.length > MAX_FRAME_SAMPLES) {
+            frameTimes.shift();
           }
 
-          // Startup quality checks: high->medium->low if system can't handle it
-          if (startupChecksRemaining > 0 && manualQualityOverride === null) {
-            if (startupCheckTime === 0) {
-              startupCheckTime = time;
+          // Update FPS display every 10 frames
+          fpsCheckInterval++;
+          if (fpsCheckInterval >= 10) {
+            fpsCheckInterval = 0;
+            const avgFPS = calculateAverageFPS();
+            currentFPS.value = Math.round(avgFPS);
+
+            // Update GUI display if perfParams exists
+            if (perfParams) {
+              perfParams.currentFPS = currentFPS.value;
+            }
+            // Update FPS display text
+            if (fpsDisplay) {
+              fpsDisplay.fps = `${currentFPS.value} FPS`;
             }
 
-            // Check every 2 seconds if we should downgrade quality
-            if (time - startupCheckTime >= STARTUP_CHECK_INTERVAL) {
-              if (
-                currentQuality &&
-                avgFPS < 45 &&
-                currentQuality.value === "high"
-              ) {
-                // Downgrade from high to medium
-                currentQuality.value = "medium";
-                performanceStore.setQualityPreset("medium"); // Save to store
-                lastQualityChangeTime = time;
-                applyQualityPreset("medium");
-                updateMaterialsForQuality("medium", scene);
-                if (perfParams) {
-                  perfParams.qualityLevel = "medium";
-                }
-                startupChecksRemaining--;
-                startupCheckTime = time;
-              } else if (
-                currentQuality &&
-                avgFPS < 30 &&
-                currentQuality.value === "medium"
-              ) {
-                // Downgrade from medium to low
-                currentQuality.value = "low";
-                performanceStore.setQualityPreset("low"); // Save to store
-                lastQualityChangeTime = time;
-                applyQualityPreset("low");
-                updateMaterialsForQuality("low", scene);
-                if (perfParams) {
-                  perfParams.qualityLevel = "low";
-                }
-              }
-
-              startupChecksRemaining--;
-              startupCheckTime = 0; // Reset for next check
-            }
-          }
-
-          // Auto-adjust quality based on FPS thresholds with debounce (after startup checks)
-          if (
-            currentQuality &&
-            startupChecksRemaining <= 0 &&
-            manualQualityOverride === null
-          ) {
-            const now = time;
-            let targetQuality: QualityLevel = currentQuality.value;
-
-            if (avgFPS < 30) {
-              targetQuality = "low";
-            } else if (avgFPS < 45) {
-              targetQuality = "medium";
-            } else {
-              targetQuality = "high";
-            }
-
-            // Only change quality if debounce duration has passed
+            // Startup quality checks: high->medium->low if system can't handle it
+            // Skip quality adjustments if in degraded mode (no shaders available)
             if (
-              targetQuality !== currentQuality.value &&
-              now - lastQualityChangeTime >= QUALITY_DEBOUNCE_DURATION
+              !performanceStore.isDegradedMode &&
+              startupChecksRemaining > 0 &&
+              manualQualityOverride === null
             ) {
-              currentQuality.value = targetQuality;
-              performanceStore.setQualityPreset(targetQuality); // Save to store
-              lastQualityChangeTime = now;
-              applyQualityPreset(targetQuality);
-              updateMaterialsForQuality(targetQuality, scene);
+              if (startupCheckTime === 0) {
+                startupCheckTime = time;
+              }
 
-              // Update GUI display
-              if (perfParams) {
-                perfParams.qualityLevel = targetQuality;
+              // Check every 2 seconds if we should downgrade quality
+              if (time - startupCheckTime >= STARTUP_CHECK_INTERVAL) {
+                if (
+                  currentQuality &&
+                  avgFPS < 45 &&
+                  currentQuality.value === "high"
+                ) {
+                  // Downgrade from high to medium
+                  currentQuality.value = "medium";
+                  performanceStore.setQualityPreset("medium"); // Save to store
+                  lastQualityChangeTime = time;
+                  applyQualityPreset("medium");
+                  updateMaterialsForQuality("medium", scene);
+                  if (perfParams) {
+                    perfParams.qualityLevel = "medium";
+                  }
+                  startupChecksRemaining--;
+                  startupCheckTime = time;
+                } else if (
+                  currentQuality &&
+                  avgFPS < 30 &&
+                  currentQuality.value === "medium"
+                ) {
+                  // Downgrade from medium to low
+                  currentQuality.value = "low";
+                  performanceStore.setQualityPreset("low"); // Save to store
+                  lastQualityChangeTime = time;
+                  applyQualityPreset("low");
+                  updateMaterialsForQuality("low", scene);
+                  if (perfParams) {
+                    perfParams.qualityLevel = "low";
+                  }
+                }
+
+                startupChecksRemaining--;
+                startupCheckTime = 0; // Reset for next check
+              }
+            }
+
+            // Auto-adjust quality based on FPS thresholds with debounce (after startup checks)
+            // Skip quality adjustments if in degraded mode (no shaders available)
+            if (
+              !performanceStore.isDegradedMode &&
+              currentQuality &&
+              startupChecksRemaining <= 0 &&
+              manualQualityOverride === null
+            ) {
+              const now = time;
+              let targetQuality: QualityLevel = currentQuality.value;
+
+              if (avgFPS < 30) {
+                targetQuality = "low";
+              } else if (avgFPS < 45) {
+                targetQuality = "medium";
+              } else {
+                targetQuality = "high";
+              }
+
+              // Only change quality if debounce duration has passed
+              if (
+                targetQuality !== currentQuality.value &&
+                now - lastQualityChangeTime >= QUALITY_DEBOUNCE_DURATION
+              ) {
+                currentQuality.value = targetQuality;
+                performanceStore.setQualityPreset(targetQuality); // Save to store
+                lastQualityChangeTime = now;
+                applyQualityPreset(targetQuality);
+                updateMaterialsForQuality(targetQuality, scene);
+
+                // Update GUI display
+                if (perfParams) {
+                  perfParams.qualityLevel = targetQuality;
+                }
               }
             }
           }
         }
-      }
 
-      // Handle smooth camera reset animation
-      if (isResetting) {
-        const elapsed = time - resetStartTime;
-        const progress = Math.min(elapsed / resetDuration, 1);
+        // Handle smooth camera reset animation
+        if (isResetting) {
+          const elapsed = time - resetStartTime;
+          const progress = Math.min(elapsed / resetDuration, 1);
 
-        // Ease-in-out function for smoother animation
-        const eased =
-          progress < 0.5
-            ? 2 * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+          // Ease-in-out function for smoother animation
+          const eased =
+            progress < 0.5
+              ? 2 * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-        // Interpolate camera position and target
-        camera.position.lerpVectors(
-          resetStartPosition,
-          initialCameraPosition,
-          eased
-        );
-        controls.target.lerpVectors(
-          resetStartTarget,
-          initialCameraTarget,
-          eased
-        );
+          // Interpolate camera position and target
+          camera.position.lerpVectors(
+            resetStartPosition,
+            initialCameraPosition,
+            eased
+          );
+          controls.target.lerpVectors(
+            resetStartTarget,
+            initialCameraTarget,
+            eased
+          );
+          controls.update();
+
+          // End animation when complete
+          if (progress >= 1) {
+            isResetting = false;
+          }
+        }
+
+        // Handle keyboard-driven alternate controls (WASD / arrows to orbit, Q/E to zoom)
+        if (keyState.size > 0 && !isResetting) {
+          const rotateStep = KEY_ROTATE_SPEED * delta; // radians
+          const zoomFactor = Math.pow(0.9, KEY_ZOOM_SPEED * delta);
+
+          // Use spherical math to update camera position around controls.target
+          const target = controls.target.clone();
+          const offset = camera.position.clone().sub(target);
+          const spherical = new THREE.Spherical().setFromVector3(offset);
+
+          // Horizontal orbit: A/D or Left/Right -> adjust theta
+          if (keyState.has("a") || keyState.has("arrowleft")) {
+            spherical.theta += rotateStep;
+          }
+          if (keyState.has("d") || keyState.has("arrowright")) {
+            spherical.theta -= rotateStep;
+          }
+
+          // Vertical orbit: W/S or Up/Down -> adjust phi
+          if (keyState.has("w") || keyState.has("arrowup")) {
+            spherical.phi -= rotateStep;
+          }
+          if (keyState.has("s") || keyState.has("arrowdown")) {
+            spherical.phi += rotateStep;
+          }
+
+          // Zoom in/out with Q / E -> scale radius
+          if (keyState.has("e")) {
+            spherical.radius *= zoomFactor;
+          }
+          if (keyState.has("q")) {
+            spherical.radius /= zoomFactor;
+          }
+
+          // Clamp phi to avoid singularities at poles
+          const EPS = 0.000001;
+          spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
+
+          // Clamp radius using controls' min/max distance
+          spherical.radius = Math.max(
+            controls.minDistance,
+            Math.min(controls.maxDistance, spherical.radius)
+          );
+
+          // Apply new camera position and update controls
+          const newPos = new THREE.Vector3()
+            .setFromSpherical(spherical)
+            .add(target);
+          camera.position.copy(newPos);
+          controls.update();
+        }
+
+        animationFrameId = requestAnimationFrame(animate);
         controls.update();
 
-        // End animation when complete
-        if (progress >= 1) {
-          isResetting = false;
+        // Render through post-processing composer
+        if (composer) {
+          composer.render();
+        } else {
+          renderer.value.render(scene, camera);
         }
-      }
-
-      // Handle keyboard-driven alternate controls (WASD / arrows to orbit, Q/E to zoom)
-      if (keyState.size > 0 && !isResetting) {
-        const rotateStep = KEY_ROTATE_SPEED * delta; // radians
-        const zoomFactor = Math.pow(0.9, KEY_ZOOM_SPEED * delta);
-
-        // Use spherical math to update camera position around controls.target
-        const target = controls.target.clone();
-        const offset = camera.position.clone().sub(target);
-        const spherical = new THREE.Spherical().setFromVector3(offset);
-
-        // Horizontal orbit: A/D or Left/Right -> adjust theta
-        if (keyState.has("a") || keyState.has("arrowleft")) {
-          spherical.theta += rotateStep;
-        }
-        if (keyState.has("d") || keyState.has("arrowright")) {
-          spherical.theta -= rotateStep;
-        }
-
-        // Vertical orbit: W/S or Up/Down -> adjust phi
-        if (keyState.has("w") || keyState.has("arrowup")) {
-          spherical.phi -= rotateStep;
-        }
-        if (keyState.has("s") || keyState.has("arrowdown")) {
-          spherical.phi += rotateStep;
-        }
-
-        // Zoom in/out with Q / E -> scale radius
-        if (keyState.has("e")) {
-          spherical.radius *= zoomFactor;
-        }
-        if (keyState.has("q")) {
-          spherical.radius /= zoomFactor;
-        }
-
-        // Clamp phi to avoid singularities at poles
-        const EPS = 0.000001;
-        spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
-
-        // Clamp radius using controls' min/max distance
-        spherical.radius = Math.max(
-          controls.minDistance,
-          Math.min(controls.maxDistance, spherical.radius)
-        );
-
-        // Apply new camera position and update controls
-        const newPos = new THREE.Vector3()
-          .setFromSpherical(spherical)
-          .add(target);
-        camera.position.copy(newPos);
-        controls.update();
-      }
-
-      animationFrameId = requestAnimationFrame(animate);
-      controls.update();
-
-      // Render through post-processing composer
-      if (composer) {
-        composer.render();
-      } else {
-        renderer.value.render(scene, camera);
+      } catch (error) {
+        console.error("Animation loop error - triggering recovery:", error);
+        scheduleRecovery();
       }
     };
 
@@ -963,25 +1194,12 @@ export function useThree(
 
     // Cleanup on unmount
     onUnmounted(() => {
-      if (
-        typeof animationFrameId === "number" &&
-        !Number.isNaN(animationFrameId)
-      ) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      cleanupRenderer();
       window.removeEventListener("resize", onWindowResize);
 
       // remove keyboard handlers
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-
-      // Dispose GUI
-      if (gui) {
-        gui.destroy();
-      }
-
-      renderer.value?.dispose();
-      controls?.dispose();
     });
   };
 
