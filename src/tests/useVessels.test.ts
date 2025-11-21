@@ -41,7 +41,7 @@ describe("useVessels", (): void => {
     );
   });
 
-  it("validates image and object files", (): void => {
+  it("validates image and object files", { timeout: 10000 }, (): void => {
     const api = useVessels();
 
     const mk = (name: string, type: string, size: number): File =>

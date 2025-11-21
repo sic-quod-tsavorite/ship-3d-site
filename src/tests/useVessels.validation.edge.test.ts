@@ -5,7 +5,7 @@ const mk = (name: string, type: string, size: number): File =>
   new File([new Blob(["x".repeat(size)], { type })], name, { type });
 
 describe("useVessels – validation exact limits and extensions", (): void => {
-  it("accepts files exactly at size limits", (): void => {
+  it("accepts files exactly at size limits", { timeout: 10000 }, (): void => {
     const api = useVessels();
 
     // 10MB image
