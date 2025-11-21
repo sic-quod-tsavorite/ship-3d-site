@@ -37,6 +37,17 @@ export function useThree(
   let prevTime = 0;
   const keyState = new Set<string>();
 
+  // Store initial camera position for reset
+  const initialCameraPosition = new THREE.Vector3(10, 2, 40);
+  const initialCameraTarget = new THREE.Vector3(0, 0, 0);
+
+  // Camera reset animation state
+  let isResetting = false;
+  let resetStartTime = 0;
+  const resetDuration = 1000; // 1 second in milliseconds
+  let resetStartPosition = new THREE.Vector3();
+  let resetStartTarget = new THREE.Vector3();
+
   const init = (): void => {
     if (!container.value) return;
 
@@ -51,7 +62,7 @@ export function useThree(
       0.1,
       1000
     );
-    camera.position.set(10, 2, 40);
+    camera.position.copy(initialCameraPosition);
 
     // Renderer
     renderer.value = new THREE.WebGLRenderer({ antialias: true });
@@ -488,8 +499,38 @@ export function useThree(
       const delta = Math.max(0, (time - prevTime) / 1000);
       prevTime = time;
 
+      // Handle smooth camera reset animation
+      if (isResetting) {
+        const elapsed = time - resetStartTime;
+        const progress = Math.min(elapsed / resetDuration, 1);
+
+        // Ease-in-out function for smoother animation
+        const eased =
+          progress < 0.5
+            ? 2 * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+        // Interpolate camera position and target
+        camera.position.lerpVectors(
+          resetStartPosition,
+          initialCameraPosition,
+          eased
+        );
+        controls.target.lerpVectors(
+          resetStartTarget,
+          initialCameraTarget,
+          eased
+        );
+        controls.update();
+
+        // End animation when complete
+        if (progress >= 1) {
+          isResetting = false;
+        }
+      }
+
       // Handle keyboard-driven alternate controls (WASD / arrows to orbit, Q/E to zoom)
-      if (keyState.size > 0) {
+      if (keyState.size > 0 && !isResetting) {
         const rotateStep = KEY_ROTATE_SPEED * delta; // radians
         const zoomFactor = Math.pow(0.9, KEY_ZOOM_SPEED * delta);
 
@@ -586,6 +627,20 @@ export function useThree(
     // Keyboard handlers for alternate control scheme
     const onKeyDown = (e: KeyboardEvent): void => {
       const k = e.key.toLowerCase();
+
+      // Handle spacebar for camera reset
+      if (k === " ") {
+        if (camera && controls && !isResetting) {
+          // Start smooth reset animation
+          isResetting = true;
+          resetStartTime = performance.now();
+          resetStartPosition.copy(camera.position);
+          resetStartTarget.copy(controls.target);
+        }
+        e.preventDefault();
+        return;
+      }
+
       // keep only the keys we care about
       if (
         [

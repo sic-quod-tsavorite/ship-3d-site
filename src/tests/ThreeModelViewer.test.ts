@@ -18,7 +18,13 @@ vi.mock("three", () => {
   }
   class PerspectiveCamera {
     aspect = 1;
-    position = { set: (_x: number, _y: number, _z: number): void => {} };
+    position = {
+      set: (_x: number, _y: number, _z: number): void => {},
+      copy: (_v: unknown): void => {},
+      clone: (): { sub: () => { x: number; y: number; z: number } } => ({
+        sub: (): { x: number; y: number; z: number } => ({ x: 0, y: 0, z: 0 }),
+      }),
+    };
     constructor(
       _fovy?: number,
       _aspect?: number,
@@ -37,6 +43,24 @@ vi.mock("three", () => {
       this.z = _z;
     }
     set(_x: number, _y: number, _z: number): Vector3 {
+      return this;
+    }
+    clone(): Vector3 {
+      return new Vector3(this.x, this.y, this.z);
+    }
+    sub(_v: unknown): Vector3 {
+      return this;
+    }
+    add(_v: unknown): Vector3 {
+      return this;
+    }
+    copy(_v: unknown): Vector3 {
+      return this;
+    }
+    lerpVectors(_v1: unknown, _v2: unknown, _alpha: number): Vector3 {
+      return this;
+    }
+    setFromSpherical(_s: unknown): Vector3 {
       return this;
     }
   }
@@ -165,6 +189,8 @@ vi.mock("three/examples/jsm/controls/OrbitControls.js", () => {
           y: 0,
           z: 0,
         }),
+        copy: (_v: unknown): void => {},
+        lerpVectors: (_v1: unknown, _v2: unknown, _alpha: number): void => {},
       };
       enablePan = false;
       enableDamping = false;
