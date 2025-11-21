@@ -7,7 +7,7 @@ import LoginView from "@/views/admin/LoginView.vue";
 import NotFound from "@/views/NotFound.vue";
 import { useAuthStore } from "@/stores/auth";
 
-const routePrefix = import.meta.env.VITE_ROUTER_PREFIX as string;
+const routePrefix = (import.meta.env.VITE_ROUTER_PREFIX as string) || "";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
