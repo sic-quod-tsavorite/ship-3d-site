@@ -1,11 +1,12 @@
 {
   "name": "ship-3d-site",
   "private": true,
-  "version": "1.4.3",
+  "version": "1.4.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build-dev": "vue-tsc -b && vite build --mode moove",
     "preview": "vite preview",
     "lint": "eslint src --fix",
     "test": "vitest --ui"
