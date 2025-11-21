@@ -12,6 +12,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { GUI } from "dat.gui";
+import { usePerformanceStore } from "@/stores/performance";
+import type { QualityLevel } from "@/stores/performance";
 
 export function useThree(
   container: Ref<HTMLElement | null>,
@@ -19,9 +21,18 @@ export function useThree(
 ): {
   isLoading: Ref<boolean>;
   loadingProgress: Ref<number>;
+  currentFPS?: Ref<number>;
+  currentQuality?: Ref<QualityLevel>;
 } {
   const isLoading = ref<boolean>(true);
   const loadingProgress = ref<number>(0);
+  const currentFPS = import.meta.env.DEV ? ref<number>(0) : undefined;
+
+  // Get performance store and load saved quality preset
+  const performanceStore = usePerformanceStore();
+  const currentQuality = import.meta.env.DEV
+    ? ref<QualityLevel>(performanceStore.qualityPreset)
+    : undefined;
 
   const renderer: ShallowRef<THREE.WebGLRenderer | undefined> = shallowRef();
   let scene: THREE.Scene | undefined;
@@ -37,6 +48,36 @@ export function useThree(
   let prevTime = 0;
   const keyState = new Set<string>();
 
+  // FPS tracking and quality adjustment
+  const frameTimes: number[] = [];
+  const MAX_FRAME_SAMPLES = 60;
+  let fpsCheckInterval = 0;
+  let lastQualityChangeTime = 0;
+  const QUALITY_DEBOUNCE_DURATION = 2000; // 2 seconds in milliseconds
+  let manualQualityOverride: QualityLevel | null = null;
+
+  // Startup quality checks
+  let startupChecksRemaining = 2; // Check high->medium->low if needed
+  let startupCheckTime = 0;
+  const STARTUP_CHECK_INTERVAL = 2000; // 2 seconds between checks
+
+  // Store initial light and material settings for quality adjustments
+  let initialLights = {
+    hemisphere: { intensity: 0 },
+    ambient: { intensity: 0 },
+    directional: { intensity: 0, castShadow: false },
+    top: { intensity: 0 },
+    angle: { intensity: 0 },
+    fill: { intensity: 0 },
+  };
+  let modelLights = {
+    hemisphere: null as THREE.HemisphereLight | null,
+    main: null as THREE.DirectionalLight | null,
+    top: null as THREE.DirectionalLight | null,
+    angle: null as THREE.DirectionalLight | null,
+    fill: null as THREE.DirectionalLight | null,
+  };
+
   // Store initial camera position for reset
   const initialCameraPosition = new THREE.Vector3(10, 2, 40);
   const initialCameraTarget = new THREE.Vector3(0, 0, 0);
@@ -47,6 +88,100 @@ export function useThree(
   const resetDuration = 1000; // 1 second in milliseconds
   let resetStartPosition = new THREE.Vector3();
   let resetStartTarget = new THREE.Vector3();
+
+  // Helper function to calculate average FPS from frame times
+  const calculateAverageFPS = (): number => {
+    if (frameTimes.length === 0) return 60; // Default to 60 FPS if no data yet
+    const avgFrameTime =
+      frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+    return avgFrameTime > 0 ? 1000 / avgFrameTime : 60; // Default to 60 FPS if calculation fails
+  };
+
+  // Helper function to apply quality preset
+  const applyQualityPreset = (quality: QualityLevel): void => {
+    if (quality === "high") {
+      // High: Full quality with SMAA + Bloom
+      if (smaaPass) smaaPass.enabled = true;
+      if (fxaaPass) fxaaPass.enabled = false;
+      if (bloomPass) bloomPass.enabled = true;
+
+      // Restore full lighting
+      if (modelLights.hemisphere)
+        modelLights.hemisphere.intensity = initialLights.hemisphere.intensity;
+      if (modelLights.main)
+        modelLights.main.intensity = initialLights.directional.intensity;
+      if (modelLights.top)
+        modelLights.top.intensity = initialLights.top.intensity;
+      if (modelLights.angle)
+        modelLights.angle.intensity = initialLights.angle.intensity;
+      if (modelLights.fill)
+        modelLights.fill.intensity = initialLights.fill.intensity;
+    } else if (quality === "medium") {
+      // Medium: Switch to FXAA + keep Bloom, restore full lighting
+      if (smaaPass) smaaPass.enabled = false;
+      if (fxaaPass) fxaaPass.enabled = true;
+      if (bloomPass) bloomPass.enabled = true;
+
+      // Restore full lighting for medium quality
+      if (modelLights.hemisphere)
+        modelLights.hemisphere.intensity = initialLights.hemisphere.intensity;
+      if (modelLights.main)
+        modelLights.main.intensity = initialLights.directional.intensity;
+      if (modelLights.top)
+        modelLights.top.intensity = initialLights.top.intensity;
+      if (modelLights.angle)
+        modelLights.angle.intensity = initialLights.angle.intensity;
+      if (modelLights.fill)
+        modelLights.fill.intensity = initialLights.fill.intensity;
+    } else {
+      // Low: Disable AA + Bloom, reduce lights (keep only ambient at 1.8)
+      if (smaaPass) smaaPass.enabled = false;
+      if (fxaaPass) fxaaPass.enabled = false;
+      if (bloomPass) bloomPass.enabled = false;
+
+      // Disable all directional lights and hemisphere light, keep ambient
+      if (modelLights.hemisphere) modelLights.hemisphere.intensity = 0;
+      if (modelLights.main) modelLights.main.intensity = 0;
+      if (modelLights.top) modelLights.top.intensity = 0;
+      if (modelLights.angle) modelLights.angle.intensity = 0;
+      if (modelLights.fill) modelLights.fill.intensity = 0;
+    }
+  };
+
+  // Helper function to update material properties for quality preset
+  const updateMaterialsForQuality = (
+    quality: QualityLevel,
+    model?: THREE.Object3D
+  ): void => {
+    if (!model) return;
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const materials = Array.isArray(child.material)
+          ? child.material
+          : [child.material];
+        materials.forEach((material: THREE.Material) => {
+          if (material instanceof THREE.MeshStandardMaterial) {
+            if (quality === "low") {
+              // Low quality: turn off metalness and roughness
+              material.metalness = 0;
+              material.roughness = 0;
+            } else {
+              // High/Medium: restore original values
+              material.metalness = 0.3;
+              material.roughness = 0.7;
+            }
+            material.needsUpdate = true;
+          }
+        });
+      }
+    });
+  };
+
+  // GUI performance params (created after model loads)
+  let perfParams:
+    | { currentFPS: number; qualityLevel: QualityLevel }
+    | undefined;
+  let fpsDisplay: { fps: string } | undefined;
 
   const init = (): void => {
     if (!container.value) return;
@@ -139,9 +274,18 @@ export function useThree(
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
+    // Store initial light settings and references
+    initialLights.hemisphere = { intensity: 5.3 };
+    initialLights.ambient = { intensity: 1.4 };
+    modelLights.hemisphere = hemisphereLight;
+
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
     directionalLight.position.set(5, 10, 7);
     directionalLight.castShadow = true;
+
+    // Store initial light settings
+    initialLights.directional = { intensity: 1.8, castShadow: true };
+    modelLights.main = directionalLight;
 
     // Configure shadow properties
     directionalLight.shadow.mapSize.width = 1024;
@@ -171,6 +315,14 @@ export function useThree(
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
     fillLight.position.set(-5, 3, -5);
     scene.add(fillLight);
+
+    // Store additional light references and initial values
+    initialLights.top = { intensity: 0.8 };
+    initialLights.angle = { intensity: 0.8 };
+    initialLights.fill = { intensity: 0.8 };
+    modelLights.top = topLight;
+    modelLights.angle = angleLight;
+    modelLights.fill = fillLight;
 
     // Model Loading
     const dracoLoader: DRACOLoader = new DRACOLoader();
@@ -461,6 +613,41 @@ export function useThree(
             .onChange(updateMaterials);
         }
 
+        // Performance monitoring (dev mode only)
+        if (import.meta.env.DEV && gui && currentFPS && currentQuality) {
+          perfParams = {
+            currentFPS: 0,
+            qualityLevel: currentQuality.value, // Use stored quality preset
+          };
+
+          const perfFolder = gui.addFolder("Performance");
+
+          // FPS display (read-only text display)
+          fpsDisplay = { fps: "0 FPS" };
+          perfFolder.add(fpsDisplay, "fps").name("FPS").listen();
+
+          // Quality level display with manual override
+          perfFolder
+            .add(perfParams, "qualityLevel", ["low", "medium", "high"])
+            .name("Quality Override")
+            .onChange((value: QualityLevel): void => {
+              manualQualityOverride = value;
+              currentQuality.value = value;
+              performanceStore.setQualityPreset(value); // Save to store
+              applyQualityPreset(value);
+              // Update materials on quality change
+              updateMaterialsForQuality(value, model);
+            });
+
+          perfFolder.open();
+        }
+
+        // Apply stored quality preset on load
+        if (currentQuality) {
+          applyQualityPreset(currentQuality.value);
+          updateMaterialsForQuality(currentQuality.value, model);
+        }
+
         isLoading.value = false;
         // initialize time for smooth keyboard motion
         prevTime = performance.now();
@@ -498,6 +685,112 @@ export function useThree(
 
       const delta = Math.max(0, (time - prevTime) / 1000);
       prevTime = time;
+
+      // FPS tracking (dev mode only)
+      if (currentFPS && import.meta.env.DEV) {
+        const frameTime = delta * 1000; // Convert to milliseconds
+        frameTimes.push(frameTime);
+        if (frameTimes.length > MAX_FRAME_SAMPLES) {
+          frameTimes.shift();
+        }
+
+        // Update FPS display every 10 frames
+        fpsCheckInterval++;
+        if (fpsCheckInterval >= 10) {
+          fpsCheckInterval = 0;
+          const avgFPS = calculateAverageFPS();
+          currentFPS.value = Math.round(avgFPS);
+
+          // Update GUI display if perfParams exists
+          if (perfParams) {
+            perfParams.currentFPS = currentFPS.value;
+          }
+          // Update FPS display text
+          if (fpsDisplay) {
+            fpsDisplay.fps = `${currentFPS.value} FPS`;
+          }
+
+          // Startup quality checks: high->medium->low if system can't handle it
+          if (startupChecksRemaining > 0 && manualQualityOverride === null) {
+            if (startupCheckTime === 0) {
+              startupCheckTime = time;
+            }
+
+            // Check every 2 seconds if we should downgrade quality
+            if (time - startupCheckTime >= STARTUP_CHECK_INTERVAL) {
+              if (
+                currentQuality &&
+                avgFPS < 45 &&
+                currentQuality.value === "high"
+              ) {
+                // Downgrade from high to medium
+                currentQuality.value = "medium";
+                performanceStore.setQualityPreset("medium"); // Save to store
+                lastQualityChangeTime = time;
+                applyQualityPreset("medium");
+                updateMaterialsForQuality("medium", scene);
+                if (perfParams) {
+                  perfParams.qualityLevel = "medium";
+                }
+                startupChecksRemaining--;
+                startupCheckTime = time;
+              } else if (
+                currentQuality &&
+                avgFPS < 30 &&
+                currentQuality.value === "medium"
+              ) {
+                // Downgrade from medium to low
+                currentQuality.value = "low";
+                performanceStore.setQualityPreset("low"); // Save to store
+                lastQualityChangeTime = time;
+                applyQualityPreset("low");
+                updateMaterialsForQuality("low", scene);
+                if (perfParams) {
+                  perfParams.qualityLevel = "low";
+                }
+              }
+
+              startupChecksRemaining--;
+              startupCheckTime = 0; // Reset for next check
+            }
+          }
+
+          // Auto-adjust quality based on FPS thresholds with debounce (after startup checks)
+          if (
+            currentQuality &&
+            startupChecksRemaining <= 0 &&
+            manualQualityOverride === null
+          ) {
+            const now = time;
+            let targetQuality: QualityLevel = currentQuality.value;
+
+            if (avgFPS < 30) {
+              targetQuality = "low";
+            } else if (avgFPS < 45) {
+              targetQuality = "medium";
+            } else {
+              targetQuality = "high";
+            }
+
+            // Only change quality if debounce duration has passed
+            if (
+              targetQuality !== currentQuality.value &&
+              now - lastQualityChangeTime >= QUALITY_DEBOUNCE_DURATION
+            ) {
+              currentQuality.value = targetQuality;
+              performanceStore.setQualityPreset(targetQuality); // Save to store
+              lastQualityChangeTime = now;
+              applyQualityPreset(targetQuality);
+              updateMaterialsForQuality(targetQuality, scene);
+
+              // Update GUI display
+              if (perfParams) {
+                perfParams.qualityLevel = targetQuality;
+              }
+            }
+          }
+        }
+      }
 
       // Handle smooth camera reset animation
       if (isResetting) {
@@ -694,8 +987,15 @@ export function useThree(
 
   onMounted(init);
 
-  return { isLoading, loadingProgress } as {
+  return {
+    isLoading,
+    loadingProgress,
+    ...(currentFPS && { currentFPS }),
+    ...(currentQuality && { currentQuality }),
+  } as {
     isLoading: Ref<boolean>;
     loadingProgress: Ref<number>;
+    currentFPS?: Ref<number>;
+    currentQuality?: Ref<QualityLevel>;
   };
 }
