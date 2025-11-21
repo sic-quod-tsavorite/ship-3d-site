@@ -2,6 +2,35 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { nextTick } from "vue";
+import { createPinia, setActivePinia } from "pinia";
+
+// Mock localStorage
+const localStorageMock = ((): Storage => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string): string | null => store[key] || null,
+    setItem: (key: string, value: string): void => {
+      store[key] = value.toString();
+    },
+    clear: (): void => {
+      store = {};
+    },
+    removeItem: (key: string): void => {
+      delete store[key];
+    },
+    get length(): number {
+      return Object.keys(store).length;
+    },
+    key: (index: number): string | null => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    },
+  } as Storage;
+})();
+
+Object.defineProperty(global, "localStorage", {
+  value: localStorageMock,
+});
 
 vi.mock("three", (): Record<string, unknown> => {
   class Scene {
@@ -262,6 +291,7 @@ vi.mock("dat.gui", () => {
   const createController = (): unknown => ({
     name: (): unknown => createController(),
     onChange: (): unknown => createController(),
+    listen: (): unknown => createController(),
   });
 
   const createFolder = (): unknown => ({
@@ -347,6 +377,7 @@ let addSpy: ReturnType<typeof vi.spyOn>;
 let removeSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach((): void => {
+  setActivePinia(createPinia());
   vi.restoreAllMocks();
   addSpy = vi.spyOn(window, "addEventListener");
   removeSpy = vi.spyOn(window, "removeEventListener");

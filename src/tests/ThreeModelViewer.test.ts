@@ -2,11 +2,40 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import ThreeModelViewer from "../components/ThreeModelViewer.vue";
 import { nextTick } from "vue";
+import { createPinia, setActivePinia } from "pinia";
 
 declare global {
   // store the last mocked gltf model for tests
   var _lastGltf: unknown;
 }
+
+// Mock localStorage
+const localStorageMock = ((): Storage => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string): string | null => store[key] || null,
+    setItem: (key: string, value: string): void => {
+      store[key] = value.toString();
+    },
+    clear: (): void => {
+      store = {};
+    },
+    removeItem: (key: string): void => {
+      delete store[key];
+    },
+    get length(): number {
+      return Object.keys(store).length;
+    },
+    key: (index: number): string | null => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    },
+  } as Storage;
+})();
+
+Object.defineProperty(global, "localStorage", {
+  value: localStorageMock,
+});
 
 vi.mock("three", () => {
   class Scene {
@@ -263,6 +292,7 @@ vi.mock("dat.gui", () => {
   const createController = (): unknown => ({
     name: (): unknown => createController(),
     onChange: (): unknown => createController(),
+    listen: (): unknown => createController(),
   });
 
   const createFolder = (): unknown => ({
@@ -363,6 +393,7 @@ vi.mock("three/examples/jsm/loaders/GLTFLoader.js", () => {
 });
 
 beforeEach((): void => {
+  setActivePinia(createPinia());
   vi.restoreAllMocks();
   vi.spyOn(window, "addEventListener");
   vi.spyOn(window, "removeEventListener");
@@ -419,5 +450,141 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     expect(gltf).toBeDefined();
 
     wrapper.unmount();
+  });
+
+  it("tracks FPS in development mode", async (): Promise<void> => {
+    // Mock dev mode
+    vi.stubEnv("DEV", true);
+
+    vi.useFakeTimers();
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: {
+        modelPath: "/models/test.gltf",
+      },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+
+    // Simulate animation frames at 60 FPS (16.67ms per frame)
+    for (let i = 0; i < 100; i++) {
+      vi.advanceTimersByTime(16.67);
+      await nextTick();
+    }
+
+    // Check if currentFPS is exposed and updated
+    const vm = wrapper.vm as unknown as {
+      currentFPS?: { value: number };
+    };
+    if (vm.currentFPS) {
+      expect(vm.currentFPS.value).toBeGreaterThan(0);
+    }
+
+    wrapper.unmount();
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it("adjusts quality to low when FPS drops below 30", async (): Promise<void> => {
+    // Mock dev mode
+    vi.stubEnv("DEV", true);
+
+    vi.useFakeTimers();
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: {
+        modelPath: "/models/test.gltf",
+      },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+
+    // Simulate very low FPS (100ms per frame = ~10 FPS) for 2+ seconds
+    for (let i = 0; i < 30; i++) {
+      vi.advanceTimersByTime(100);
+      await nextTick();
+    }
+
+    // Check if quality adjusted to low
+    const vm = wrapper.vm as unknown as {
+      currentQuality?: { value: string };
+    };
+    if (vm.currentQuality) {
+      expect(vm.currentQuality.value).toBe("low");
+    }
+
+    wrapper.unmount();
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it("adjusts quality to medium when FPS is between 30 and 45", async (): Promise<void> => {
+    // Mock dev mode
+    vi.stubEnv("DEV", true);
+
+    vi.useFakeTimers();
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: {
+        modelPath: "/models/test.gltf",
+      },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+
+    // Simulate medium FPS (~40 FPS = 25ms per frame) for 2+ seconds
+    for (let i = 0; i < 100; i++) {
+      vi.advanceTimersByTime(25);
+      await nextTick();
+    }
+
+    // Check if quality adjusted to medium
+    const vm = wrapper.vm as unknown as {
+      currentQuality?: { value: string };
+    };
+    if (vm.currentQuality) {
+      expect(vm.currentQuality.value).toBe("medium");
+    }
+
+    wrapper.unmount();
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it("maintains quality as high when FPS is above 45", async (): Promise<void> => {
+    // Mock dev mode
+    vi.stubEnv("DEV", true);
+
+    vi.useFakeTimers();
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: {
+        modelPath: "/models/test.gltf",
+      },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+
+    // Simulate high FPS (60 FPS = 16.67ms per frame) for 2+ seconds
+    for (let i = 0; i < 150; i++) {
+      vi.advanceTimersByTime(16.67);
+      await nextTick();
+    }
+
+    // Check if quality is high
+    const vm = wrapper.vm as unknown as {
+      currentQuality?: { value: string };
+    };
+    if (vm.currentQuality) {
+      expect(vm.currentQuality.value).toBe("high");
+    }
+
+    wrapper.unmount();
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
   });
 });
