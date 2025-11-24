@@ -1,8 +1,11 @@
+// Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { nextTick } from "vue";
 import { createPinia, setActivePinia } from "pinia";
+
+// Project imports
+import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 
 // Mock localStorage
 const localStorageMock = ((): Storage => {

@@ -1,5 +1,8 @@
+// Imports
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+
+// Project imports
 import router from "@/router";
 
 export const useAuthStore = defineStore("auth", () => {

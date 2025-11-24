@@ -1,6 +1,9 @@
+// Imports
 import { ref, onMounted, watch } from "vue";
 import type { Ref } from "vue";
 import { useRouter } from "vue-router";
+
+// Project imports
 import { useAuthStore } from "@/stores/auth";
 import { useVessels } from "@/modules/vessels/useVessels";
 import type { Vessel } from "@/interfaces/vesselInterfaces";

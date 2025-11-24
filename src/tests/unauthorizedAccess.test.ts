@@ -1,7 +1,10 @@
+// Imports
 import { test, expect, beforeEach, vi } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
-import AdminView from "@/views/admin/AdminView.vue";
 import { createTestingPinia } from "@pinia/testing";
+
+// Project imports
+import AdminView from "@/views/admin/AdminView.vue";
 
 // Mock vue-router's useRouter hook, but keep other exports
 const mockRouterPush = vi.fn();

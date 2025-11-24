@@ -203,7 +203,10 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { ref, toRef } from "vue";
+
+// Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { useVesselList } from "@/modules/vessels/useVesselList";

@@ -82,7 +82,10 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+
+// Project imports
 import { useLogin } from "@/modules/auth/useLogin";
 
 const {

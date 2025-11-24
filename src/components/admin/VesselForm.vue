@@ -157,8 +157,11 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { computed, unref } from "vue";
 import type { Ref } from "vue";
+
+// Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import { useVesselForm } from "@/modules/vessels/useVesselForm";
 import { formatFileSize } from "@/utils/fileHelpers";

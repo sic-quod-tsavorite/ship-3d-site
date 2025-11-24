@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+// Imports
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { mount } from "@vue/test-utils";
 import { ref, nextTick } from "vue";
 import { createTestingPinia } from "@pinia/testing";
+
+// Project imports
 import AdminView from "@/views/admin/AdminView.vue";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 

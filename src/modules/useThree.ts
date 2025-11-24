@@ -1,3 +1,4 @@
+// Imports
 import { ref, onMounted, onUnmounted, shallowRef } from "vue";
 import type { Ref, ShallowRef } from "vue";
 import * as THREE from "three";
@@ -12,6 +13,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { GUI } from "dat.gui";
+
+// Project imports
 import { usePerformanceStore } from "@/stores/performance";
 import type { QualityLevel } from "@/stores/performance";
 

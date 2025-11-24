@@ -34,7 +34,10 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { ref } from "vue";
+
+// Project imports
 import ThreeModelViewer from "../components/ThreeModelViewer.vue";
 
 const showModelViewer = ref(false);

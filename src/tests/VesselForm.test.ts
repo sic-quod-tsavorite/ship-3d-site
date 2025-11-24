@@ -1,5 +1,8 @@
+// Imports
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
+
+// Project imports
 import VesselForm from "@/components/admin/VesselForm.vue";
 
 vi.mock("@/utils/fileHelpers", (): object => ({

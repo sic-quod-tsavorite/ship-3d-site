@@ -1,5 +1,8 @@
+// Imports
 import { describe, it, expect } from "vitest";
 import { ref } from "vue";
+
+// Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import { useVesselList } from "@/modules/vessels/useVesselList";
 

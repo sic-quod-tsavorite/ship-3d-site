@@ -1,5 +1,8 @@
+// Imports
 import { test, expect } from "vitest";
 import { mount } from "@vue/test-utils";
+
+// Project imports
 import HomeView from "../views/HomeView.vue";
 
 const wrapper = mount(HomeView);

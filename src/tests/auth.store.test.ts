@@ -1,5 +1,8 @@
+// Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+
+// Project imports
 import { useAuthStore } from "@/stores/auth";
 
 // Mock router push used by logout

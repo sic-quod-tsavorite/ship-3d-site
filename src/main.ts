@@ -1,5 +1,8 @@
+// Imports
 import { createApp, type Component } from "vue";
 import { createPinia } from "pinia";
+
+// Project imports
 import "./assets/stylesheets/tailwind.css";
 import "./assets/stylesheets/style.scss";
 import App from "./App.vue";

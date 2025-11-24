@@ -1,4 +1,7 @@
+// Imports
 import { ref, computed, type Ref, type ComputedRef } from "vue";
+
+// Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 
 export const useVesselList = (

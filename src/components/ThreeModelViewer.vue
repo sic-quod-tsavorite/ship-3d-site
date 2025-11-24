@@ -8,7 +8,10 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { ref } from "vue";
+
+// Project imports
 import { useThree } from "../modules/useThree";
 
 const props = defineProps({

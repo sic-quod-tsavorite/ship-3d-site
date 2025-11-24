@@ -1,6 +1,9 @@
+// Imports
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { defineComponent, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
+
+// Project imports
 import { useVesselForm } from "@/modules/vessels/useVesselForm";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 

@@ -1,4 +1,7 @@
+// Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+// Project imports
 import { useVessels } from "@/modules/vessels/useVessels";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 

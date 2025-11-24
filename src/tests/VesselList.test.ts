@@ -1,5 +1,8 @@
+// Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
+
+// Project imports
 import VesselList from "@/components/admin/VesselList.vue";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 

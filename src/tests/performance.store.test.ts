@@ -1,5 +1,8 @@
+// Imports
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+
+// Project imports
 import { usePerformanceStore } from "../stores/performance";
 
 // Mock localStorage

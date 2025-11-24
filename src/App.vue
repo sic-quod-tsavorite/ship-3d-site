@@ -9,9 +9,12 @@
 </template>
 
 <script setup lang="ts">
+// Imports
+import { RouterView } from "vue-router";
+
+// Project imports
 import TheNavigation from "./components/TheNavigation.vue";
 import TheFooter from "./components/TheFooter.vue";
-import { RouterView } from "vue-router";
 </script>
 
 <style lang="scss" scoped></style>

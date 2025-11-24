@@ -1,5 +1,8 @@
+// Imports
 import { ref, onMounted } from "vue";
 import type { Ref } from "vue";
+
+// Project imports
 import { useUsers } from "../auth/useUsers";
 import { validateEmail, validatePassword } from "@/utils/validationHelpers";
 

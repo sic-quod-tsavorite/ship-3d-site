@@ -1,3 +1,4 @@
+// Imports
 import {
   ref,
   reactive,
@@ -6,6 +7,8 @@ import {
   type Ref,
   type ComputedRef,
 } from "vue";
+
+// Project imports
 import type { Vessel, VesselFormData } from "@/interfaces/vesselInterfaces";
 import { createImagePreview } from "@/utils/fileHelpers";
 

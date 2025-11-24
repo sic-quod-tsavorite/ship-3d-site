@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+// Project imports
 import { useAdmin } from "@/modules/admin/useAdmin";
 import VesselList from "@/components/admin/VesselList.vue";
 import VesselForm from "@/components/admin/VesselForm.vue";

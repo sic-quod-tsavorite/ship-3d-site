@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 

@@ -1,5 +1,8 @@
+// Imports
 import { createRouter, createWebHistory } from "vue-router";
 import type { Component } from "vue";
+
+// Project imports
 import HomeView from "@/views/HomeView.vue";
 import MapView from "@/views/MapView.vue";
 import AdminView from "@/views/admin/AdminView.vue";
