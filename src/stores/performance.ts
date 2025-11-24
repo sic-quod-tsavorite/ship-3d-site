@@ -1,8 +1,7 @@
 // Imports
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
-export type QualityLevel = "high" | "medium" | "low";
+import type { QualityLevel } from "@/interfaces/threeInterfaces";
 
 const STORAGE_KEY = "ship3d-quality-preset";
 const DEGRADED_MODE_KEY = "ship3d-degraded-mode";

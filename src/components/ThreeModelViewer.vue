@@ -12,7 +12,7 @@
 import { ref } from "vue";
 
 // Project imports
-import { useThree } from "../modules/useThree";
+import { useThree } from "../modules/three/useThree";
 
 const props = defineProps({
   modelPath: {
