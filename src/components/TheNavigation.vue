@@ -17,7 +17,8 @@
       <!-- Mobile toggle -->
       <button
         type="button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:hidden"
+        class="h-10 w-10 rounded-lg border border-slate-200 bg-white text-slate-300 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:hidden"
+        style="padding-inline: 0"
         :aria-expanded="menuOpen"
         aria-controls="primary-menu"
         @click="toggleMenu"
@@ -26,7 +27,7 @@
         <svg
           v-if="!menuOpen"
           xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
+          class="h-5 w-5 mx-auto"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -41,7 +42,7 @@
         <svg
           v-else
           xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
+          class="h-5 w-5 mx-auto"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
