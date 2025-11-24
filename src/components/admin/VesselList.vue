@@ -1,25 +1,35 @@
 <template>
   <div class="w-full">
-    <div class="mb-6 flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Vessels</h2>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <h2 class="text-2xl font-semibold tracking-tight text-slate-900">
+        Vessels
+      </h2>
       <button
         @click="$emit('create')"
-        class="rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+        class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
       >
-        Add New Vessel
+        <span
+          class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+        ></span>
+        <span class="relative">Add New Vessel</span>
       </button>
     </div>
 
     <div v-if="loading" class="py-8 text-center">
-      <p class="text-gray-600">Loading vessels...</p>
+      <p class="text-sm text-slate-500">Loading vessels...</p>
     </div>
 
-    <div v-else-if="error" class="rounded bg-red-100 p-4 text-red-700">
+    <div
+      v-else-if="error"
+      class="rounded-xl border border-red-300/40 bg-red-50 p-4 text-sm text-red-700"
+    >
       {{ error }}
     </div>
 
     <div v-else-if="vessels.length === 0" class="py-8 text-center">
-      <p class="text-gray-600">No vessels found. Create your first vessel!</p>
+      <p class="text-sm text-slate-500">
+        No vessels found. Create your first vessel!
+      </p>
     </div>
 
     <div v-else>
@@ -30,49 +40,51 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search vessels by name or description..."
-            class="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
         </div>
         <div v-if="selectedIds.size > 0" class="flex items-center gap-2">
-          <span class="text-sm text-gray-600">
+          <span class="text-xs font-medium text-slate-600">
             {{ selectedIds.size }} selected
           </span>
           <button
             @click="handleBatchDelete"
-            class="rounded bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-700"
+            class="rounded-lg bg-red-600 px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
             Delete Selected
           </button>
           <button
             @click="selectedIds.clear()"
-            class="rounded border border-gray-300 px-4 py-2 text-sm transition hover:bg-gray-100"
+            class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >
             Clear Selection
           </button>
         </div>
       </div>
 
-      <!-- Virtual Scrolling Container -->
-      <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <!-- Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
         <table class="w-full border-collapse bg-white">
-          <thead class="bg-gray-50 sticky top-0 z-10">
+          <thead class="sticky top-0 z-10 bg-slate-50/80 backdrop-blur">
             <tr>
               <th
-                class="border-b px-4 py-3 text-left text-sm font-semibold w-12"
+                class="w-12 border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold text-slate-600"
               >
                 <input
                   type="checkbox"
                   :checked="allSelected"
                   :indeterminate="someSelected"
                   @change="toggleSelectAll"
-                  class="h-4 w-4 rounded border-gray-300"
+                  class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
               </th>
-              <th class="border-b px-4 py-3 text-left text-sm font-semibold">
+              <th
+                class="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+              >
                 Image
               </th>
               <th
-                class="border-b px-4 py-3 text-left text-sm font-semibold cursor-pointer hover:bg-gray-100"
+                class="cursor-pointer border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:bg-slate-100"
                 @click="toggleSort('name')"
               >
                 <div class="flex items-center gap-1">
@@ -82,13 +94,19 @@
                   </span>
                 </div>
               </th>
-              <th class="border-b px-4 py-3 text-left text-sm font-semibold">
+              <th
+                class="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+              >
                 Description
               </th>
-              <th class="border-b px-4 py-3 text-left text-sm font-semibold">
+              <th
+                class="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+              >
                 Preview
               </th>
-              <th class="border-b px-4 py-3 text-right text-sm font-semibold">
+              <th
+                class="border-b border-slate-200 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600"
+              >
                 Actions
               </th>
             </tr>
@@ -99,53 +117,57 @@
               :key="vessel._id"
               :class="[
                 'transition',
-                selectedIds.has(vessel._id) ? 'bg-blue-50' : 'hover:bg-gray-50',
+                selectedIds.has(vessel._id)
+                  ? 'bg-indigo-50/60'
+                  : 'hover:bg-slate-50',
               ]"
             >
-              <td class="border-b px-4 py-3">
+              <td class="border-b border-slate-200 px-4 py-3">
                 <input
                   type="checkbox"
                   :checked="selectedIds.has(vessel._id)"
                   @change="toggleSelection(vessel._id)"
-                  class="h-4 w-4 rounded border-gray-300"
+                  class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
               </td>
-              <td class="border-b px-4 py-3">
+              <td class="border-b border-slate-200 px-4 py-3">
                 <img
                   :src="getImageUrl(vessel.image)"
                   :alt="vessel.name"
                   loading="lazy"
-                  class="h-16 w-16 rounded object-cover cursor-pointer transition hover:opacity-80"
+                  class="h-16 w-16 cursor-pointer rounded object-cover shadow-sm ring-1 ring-slate-200/60 transition hover:opacity-80"
                   @click="openImageViewer(vessel)"
                 />
               </td>
-              <td class="border-b px-4 py-3">
-                <span class="font-medium">{{ vessel.name }}</span>
+              <td class="border-b border-slate-200 px-4 py-3">
+                <span class="font-medium text-slate-900">
+                  {{ vessel.name }}
+                </span>
               </td>
-              <td class="border-b px-4 py-3">
-                <span class="line-clamp-2 text-sm text-gray-600">
+              <td class="border-b border-slate-200 px-4 py-3">
+                <span class="line-clamp-2 text-xs text-slate-600">
                   {{ vessel.description }}
                 </span>
               </td>
-              <td class="border-b px-4 py-3">
+              <td class="border-b border-slate-200 px-4 py-3">
                 <button
                   @click="openModelViewer(vessel)"
-                  class="rounded bg-green-600 px-3 py-1 text-sm text-white transition hover:bg-green-700"
+                  class="rounded-lg bg-linear-to-r from-indigo-600 to-sky-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                 >
                   View 3D
                 </button>
               </td>
-              <td class="border-b px-4 py-3 text-right">
+              <td class="border-b border-slate-200 px-4 py-3 text-right">
                 <div class="flex justify-end gap-2">
                   <button
                     @click="$emit('edit', vessel)"
-                    class="rounded bg-yellow-500 px-3 py-1 text-sm text-white transition hover:bg-yellow-600"
+                    class="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                   >
                     Edit
                   </button>
                   <button
                     @click="handleDelete(vessel)"
-                    class="rounded bg-red-600 px-3 py-1 text-sm text-white transition hover:bg-red-700"
+                    class="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     Delete
                   </button>
@@ -156,8 +178,7 @@
         </table>
       </div>
 
-      <!-- Results Count -->
-      <div class="mt-4 text-sm text-gray-600">
+      <div class="mt-4 text-xs font-medium text-slate-600">
         Showing {{ filteredAndSortedVessels.length }} of
         {{ vessels.length }} vessels
       </div>
@@ -170,15 +191,15 @@
       @click.self="closeModelViewer"
     >
       <div class="popup-content">
-        <h3 class="text-center text-xl font-bold mb-2">
+        <h3 class="mb-2 text-center text-lg font-semibold text-slate-900">
           {{ selectedModel.name }}
         </h3>
-        <p class="text-center text-sm text-gray-600 mb-4">
+        <p class="mb-4 text-center text-xs text-slate-600">
           Left click or arrow keys to rotate camera. Scroll to zoom.
         </p>
         <ThreeModelViewer
           :model-path="getObjectUrl(selectedModel.object)"
-          class="outline drop-shadow-2xl flex-1"
+          class="flex-1 outline drop-shadow-2xl"
         />
         <button @click="closeModelViewer" class="close-button">Close</button>
       </div>
@@ -194,7 +215,7 @@
         <img
           :src="getImageUrl(selectedImage.image)"
           :alt="selectedImage.name"
-          class="max-w-full max-h-full object-contain"
+          class="max-h-full max-w-full object-contain"
         />
         <button @click="closeImageViewer" class="close-button">Close</button>
       </div>
@@ -296,41 +317,57 @@ const handleBatchDelete = (): void => {
 }
 
 .popup-content {
-  background: #d8d8d8;
+  background: #ffffff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 16px;
   position: relative;
   width: 90vw;
   height: 90vh;
   display: flex;
   flex-direction: column;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.08),
+    0 8px 10px -6px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(100, 116, 139, 0.15);
 }
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #ff4d4d;
-  color: white;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
   border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.4);
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 }
-
 .close-button:hover {
-  background: #ff1a1a;
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+.close-button:active {
+  transform: translateY(1px);
 }
 
 .image-popup-content {
-  background: #fff;
+  background: #ffffff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 16px;
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.08),
+    0 8px 10px -6px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(100, 116, 139, 0.15);
 }
 </style>

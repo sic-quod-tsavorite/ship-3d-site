@@ -1,39 +1,189 @@
 <template>
-  <nav class="bg-gray-800 text-white p-4">
-    <div class="container mx-auto flex justify-between items-center">
-      <RouterLink to="/" class="font-bold text-xl">MySite</RouterLink>
-      <div class="space-x-4">
-        <RouterLink to="/" class="mr-4">Home</RouterLink>
-        <RouterLink to="/map" class="mr-4">Map</RouterLink>
-        <RouterLink v-if="!auth.isLoggedIn" to="/login" class="mr-4">
+  <header
+    class="sticky top-0 z-40 w-full backdrop-blur supports-backdrop-filter:bg-slate-300/80 bg-slate-300/90 border-b border-slate-200 shadow-sm"
+  >
+    <nav
+      class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6"
+      aria-label="Main navigation"
+    >
+      <!-- Brand -->
+      <RouterLink
+        to="/"
+        class="relative inline-flex items-center gap-2 text-xl font-semibold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-indigo-500 to-sky-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+      >
+        <span class="select-none">3D Dev</span>
+      </RouterLink>
+
+      <!-- Mobile toggle -->
+      <button
+        type="button"
+        class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:hidden"
+        :aria-expanded="menuOpen"
+        aria-controls="primary-menu"
+        @click="toggleMenu"
+      >
+        <span class="sr-only">Toggle navigation</span>
+        <svg
+          v-if="!menuOpen"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+
+      <!-- Desktop menu -->
+      <div class="hidden lg:flex items-center gap-6" id="primary-menu">
+        <RouterLink :class="linkClass('/')" to="/">Home</RouterLink>
+        <RouterLink :class="linkClass('/map')" to="/map">Map</RouterLink>
+        <RouterLink
+          v-if="!auth.isLoggedIn"
+          :class="linkClass('/login')"
+          to="/login"
+        >
           Login
         </RouterLink>
-        <RouterLink v-if="auth.isLoggedIn" to="/admin" class="mr-4">
+        <RouterLink
+          v-if="auth.isLoggedIn"
+          :class="linkClass('/admin')"
+          to="/admin"
+        >
           Admin
         </RouterLink>
-        <a href="#" class="hover:text-gray-300">About</a>
-        <a href="#" class="hover:text-gray-300">Contact</a>
         <button
           v-if="auth.isLoggedIn"
-          @click="auth.logout"
-          class="hover:text-gray-300"
+          @click="auth.logout()"
+          type="button"
+          class="group relative inline-flex items-center overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
-          Logout
+          <span
+            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+          ></span>
+          <span class="relative">Logout</span>
         </button>
       </div>
-    </div>
-  </nav>
+    </nav>
+
+    <!-- Mobile flyout -->
+    <transition
+      name="fade"
+      enter-active-class="duration-150 ease-out"
+      leave-active-class="duration-100 ease-in"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+      <div
+        v-if="menuOpen"
+        class="lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur px-4 pb-4 shadow-sm"
+      >
+        <div class="flex flex-col gap-2">
+          <RouterLink :class="mobileLinkClass('/')" to="/" @click="closeMenu">
+            >Home
+          </RouterLink>
+          <RouterLink
+            :class="mobileLinkClass('/map')"
+            to="/map"
+            @click="closeMenu"
+          >
+            Map
+          </RouterLink>
+          <RouterLink
+            v-if="!auth.isLoggedIn"
+            :class="mobileLinkClass('/login')"
+            to="/login"
+            @click="closeMenu"
+          >
+            Login
+          </RouterLink>
+          <RouterLink
+            v-if="auth.isLoggedIn"
+            :class="mobileLinkClass('/admin')"
+            to="/admin"
+            @click="closeMenu"
+          >
+            Admin
+          </RouterLink>
+          <button
+            v-if="auth.isLoggedIn"
+            @click="handleLogout"
+            type="button"
+            class="mt-2 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </transition>
+  </header>
 </template>
 
 <script setup lang="ts">
-// Project imports
+import { ref } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore();
+const route = useRoute();
+const menuOpen = ref(false);
+
+const toggleMenu = (): void => {
+  menuOpen.value = !menuOpen.value;
+};
+const closeMenu = (): void => {
+  menuOpen.value = false;
+};
+const handleLogout = (): void => {
+  auth.logout();
+  closeMenu();
+};
+
+const linkBase =
+  "relative inline-flex items-center text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+const linkInactive = "text-slate-600 hover:text-slate-900";
+const linkActive =
+  "text-slate-900 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:rounded-full after:bg-linear-to-r after:from-indigo-500 after:to-sky-500";
+
+const linkClass = (path: string): string => {
+  return `${linkBase} ${route.path === path ? linkActive : linkInactive}`;
+};
+const mobileLinkClass = (path: string): string => {
+  return `block rounded-lg px-3 py-2 text-sm font-medium ${route.path === path ? "bg-indigo-50 text-indigo-700" : "text-slate-700 hover:bg-slate-50"}`;
+};
 </script>
 
 <style lang="scss" scoped>
-.router-link-active {
-  color: #6afc63;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.15s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-0.5rem);
 }
 </style>
