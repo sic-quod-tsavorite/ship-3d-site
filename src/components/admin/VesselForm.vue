@@ -13,19 +13,7 @@
           @click="$emit('close')"
           class="rounded-lg p-1.5 text-white transition hover:bg-slate-100 hover:text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <XMarkIcon class="h-6 w-6" />
         </button>
       </div>
 
@@ -169,6 +157,7 @@
 // Imports
 import { computed, unref } from "vue";
 import type { Ref } from "vue";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 // Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
