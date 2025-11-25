@@ -48,7 +48,7 @@
         </RouterLink>
         <button
           v-if="auth.isLoggedIn"
-          @click="auth.logout()"
+          @click="void auth.logout()"
           type="button"
           class="group relative inline-flex items-center overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
@@ -132,7 +132,7 @@ const closeMenu = (): void => {
   menuOpen.value = false;
 };
 const handleLogout = (): void => {
-  auth.logout();
+  void auth.logout();
   closeMenu();
 };
 

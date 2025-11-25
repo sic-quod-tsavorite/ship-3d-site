@@ -48,6 +48,8 @@ export default [
     },
     rules: {
       ...(tsPlugin.configs?.recommended?.rules ?? {}),
+      ...(tsPlugin.configs?.["recommended-requiring-type-checking"]?.rules ??
+        {}),
       ...(vuePlugin.configs?.["vue3-recommended"]?.rules ?? {}),
       ...(vuePlugin.configs?.["vue3-typescript"]?.rules ?? {}),
       ...(prettierPlugin.configs?.recommended?.rules ?? {}),
@@ -62,6 +64,21 @@ export default [
           bracketSameLine: false,
         },
       ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/explicit-function-return-type": "error",
+      "@typescript-eslint/explicit-module-boundary-types": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/prefer-nullish-coalescing": "error",
+      "@typescript-eslint/prefer-optional-chain": "error",
+      "@typescript-eslint/no-unnecessary-condition": "error",
       "no-undef": "off",
     },
   },

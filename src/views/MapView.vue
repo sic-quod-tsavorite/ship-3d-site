@@ -96,7 +96,7 @@ const mapStyle = computed(() => ({
   backgroundImage: `url(${mapSrc})`,
 }));
 
-function computeTransformForShip() {
+function computeTransformForShip(): void {
   const el = mapRef.value;
   if (!el) return;
   const rect = el.getBoundingClientRect();
@@ -128,17 +128,17 @@ function computeTransformForShip() {
   mapTransform.value = `translate(${tx}px, ${ty}px) scale(${z})`;
 }
 
-function onShipClick() {
+function onShipClick(): void {
   computeTransformForShip();
   isZoomed.value = true;
 }
 
-function closeZoom() {
+function closeZoom(): void {
   isZoomed.value = false;
   mapTransform.value = "";
 }
 
-function onResize() {
+function onResize(): void {
   if (isZoomed.value) computeTransformForShip();
 }
 
