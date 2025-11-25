@@ -8,6 +8,9 @@ import vueDevTools from "vite-plugin-vue-devtools";
 export default defineConfig({
   base: "./",
   plugins: [vue(), tailwindcss(), vueDevTools()],
+  css: {
+    transformer: "lightningcss",
+  },
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
