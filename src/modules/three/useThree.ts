@@ -1,10 +1,11 @@
 // Imports
-import { ref, onMounted, onUnmounted, shallowRef } from "vue";
+import { ref, onMounted, onUnmounted, shallowRef, nextTick } from "vue";
 import type { Ref } from "vue";
 import * as THREE from "three";
 
 // Project imports
 import { usePerformanceStore } from "@/stores/performance";
+import { useModelCacheStore } from "@/stores/modelCache";
 import {
   createScene,
   createCamera,
@@ -57,8 +58,12 @@ export function useThree(
   currentFPS?: Ref<number>;
   currentQuality?: Ref<QualityLevel>;
 } {
-  const isLoading = ref<boolean>(true);
-  const loadingProgress = ref<number>(0);
+  const modelCacheStore = useModelCacheStore();
+  const isInMemoryCache = modelCacheStore.hasSync(modelPath);
+
+  const isLoading = ref<boolean>(!isInMemoryCache);
+  const loadingProgress = ref<number>(isInMemoryCache ? 100 : 0);
+  const loadStartTime = ref<number>(0);
   const currentFPS = import.meta.env.DEV ? ref<number>(0) : undefined;
 
   // Get performance store and load saved quality preset
@@ -177,6 +182,9 @@ export function useThree(
 
   const init = (): void => {
     if (!container.value) return;
+
+    // Track when loading starts
+    loadStartTime.value = performance.now();
 
     // Create scene, camera, and renderer
     scene = createScene();
@@ -300,9 +308,28 @@ export function useThree(
             updateMaterialsForQuality(currentQuality.value, model);
           }
 
-          isLoading.value = false;
-          prevTime = performance.now();
-          animate(prevTime);
+          // Ensure progress shows 100% before hiding loading overlay
+          loadingProgress.value = 100;
+
+          // Calculate load time to detect instant memory cache hits
+          const loadDuration = performance.now() - loadStartTime.value;
+          const isInstantLoad = loadDuration < 200; // Memory cache hit
+
+          if (isInstantLoad || isInMemoryCache) {
+            // Instant load from memory cache - no delay needed
+            isLoading.value = false;
+            prevTime = performance.now();
+            animate(prevTime);
+          } else {
+            // Slower load (IndexedDB/network) - show 100% briefly for confirmation
+            void nextTick(() => {
+              setTimeout(() => {
+                isLoading.value = false;
+                prevTime = performance.now();
+                animate(prevTime);
+              }, 250);
+            });
+          }
         },
         onError: (error) => {
           console.error("An error happened while loading the model:", error);
