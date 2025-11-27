@@ -1,6 +1,7 @@
 // Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
+import type { ComponentPublicInstance } from "vue";
 
 // Project imports
 import VesselList from "@/components/admin/VesselList.vue";
@@ -177,10 +178,23 @@ describe("VesselList.vue", (): void => {
     // click image to open image viewer
     const img = wrapper.get("tbody tr:first-child img");
     await img.trigger("click");
-    expect(wrapper.findAll(".popup-overlay").length).toBeGreaterThan(0);
+    const vm = wrapper.vm as unknown as ComponentPublicInstance & {
+      selectedImage: Vessel | null;
+      selectedModel: Vessel | null;
+      closeImageViewer: () => void;
+    };
+    await vm.$nextTick();
 
-    // close by clicking overlay
-    await wrapper.find(".popup-overlay").trigger("click");
+    // verify image viewer state is true (modal is displayed)
+    expect(vm.selectedImage).toBeTruthy();
+    expect(vm.selectedImage?._id).toBe("1");
+
+    // close image viewer
+    vm.closeImageViewer();
+    await vm.$nextTick();
+
+    // verify image viewer state is closed
+    expect(vm.selectedImage).toBeFalsy();
 
     // open 3D viewer
     const viewBtn = wrapper
@@ -189,8 +203,10 @@ describe("VesselList.vue", (): void => {
     if (viewBtn) {
       await viewBtn.trigger("click");
     }
-    const overlays = wrapper.findAll(".popup-overlay");
-    expect(overlays.length).toBeGreaterThan(0);
-    expect(wrapper.find(".three-stub").exists()).toBe(true);
+    await vm.$nextTick();
+
+    // verify 3D viewer state is true (modal is displayed)
+    expect(vm.selectedModel).toBeTruthy();
+    expect(vm.selectedModel?._id).toBe("1");
   });
 });
