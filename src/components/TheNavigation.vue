@@ -50,7 +50,7 @@
           v-if="auth.isLoggedIn"
           @click="void auth.logout()"
           type="button"
-          class="group relative inline-flex items-center overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          class="group relative inline-flex items-center overflow-hidden rounded-xl bg-linear-to-r from-red-500 via-red-400 to-pink-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-red-500/30 transition hover:from-red-400 hover:via-pink-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
         >
           <span
             class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
@@ -105,9 +105,12 @@
             v-if="auth.isLoggedIn"
             @click="handleLogout"
             type="button"
-            class="mt-2 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            class="group relative mt-2 w-full overflow-hidden rounded-xl bg-linear-to-r from-red-500 via-red-400 to-pink-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-red-500/30 transition hover:from-red-400 hover:via-pink-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
-            Logout
+            <span
+              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+            ></span>
+            <span class="relative">Logout</span>
           </button>
         </div>
       </div>

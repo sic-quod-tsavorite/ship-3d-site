@@ -1,4 +1,63 @@
 <template>
+  <teleport to="body">
+    <!-- 3D Model Viewer Modal -->
+    <div
+      v-if="selectedModel"
+      class="fixed inset-0 z-60 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-sm"
+      @click.self="closeModelViewer"
+    >
+      <div
+        class="relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-xl shadow-slate-200/60"
+      >
+        <h3 class="mb-2 text-center text-lg font-semibold text-slate-900">
+          {{ selectedModel.name }}
+        </h3>
+        <p class="mb-4 text-center text-xs text-slate-600">
+          Left click or arrow keys to rotate camera. Scroll to zoom.
+        </p>
+        <ThreeModelViewer
+          :model-path="getObjectUrl(selectedModel.object)"
+          class="flex-1"
+        />
+        <button
+          @click="closeModelViewer"
+          class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+        >
+          <span
+            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+          ></span>
+          <XMarkIcon class="h-6 w-6" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div
+      v-if="selectedImage"
+      class="fixed inset-0 z-60 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-sm"
+      @click.self="closeImageViewer"
+    >
+      <div
+        class="relative flex max-h-[90vh] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-xl shadow-slate-200/60"
+      >
+        <img
+          :src="getImageUrl(selectedImage.image)"
+          :alt="selectedImage.name"
+          class="max-h-full max-w-full object-contain"
+        />
+        <button
+          @click="closeImageViewer"
+          class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+        >
+          <span
+            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+          ></span>
+          <XMarkIcon class="h-6 w-6" />
+        </button>
+      </div>
+    </div>
+  </teleport>
+
   <div class="w-full">
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h2 class="text-2xl font-semibold tracking-tight text-slate-900">
@@ -40,7 +99,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search vessels by name or description..."
-            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
         </div>
         <div v-if="selectedIds.size > 0" class="flex items-center gap-2">
@@ -152,24 +211,33 @@
               <td class="border-b border-slate-200 px-4 py-3">
                 <button
                   @click="openModelViewer(vessel)"
-                  class="rounded-lg bg-linear-to-r from-indigo-600 to-sky-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                 >
-                  View 3D
+                  <span
+                    class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+                  ></span>
+                  <span class="relative">View 3D</span>
                 </button>
               </td>
               <td class="border-b border-slate-200 px-4 py-3 text-right">
                 <div class="flex justify-end gap-2">
                   <button
                     @click="$emit('edit', vessel)"
-                    class="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    class="group relative overflow-hidden rounded-xl bg-linear-to-r from-amber-500 via-amber-400 to-orange-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-amber-500/30 transition hover:from-amber-400 hover:via-orange-400 hover:to-orange-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                   >
-                    Edit
+                    <span
+                      class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+                    ></span>
+                    <span class="relative">Edit</span>
                   </button>
                   <button
                     @click="handleDelete(vessel)"
-                    class="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    class="group relative overflow-hidden rounded-xl bg-linear-to-r from-red-500 via-red-400 to-pink-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-red-500/30 transition hover:from-red-400 hover:via-pink-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
-                    Delete
+                    <span
+                      class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+                    ></span>
+                    <span class="relative">Delete</span>
                   </button>
                 </div>
               </td>
@@ -185,47 +253,73 @@
     </div>
 
     <!-- 3D Model Viewer Modal -->
-    <div
-      v-if="selectedModel"
-      class="popup-overlay"
-      @click.self="closeModelViewer"
-    >
-      <div class="popup-content">
-        <h3 class="mb-2 text-center text-lg font-semibold text-slate-900">
-          {{ selectedModel.name }}
-        </h3>
-        <p class="mb-4 text-center text-xs text-slate-600">
-          Left click or arrow keys to rotate camera. Scroll to zoom.
-        </p>
-        <ThreeModelViewer
-          :model-path="getObjectUrl(selectedModel.object)"
-          class="flex-1 outline drop-shadow-2xl"
-        />
-        <button @click="closeModelViewer" class="close-button">Close</button>
+    <Teleport to="body">
+      <div
+        v-if="selectedModel"
+        class="fixed inset-0 z-999 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-sm"
+        @click.self="closeModelViewer"
+      >
+        <div
+          class="slide-in-scale relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-xl shadow-slate-200/60"
+        >
+          <h3 class="mb-2 text-center text-lg font-semibold text-slate-900">
+            {{ selectedModel.name }}
+          </h3>
+          <p class="mb-4 text-center text-xs text-slate-600">
+            Left click or arrow keys to rotate camera. Scroll to zoom. Spacebar
+            to reset view.
+          </p>
+          <ThreeModelViewer
+            :model-path="getObjectUrl(selectedModel.object)"
+            class="flex-1"
+          />
+          <button
+            @click="closeModelViewer"
+            class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+          >
+            <span
+              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+            ></span>
+            <XMarkIcon class="h-6 w-6" />
+          </button>
+        </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Image Viewer Modal -->
-    <div
-      v-if="selectedImage"
-      class="popup-overlay"
-      @click.self="closeImageViewer"
-    >
-      <div class="image-popup-content">
-        <img
-          :src="getImageUrl(selectedImage.image)"
-          :alt="selectedImage.name"
-          class="max-h-full max-w-full object-contain"
-        />
-        <button @click="closeImageViewer" class="close-button">Close</button>
+    <Teleport to="body">
+      <div
+        v-if="selectedImage"
+        class="fixed inset-0 z-999 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-sm"
+        @click.self="closeImageViewer"
+      >
+        <div
+          class="slide-in-scale relative flex max-h-[90vh] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-xl shadow-slate-200/60"
+        >
+          <img
+            :src="getImageUrl(selectedImage.image)"
+            :alt="selectedImage.name"
+            class="max-h-full max-w-full object-contain"
+          />
+          <button
+            @click="closeImageViewer"
+            class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+          >
+            <span
+              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
+            ></span>
+            <XMarkIcon class="h-6 w-6" />
+          </button>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 // Imports
 import { ref, toRef } from "vue";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 // Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
@@ -302,72 +396,4 @@ const handleBatchDelete = (): void => {
 };
 </script>
 
-<style lang="scss" scoped>
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-content {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 16px;
-  position: relative;
-  width: 90vw;
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.08),
-    0 8px 10px -6px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(100, 116, 139, 0.15);
-}
-
-.close-button {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: linear-gradient(90deg, #ef4444, #dc2626);
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  font-size: 12px;
-  line-height: 1;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.4);
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
-}
-.close-button:hover {
-  background: linear-gradient(90deg, #f87171, #ef4444);
-}
-.close-button:active {
-  transform: translateY(1px);
-}
-
-.image-popup-content {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 16px;
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.08),
-    0 8px 10px -6px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(100, 116, 139, 0.15);
-}
-</style>
+<style lang="scss" scoped></style>

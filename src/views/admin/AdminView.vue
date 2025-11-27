@@ -40,26 +40,16 @@
         />
       </div>
 
-      <transition
-        name="fade"
-        enter-active-class="duration-200 ease-out"
-        leave-active-class="duration-150 ease-in"
-        enter-from-class="opacity-0 scale-95"
-        enter-to-class="opacity-100 scale-100"
-        leave-from-class="opacity-100 scale-100"
-        leave-to-class="opacity-0 scale-95"
-      >
-        <VesselForm
-          v-if="showForm"
-          :vessel="selectedVessel"
-          :loading="loading"
-          :validate-image-file="validateImageFile"
-          :validate-object-file="validateObjectFile"
-          :get-image-url="getImageUrl"
-          @close="closeForm"
-          @submit="handleSubmit"
-        />
-      </transition>
+      <VesselForm
+        v-if="showForm"
+        :vessel="selectedVessel"
+        :loading="loading"
+        :validate-image-file="validateImageFile"
+        :validate-object-file="validateObjectFile"
+        :get-image-url="getImageUrl"
+        @close="closeForm"
+        @submit="handleSubmit"
+      />
     </div>
   </div>
 </template>
@@ -90,14 +80,4 @@ const {
 } = useAdmin();
 </script>
 
-<style lang="scss" scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-</style>
+<style lang="scss" scoped></style>
