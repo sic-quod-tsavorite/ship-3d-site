@@ -1,11 +1,25 @@
 // Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import type { ComponentPublicInstance } from "vue";
 
 // Project imports
 import VesselList from "@/components/admin/VesselList.vue";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
+
+// Mock indexedDB
+const indexedDBMock: IDBFactory = {
+  open: () => ({
+    onsuccess: null,
+    onerror: null,
+  }),
+} as unknown as IDBFactory;
+
+Object.defineProperty(global, "indexedDB", {
+  value: indexedDBMock,
+  writable: true,
+});
 
 const vessels: Vessel[] = [
   {
@@ -36,9 +50,11 @@ describe("VesselList.vue", (): void => {
   const getObjectUrl = (p: string): string => `/obj/${p}`;
 
   beforeEach((): void => {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
   });
   afterEach((): void => {
+    setActivePinia(undefined);
     vi.restoreAllMocks();
   });
 
@@ -50,6 +66,11 @@ describe("VesselList.vue", (): void => {
         error: null,
         getImageUrl,
         getObjectUrl,
+      },
+      global: {
+        stubs: {
+          ThreeModelViewer: { template: '<div class="three-stub" />' },
+        },
       },
     });
 
@@ -65,6 +86,11 @@ describe("VesselList.vue", (): void => {
         error: null,
         getImageUrl,
         getObjectUrl,
+      },
+      global: {
+        stubs: {
+          ThreeModelViewer: { template: '<div class="three-stub" />' },
+        },
       },
     });
 
@@ -94,6 +120,11 @@ describe("VesselList.vue", (): void => {
         error: null,
         getImageUrl,
         getObjectUrl,
+      },
+      global: {
+        stubs: {
+          ThreeModelViewer: { template: '<div class="three-stub" />' },
+        },
       },
     });
 
@@ -131,6 +162,11 @@ describe("VesselList.vue", (): void => {
         error: null,
         getImageUrl,
         getObjectUrl,
+      },
+      global: {
+        stubs: {
+          ThreeModelViewer: { template: '<div class="three-stub" />' },
+        },
       },
     });
 

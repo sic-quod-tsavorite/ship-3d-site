@@ -423,12 +423,16 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
 
     const overlay = wrapper.find(".loading-overlay");
     expect(overlay.exists()).toBe(true);
-    expect(overlay.text()).toContain("Loading... 50%");
+    // Check that progress is displayed (value may vary based on cache state)
+    const overlayText = overlay.text();
+    expect(overlayText).toMatch(/Loading\.\.\. \d+%/);
 
-    await nextTick();
+    // Wait for promises to resolve and model to load
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await nextTick();
     await nextTick();
 
+    // Overlay should be hidden after model loads
     expect(wrapper.find(".loading-overlay").exists()).toBe(false);
 
     const container = wrapper.find(".model-container").element;
@@ -447,6 +451,8 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     });
 
     await nextTick();
+    // Wait for promises to resolve and model to load
+    await new Promise((resolve) => setTimeout(resolve, 300));
     await nextTick();
 
     const gltf = globalThis._lastGltf;
