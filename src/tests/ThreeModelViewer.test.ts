@@ -1,6 +1,6 @@
 // Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 
@@ -428,8 +428,9 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     expect(overlayText).toMatch(/Loading\.\.\. \d+%/);
 
     // Wait for promises to resolve and model to load
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    await nextTick();
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await flushPromises();
     await nextTick();
 
     // Overlay should be hidden after model loads
