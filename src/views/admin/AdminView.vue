@@ -19,11 +19,19 @@
           Dashboard
         </h1>
         <p class="mt-2 text-sm text-slate-500">
-          Manage vessels and assets. Perform create, edit and removal operations
-          below.
+          Manage vessels, users, and assets. Perform create, edit and removal
+          operations below.
         </p>
       </div>
 
+      <!-- User Management Section -->
+      <div
+        class="mb-6 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 backdrop-blur-sm px-5 py-6"
+      >
+        <UserManagement />
+      </div>
+
+      <!-- Vessels Section -->
       <div
         class="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 backdrop-blur-sm px-5 py-6"
       >
@@ -59,6 +67,7 @@
 import { useAdmin } from "@/modules/admin/useAdmin";
 import VesselList from "@/components/admin/VesselList.vue";
 import VesselForm from "@/components/admin/VesselForm.vue";
+import UserManagement from "@/components/admin/UserManagement.vue";
 
 const {
   auth,
