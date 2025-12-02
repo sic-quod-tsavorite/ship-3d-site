@@ -2,6 +2,6 @@ export type User = {
   _id: string;
   name: string;
   email: string;
-  password: string;
-  registerDate: string;
+  role: "super" | "admin";
+  registeredAt: string;
 };

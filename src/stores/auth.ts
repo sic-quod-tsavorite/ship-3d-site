@@ -4,6 +4,7 @@ import { ref, computed } from "vue";
 
 // Project imports
 import router from "@/router";
+import type { AuthCheckResponse } from "@/interfaces/authInterfaces";
 
 export const useAuthStore = defineStore("auth", () => {
   const API_URL = import.meta.env.VITE_API_URL as string;
@@ -11,13 +12,9 @@ export const useAuthStore = defineStore("auth", () => {
   const userId = ref<string | null>(null);
   const userName = ref<string | null>(null);
   const userEmail = ref<string | null>(null);
+  const userRole = ref<"super" | "admin" | null>(null);
 
   const isLoggedIn = computed(() => _isLoggedIn.value);
-
-  type AuthCheckResponse = {
-    isAuthenticated?: boolean;
-    user?: { id?: string; name?: string; email?: string };
-  };
 
   const isAuthCheckResponse = (obj: unknown): obj is AuthCheckResponse =>
     typeof obj === "object" && obj !== null && "isAuthenticated" in obj;
@@ -38,11 +35,13 @@ export const useAuthStore = defineStore("auth", () => {
         userId.value = raw.user?.id ?? null;
         userName.value = raw.user?.name ?? null;
         userEmail.value = raw.user?.email ?? null;
+        userRole.value = raw.user?.role ?? null;
       } else {
         _isLoggedIn.value = false;
         userId.value = null;
         userName.value = null;
         userEmail.value = null;
+        userRole.value = null;
       }
     } catch (error) {
       console.error("Error initializing authentication:", error);
@@ -50,6 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
       userId.value = null;
       userName.value = null;
       userEmail.value = null;
+      userRole.value = null;
     }
   }
 
@@ -79,9 +79,19 @@ export const useAuthStore = defineStore("auth", () => {
       userId.value = null;
       userName.value = null;
       userEmail.value = null;
+      userRole.value = null;
       await router.push("/login");
     }
   }
 
-  return { isLoggedIn, userId, userName, userEmail, login, logout, initAuth };
+  return {
+    isLoggedIn,
+    userId,
+    userName,
+    userEmail,
+    userRole,
+    login,
+    logout,
+    initAuth,
+  };
 });

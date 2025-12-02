@@ -9,3 +9,13 @@ export type RegisterResponse = {
 export type ErrorResponse = {
   error?: string;
 };
+
+export type AuthCheckResponse = {
+  isAuthenticated?: boolean;
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    role?: "super" | "admin";
+  };
+};
