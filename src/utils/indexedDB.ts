@@ -1,13 +1,9 @@
+// Project imports
+import type { ModelData } from "@/interfaces/cacheInterfaces";
+
 const DB_NAME = "ship3d-model-cache";
 const DB_VERSION = 1;
 const STORE_NAME = "models";
-
-interface ModelData {
-  path: string;
-  data: ArrayBuffer;
-  cachedAt: number;
-  size: number;
-}
 
 /**
  * IndexedDB wrapper for caching 3D model files

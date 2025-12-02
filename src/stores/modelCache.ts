@@ -9,16 +9,7 @@ import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // Project imports
 import { modelIndexedDB } from "@/utils/indexedDB";
-
-interface CachedModel {
-  gltf: GLTF;
-  loadedAt: number;
-}
-
-interface PreloadStatus {
-  isPreloading: boolean;
-  progress: number;
-}
+import type { CachedModel, PreloadStatus } from "@/interfaces/cacheInterfaces";
 
 export const useModelCacheStore = defineStore("modelCache", () => {
   // In-memory cache for parsed models (for current session)
