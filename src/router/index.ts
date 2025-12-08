@@ -4,7 +4,6 @@ import type { Component } from "vue";
 
 // Project imports
 import HomeView from "@/views/HomeView.vue";
-import MapView from "@/views/MapView.vue";
 import AdminView from "@/views/admin/AdminView.vue";
 import LoginView from "@/views/admin/LoginView.vue";
 import NotFound from "@/views/NotFound.vue";
@@ -19,11 +18,6 @@ const router = createRouter({
       path: `${routePrefix}/`,
       name: "home",
       component: HomeView as Component,
-    },
-    {
-      path: `${routePrefix}/map`,
-      name: "map",
-      component: MapView as Component,
     },
     {
       path: `${routePrefix}/login`,
