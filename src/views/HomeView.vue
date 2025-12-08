@@ -1,72 +1,79 @@
 <template>
-  <h1 class="text-3xl font-bold underline text-center my-8">Velkommen!</h1>
-  <p class="text-center mb-4">
-    Tryk på knappen nedenfor for at åbne 3D-visningen.
-  </p>
-  <div class="text-center">
-    <button
-      @click="openModel(modelPath)"
-      @mouseenter="handleHover(modelPath)"
-      class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-    >
-      <span
-        class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-      ></span>
-      <span class="relative">Open 3D View</span>
-    </button>
-  </div>
-  <div class="text-center pt-10">
-    <button
-      @click="openModel(uopPath)"
-      @mouseenter="handleHover(uopPath)"
-      class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-    >
-      <span
-        class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-      ></span>
-      <span class="relative">View Unoptimized 3D Model</span>
-    </button>
-  </div>
+  <div class="relative h-screen w-full overflow-hidden">
+    <!-- Background image -->
+    <div class="absolute inset-0 z-0">
+      <img
+        :src="backgroundImage"
+        alt="Offshore vessel with turbine"
+        class="h-full w-full object-cover"
+      />
+    </div>
 
-  <!-- 3D Model Viewer Modal -->
-  <ThreeModelViewer
-    v-if="showModelViewer"
-    v-model="showModelViewer"
-    :model-path="selectedModelPath"
-    modal
-    title="3D-visning"
-    instructions="Venstre klik eller piletaster for at rotere kameraet. Scroll for at zoome. Mellemrum for at nulstille visningen."
-  />
+    <!-- Content layer -->
+    <div
+      class="relative z-10 flex h-full w-full flex-col justify-between p-6 sm:px-12 sm:py-8"
+    >
+      <!-- Top right logos -->
+      <div class="flex items-center justify-end gap-4 sm:gap-6">
+        <a :href="company1.url" target="_blank" rel="noopener noreferrer">
+          <img
+            :src="company1.logo"
+            :alt="`${company1.name} Logo`"
+            class="h-[30px] w-auto object-contain sm:h-10"
+          />
+        </a>
+        <a :href="company2.url" target="_blank" rel="noopener noreferrer">
+          <img
+            :src="company2.logo"
+            :alt="`${company2.name} Logo`"
+            class="h-[30px] w-auto object-contain sm:h-10"
+          />
+        </a>
+        <a :href="company3.url" target="_blank" rel="noopener noreferrer">
+          <img
+            :src="company3.logo"
+            :alt="`${company3.name} Logo`"
+            class="h-[30px] w-auto object-contain sm:h-10"
+          />
+        </a>
+      </div>
 
-  <!-- Debug Component (dev mode only) -->
-  <ModelCacheDebug />
+      <!-- Bottom left text -->
+      <div class="mb-8 ml-0 sm:mb-16 sm:ml-16">
+        <p class="service-area-label text-base mb-3 sm:text-sm font-bold">
+          SERVICE AREA | ONE
+        </p>
+        <h1
+          class="m-0 text-3xl font-bold leading-tight tracking-wide text-white sm:text-5xl"
+        >
+          OFFSHORE SERVICE
+          <br />
+          & OPERATIONS
+        </h1>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-// Imports
-import { ref } from "vue";
+// Asset paths
+const backgroundImage = "/assets/images/Vessel_turbine_6_Edited-expanded.jpg";
 
-// Project imports
-import ThreeModelViewer from "../components/ThreeModelViewer.vue";
-import ModelCacheDebug from "../components/ModelCacheDebug.vue";
-import { useModelPreload } from "../modules/three/useModelPreload";
-
-const showModelViewer = ref(false);
-const selectedModelPath = ref("");
-
-const modelPath =
-  import.meta.env.VITE_PATH +
-  "optimeret_version_-_standard_vessel_with_LARS.glb";
-
-const uopPath = import.meta.env.VITE_PATH + "scene.glb";
-
-// Model preloading on hover
-const { handleHover } = useModelPreload();
-
-// Function to open model viewer with selected path
-const openModel = (path: string): void => {
-  selectedModelPath.value = path;
-  showModelViewer.value = true;
+// Company info from environment
+const company1 = {
+  name: import.meta.env.VITE_COMPANY1_NAME as string,
+  url: import.meta.env.VITE_COMPANY1_URL as string,
+  logo: import.meta.env.VITE_COMPANY1_LOGO as string,
+};
+const company2 = {
+  name: import.meta.env.VITE_COMPANY2_NAME as string,
+  url: import.meta.env.VITE_COMPANY2_URL as string,
+  logo: import.meta.env.VITE_COMPANY2_LOGO as string,
+};
+const company3 = {
+  name: import.meta.env.VITE_COMPANY3_NAME as string,
+  url: import.meta.env.VITE_COMPANY3_URL as string,
+  logo: import.meta.env.VITE_COMPANY3_LOGO as string,
 };
 </script>
 
