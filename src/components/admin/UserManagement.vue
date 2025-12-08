@@ -5,7 +5,7 @@
       @click="isExpanded = !isExpanded"
       class="mb-4 flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-5 py-4 text-left transition hover:bg-slate-100/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
     >
-      <h2 class="text-2xl font-semibold tracking-tight text-white">
+      <h2 class="text-2xl font-semibold tracking-tight text-slate-900">
         User Management
       </h2>
       <svg
@@ -77,7 +77,7 @@
             <button
               @click="fetchUsers"
               :disabled="loading"
-              class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+              class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {{ loading ? "Loading..." : "Refresh" }}
             </button>

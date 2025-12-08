@@ -7,7 +7,7 @@
       <h3 class="text-sm font-semibold text-slate-900">Model Cache Debug</h3>
       <button
         @click="isExpanded = !isExpanded"
-        class="rounded ml-3 px-2 py-1 text-xs text-slate-600 hover:bg-slate-100"
+        class="bg-black rounded ml-3 px-2 py-1 text-xs text-white hover:bg-slate-950"
       >
         {{ isExpanded ? "−" : "+" }}
       </button>
@@ -88,7 +88,7 @@
       <div class="flex gap-2">
         <button
           @click="refreshStats"
-          class="flex-1 rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+          class="flex-1 rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-950"
         >
           Refresh
         </button>
@@ -106,13 +106,13 @@
         <div class="flex gap-2">
           <button
             @click="testPreload"
-            class="flex-1 rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+            class="flex-1 rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-950"
           >
             Test Preload
           </button>
           <button
             @click="checkIndexedDB"
-            class="flex-1 rounded bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700"
+            class="flex-1 rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-950"
           >
             Check IDB
           </button>
