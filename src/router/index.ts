@@ -6,6 +6,7 @@ import type { Component } from "vue";
 import HomeView from "@/views/HomeView.vue";
 import AdminView from "@/views/admin/AdminView.vue";
 import LoginView from "@/views/admin/LoginView.vue";
+import VesselDetailView from "@/views/VesselDetailView.vue";
 import NotFound from "@/views/NotFound.vue";
 import { useAuthStore } from "@/stores/auth";
 
@@ -29,6 +30,12 @@ const router = createRouter({
       name: "admin",
       component: AdminView as Component,
       meta: { requiresAuth: true },
+    },
+    {
+      path: `${routePrefix}/vessel/:id`,
+      name: "vessel-detail",
+      component: VesselDetailView as Component,
+      props: true,
     },
     {
       path: "/:pathMatch(.*)*",
