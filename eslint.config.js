@@ -53,7 +53,7 @@ export default [
       ...(vuePlugin.configs?.["vue3-recommended"]?.rules ?? {}),
       ...(vuePlugin.configs?.["vue3-typescript"]?.rules ?? {}),
       ...(prettierPlugin.configs?.recommended?.rules ?? {}),
-      "vue/html-indent": ["error", 2],
+      "vue/html-indent": "off",
       "vue/max-attributes-per-line": "off",
       "vue/multi-word-component-names": "error",
       "vue/no-unused-components": "error",
