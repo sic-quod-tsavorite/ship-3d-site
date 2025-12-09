@@ -37,35 +37,71 @@
           </h2>
         </div>
 
-        <!-- Navigation links -->
+        <!-- Navigation links - Dynamic vessel categories -->
         <nav class="flex flex-col" aria-label="Main navigation">
-          <RouterLink
-            to="/survey"
-            class="text-black text-sm no-underline py-3 nav-link-transition hover:text-gray-700"
+          <!-- Loading state -->
+          <div v-if="loading" class="py-3 text-sm text-gray-500">
+            Loading vessels...
+          </div>
+
+          <!-- Error state -->
+          <div v-else-if="error" class="py-3 text-sm text-red-600">
+            Failed to load vessels
+          </div>
+
+          <!-- Empty state -->
+          <div
+            v-else-if="categories.length === 0"
+            class="py-3 text-sm text-gray-500"
           >
-            Survey and Inspection
-          </RouterLink>
-          <div class="h-px bg-gray-200"></div>
-          <RouterLink
-            to="/maintenance"
-            class="text-black text-sm no-underline py-3 nav-link-transition hover:text-gray-700"
-          >
-            Maintenance
-          </RouterLink>
-          <div class="h-px bg-gray-200"></div>
-          <RouterLink
-            to="/supply"
-            class="text-black text-sm no-underline py-3 nav-link-transition hover:text-gray-700"
-          >
-            Supply services
-          </RouterLink>
-          <div class="h-px bg-gray-200"></div>
-          <RouterLink
-            to="/guard"
-            class="text-black text-sm no-underline py-3 nav-link-transition hover:text-gray-700"
-          >
-            Guard and chase duties
-          </RouterLink>
+            No vessels available
+          </div>
+
+          <!-- Category sections -->
+          <template v-else>
+            <div
+              v-for="category in categories"
+              :key="category.name"
+              class="category-section"
+            >
+              <!-- Category button with chevron -->
+              <button
+                @click="toggleCategory(category.name)"
+                type="button"
+                class="flex items-center justify-start gap-2 w-full py-3 px-0! text-black text-sm font-normal text-left cursor-pointer border-none bg-transparent hover:text-gray-700 transition-colors"
+              >
+                <span class="flex items-center justify-center w-4 h-4 shrink-0">
+                  <ChevronUpIcon
+                    class="w-3.5 h-3.5 transition-transform duration-300 ease-out"
+                    :class="{
+                      'rotate-90': !category.isOpen.value,
+                      'rotate-180': category.isOpen.value,
+                    }"
+                  />
+                </span>
+                {{ category.name }}
+              </button>
+
+              <!-- Animated folddown with vessel links -->
+              <Transition name="category-slide">
+                <div v-show="category.isOpen.value" class="overflow-hidden">
+                  <!-- Separator between category and vessels -->
+                  <div class="h-px bg-gray-300 my-2 mx-6"></div>
+
+                  <div class="ml-6">
+                    <RouterLink
+                      v-for="vessel in category.vessels"
+                      :key="vessel._id"
+                      :to="`/vessel/${vessel._id}`"
+                      class="block text-black text-sm no-underline py-2 nav-link-transition hover:text-gray-700"
+                    >
+                      {{ vessel.name }}
+                    </RouterLink>
+                  </div>
+                </div>
+              </Transition>
+            </div>
+          </template>
         </nav>
 
         <!-- Spacer to push buttons and logos to bottom -->
@@ -200,9 +236,9 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
 import {
   ArrowLeftIcon,
   Bars3Icon,
@@ -211,8 +247,13 @@ import {
   LockOpenIcon,
 } from "@heroicons/vue/24/outline";
 
+// Project imports
+import { useAuthStore } from "@/stores/auth";
+import { useVesselCategories } from "@/modules/vessels/useVesselCategories";
+
 const auth = useAuthStore();
 const route = useRoute();
+const { categories, loading, error, fetchCategories } = useVesselCategories();
 
 // State
 const isLocked = ref(false);
@@ -223,6 +264,14 @@ const isAboutOpen = ref(false);
 
 const toggleAbout = (): void => {
   isAboutOpen.value = !isAboutOpen.value;
+};
+
+// Toggle category open/closed state
+const toggleCategory = (categoryName: string): void => {
+  const category = categories.value.find((c) => c.name === categoryName);
+  if (category) {
+    category.isOpen.value = !category.isOpen.value;
+  }
 };
 
 // Navigation is visible when locked OR when hovering
@@ -258,6 +307,9 @@ let glowTimeout: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(() => {
   document.addEventListener("mousemove", handleMouseMove);
+
+  // Fetch vessel categories
+  void fetchCategories();
 
   // Trigger entrance animation after initial render
   requestAnimationFrame(() => {
@@ -421,6 +473,35 @@ $nav-transition-duration: 0.3s;
   max-height: 0;
 }
 
+// Category slide transition
+.category-slide-enter-active {
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out,
+    max-height 0.3s ease-out;
+  max-height: 500px;
+}
+
+.category-slide-leave-active {
+  transition:
+    opacity 0.2s ease-in,
+    transform 0.2s ease-in,
+    max-height 0.2s ease-in;
+  max-height: 500px;
+}
+
+.category-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+}
+
+.category-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+}
+
 // Accessibility: respect reduced motion preferences
 @media (prefers-reduced-motion: reduce) {
   .nav-toggle-btn {
@@ -437,6 +518,11 @@ $nav-transition-duration: 0.3s;
 
   .icon-fade-enter-active,
   .icon-fade-leave-active {
+    transition: none;
+  }
+
+  .category-slide-enter-active,
+  .category-slide-leave-active {
     transition: none;
   }
 }
