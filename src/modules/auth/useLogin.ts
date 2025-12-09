@@ -18,7 +18,6 @@ export const useLogin = (): {
   emailError: Ref<string | null>;
   passwordError: Ref<string | null>;
   showPassword: Ref<boolean>;
-  emailInput: Ref<HTMLInputElement | null>;
   handleLogin: () => Promise<void>;
   clearEmailError: () => void;
   clearPasswordError: () => void;
@@ -31,9 +30,6 @@ export const useLogin = (): {
 
   // Password visibility toggle
   const showPassword = ref<boolean>(false);
-
-  // Template ref for auto-focus
-  const emailInput = ref<HTMLInputElement | null>(null);
 
   /**
    * Validates email and sets error state
@@ -89,7 +85,10 @@ export const useLogin = (): {
    * Auto-focus email input on mount
    */
   const focusEmailInput = (): void => {
-    emailInput.value?.focus();
+    const emailInput = document.querySelector<HTMLInputElement>(
+      'input[reference="emailInput"]'
+    );
+    emailInput?.focus();
   };
 
   // Set up auto-focus on mount
@@ -108,7 +107,6 @@ export const useLogin = (): {
     emailError,
     passwordError,
     showPassword,
-    emailInput,
 
     // Methods
     handleLogin,

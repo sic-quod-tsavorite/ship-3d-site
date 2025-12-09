@@ -35,7 +35,7 @@
           class="relative flex items-center rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
         >
           <input
-            ref="emailInput"
+            reference="emailInput"
             type="email"
             class="w-full bg-transparent text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none"
             placeholder="you@example.com"
@@ -67,7 +67,7 @@
           <button
             type="button"
             @click="showPassword = !showPassword"
-            class="bg-linear-to-r from-indigo-800 via-indigo-700 to-sky-800 transition hover:from-indigo-700 hover:via-sky-700 hover:to-sky-600"
+            class="rounded-4xl p-0.5! bg-linear-to-r from-indigo-800 via-indigo-700 to-sky-800 transition hover:from-indigo-700 hover:via-sky-700 hover:to-sky-600"
             :aria-label="showPassword ? 'Hide password' : 'Show password'"
           >
             <EyeIcon
@@ -123,7 +123,6 @@ const {
   emailError,
   passwordError,
   showPassword,
-  emailInput,
   handleLogin,
   clearEmailError,
   clearPasswordError,
