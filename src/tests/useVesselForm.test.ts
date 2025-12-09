@@ -49,6 +49,7 @@ describe("useVesselForm", (): void => {
       description: "Description A",
       image: "ship.jpg",
       object: "ship.glb",
+      category: "Survey",
     };
 
     const wrapper = mount(
@@ -242,6 +243,7 @@ describe("useVesselForm", (): void => {
       description: "Desc",
       image: "ship.jpg",
       object: "ship.glb",
+      category: "Survey",
     };
 
     const wrapper = mount(

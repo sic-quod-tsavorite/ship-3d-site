@@ -28,6 +28,7 @@ const vessels: Vessel[] = [
     description: "Alpha",
     image: "a.jpg",
     object: "a.glb",
+    category: "Survey",
   },
   {
     _id: "2",
@@ -35,6 +36,7 @@ const vessels: Vessel[] = [
     description: "Beta",
     image: "z.jpg",
     object: "z.glb",
+    category: "Maintenance",
   },
   {
     _id: "3",
@@ -42,6 +44,7 @@ const vessels: Vessel[] = [
     description: "Gamma",
     image: "b.jpg",
     object: "b.glb",
+    category: "Survey",
   },
 ];
 

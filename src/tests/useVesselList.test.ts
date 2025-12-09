@@ -13,6 +13,7 @@ const vesselsSample: Vessel[] = [
     description: "Alpha ship",
     image: "a.jpg",
     object: "a.glb",
+    category: "Survey",
   },
   {
     _id: "2",
@@ -20,6 +21,7 @@ const vesselsSample: Vessel[] = [
     description: "Beta ship",
     image: "z.jpg",
     object: "z.glb",
+    category: "Maintenance",
   },
   {
     _id: "3",
@@ -27,6 +29,7 @@ const vesselsSample: Vessel[] = [
     description: "Gamma ship",
     image: "b.jpg",
     object: "b.glb",
+    category: "Survey",
   },
 ];
 

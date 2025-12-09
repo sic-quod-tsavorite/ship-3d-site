@@ -7,6 +7,23 @@ import type { Vessel } from "@/interfaces/vesselInterfaces";
 
 const API = "http://api.test";
 
+// Mock the vessels store - will actually call fetch with the test API
+vi.mock("@/stores/vessels", (): object => ({
+  useVesselsStore: (): object => ({
+    fetchVessels: async (): Promise<void> => {
+      try {
+        await fetch(`${API}/vessels`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+      } catch {
+        // ignore errors in store fetch
+      }
+    },
+  }),
+}));
+
 interface FetchResponse {
   ok: boolean;
   json: () => Promise<
@@ -92,6 +109,7 @@ describe("useVessels", (): void => {
               description: "D",
               image: "i.jpg",
               object: "o.glb",
+              category: "Survey",
             },
           ]),
       },
@@ -106,6 +124,7 @@ describe("useVessels", (): void => {
                 description: "D",
                 image: "i.jpg",
                 object: "o.glb",
+                category: "Maintenance",
               },
             ],
           }),
@@ -121,6 +140,7 @@ describe("useVessels", (): void => {
                 description: "D",
                 image: "i.jpg",
                 object: "o.glb",
+                category: "Supply",
               },
             ],
           }),
@@ -135,6 +155,7 @@ describe("useVessels", (): void => {
               description: "D",
               image: "i.jpg",
               object: "o.glb",
+              category: "Guard",
             },
           }),
       },
@@ -179,6 +200,7 @@ describe("useVessels", (): void => {
       description: "D",
       imageFile: null,
       objectFile: null,
+      category: "Survey",
     });
     expect(ok).toBe(false);
     expect(api.error.value).toContain("Image is required");
@@ -198,7 +220,12 @@ describe("useVessels", (): void => {
         ok: true,
         json: (): Promise<object> => Promise.resolve({ vessel: { _id: "1" } }),
       } as Response)
-      // refresh
+      // refresh (useVessels)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: (): Promise<object> => Promise.resolve({ vessels: [] }),
+      } as Response)
+      // refresh (store)
       .mockResolvedValueOnce({
         ok: true,
         json: (): Promise<object> => Promise.resolve({ vessels: [] }),
@@ -209,9 +236,10 @@ describe("useVessels", (): void => {
       description: "Desc",
       imageFile: fImg,
       objectFile: fObj,
+      category: "Survey",
     });
     expect(ok).toBe(true);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     // ensure form fields are appended
     const keys = appendSpy.mock.calls.map((c) => c[0]);
     expect(keys).toEqual(
@@ -228,7 +256,12 @@ describe("useVessels", (): void => {
         ok: true,
         json: (): Promise<object> => Promise.resolve({ vessel: { _id: "1" } }),
       } as Response)
-      // refresh
+      // refresh (useVessels)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: (): Promise<object> => Promise.resolve({ vessels: [] }),
+      } as Response)
+      // refresh (store)
       .mockResolvedValueOnce({
         ok: true,
         json: (): Promise<object> => Promise.resolve({ vessels: [] }),
@@ -242,6 +275,7 @@ describe("useVessels", (): void => {
       description: "D",
       imageFile: null,
       objectFile: null,
+      category: "Survey",
     });
     expect(ok).toBe(true);
     const keys = appendSpy.mock.calls.map((c) => c[0]);
@@ -258,7 +292,12 @@ describe("useVessels", (): void => {
         ok: true,
         json: (): Promise<object> => Promise.resolve({ message: "ok" }),
       } as Response)
-      // refresh
+      // refresh (useVessels)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: (): Promise<object> => Promise.resolve({ vessels: [] }),
+      } as Response)
+      // refresh (store)
       .mockResolvedValueOnce({
         ok: true,
         json: (): Promise<object> => Promise.resolve({ vessels: [] }),
@@ -266,6 +305,6 @@ describe("useVessels", (): void => {
 
     const ok = await api.deleteVessel("123");
     expect(ok).toBe(true);
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(global.fetch).toHaveBeenCalledTimes(3);
   });
 });

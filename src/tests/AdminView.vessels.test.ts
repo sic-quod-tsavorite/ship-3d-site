@@ -35,6 +35,7 @@ const vesselsRef = ref<Vessel[]>([
     description: "Alpha",
     image: "a.jpg",
     object: "a.glb",
+    category: "Survey",
   },
 ]);
 const loadingRef = ref(false);

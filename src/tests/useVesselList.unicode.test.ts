@@ -13,6 +13,7 @@ const vessels: Vessel[] = [
     description: "Crème brûlée",
     image: "a.jpg",
     object: "a.glb",
+    category: "Survey",
   },
   {
     _id: "2",
@@ -20,6 +21,7 @@ const vessels: Vessel[] = [
     description: "Piñåtæ & jalapeño",
     image: "b.jpg",
     object: "b.glb",
+    category: "Maintenance",
   },
   {
     _id: "3",
@@ -27,6 +29,7 @@ const vessels: Vessel[] = [
     description: "漢字",
     image: "c.jpg",
     object: "c.glb",
+    category: "Supply",
   },
 ];
 

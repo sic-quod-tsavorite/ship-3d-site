@@ -29,6 +29,7 @@ describe("VesselForm.vue", (): void => {
   it("requires image/object in create mode and not in edit mode", (): void => {
     const wrapper = mount(VesselForm, {
       props: {
+        vessels: [],
         loading: false,
         validateImageFile,
         validateObjectFile,
@@ -44,6 +45,7 @@ describe("VesselForm.vue", (): void => {
 
     const wrapperEdit = mount(VesselForm, {
       props: {
+        vessels: [],
         loading: false,
         validateImageFile,
         validateObjectFile,
@@ -54,6 +56,7 @@ describe("VesselForm.vue", (): void => {
           description: "Desc",
           image: "a.jpg",
           object: "a.glb",
+          category: "Test",
         },
       },
       attachTo: document.body,
@@ -68,8 +71,19 @@ describe("VesselForm.vue", (): void => {
   });
 
   it("emits submit with form data when valid", async (): Promise<void> => {
+    // Include a vessel with a category so the dropdown has options
+    const vesselWithCategory = {
+      _id: "0",
+      name: "Existing",
+      description: "Existing vessel",
+      image: "e.jpg",
+      object: "e.glb",
+      category: "Survey",
+    };
+
     const wrapper = mount(VesselForm, {
       props: {
+        vessels: [vesselWithCategory],
         loading: false,
         validateImageFile,
         validateObjectFile,
@@ -80,6 +94,29 @@ describe("VesselForm.vue", (): void => {
 
     await wrapper.get("#name").setValue("Ship");
     await wrapper.get("#description").setValue("Desc");
+
+    // Set category by focusing input and clicking the category option
+    const categoryInput = wrapper.get("#category");
+    await categoryInput.trigger("focus");
+
+    void (
+      wrapper.vm as unknown as { $nextTick: () => Promise<void> }
+    ).$nextTick();
+
+    // Click the "Survey" category button in the dropdown
+    const categoryButtons = wrapper.findAll(
+      "div.absolute button:not(:has(.absolute))"
+    );
+    const surveyButton = categoryButtons.find(
+      (b): boolean => b.text() === "Survey"
+    );
+    if (surveyButton) {
+      await surveyButton.trigger("click");
+
+      void (
+        wrapper.vm as unknown as { $nextTick: () => Promise<void> }
+      ).$nextTick();
+    }
 
     const img = makeFile("img.png", "image/png");
     const obj = makeFile("m.glb", "application/octet-stream");
@@ -100,6 +137,7 @@ describe("VesselForm.vue", (): void => {
       const payload = emits[0][0] as Record<string, unknown>;
       expect(payload.name).toBe("Ship");
       expect(payload.description).toBe("Desc");
+      expect(payload.category).toBe("Survey");
       expect(payload.imageFile).toBeInstanceOf(File);
       expect(payload.objectFile).toBeInstanceOf(File);
     }
@@ -109,6 +147,7 @@ describe("VesselForm.vue", (): void => {
     validateImageFile.mockReturnValueOnce("Bad image");
     const wrapper = mount(VesselForm, {
       props: {
+        vessels: [],
         loading: false,
         validateImageFile,
         validateObjectFile,
@@ -128,6 +167,7 @@ describe("VesselForm.vue", (): void => {
   it("renders current image in edit mode when no new image selected", (): void => {
     const wrapper = mount(VesselForm, {
       props: {
+        vessels: [],
         loading: false,
         validateImageFile,
         validateObjectFile,
@@ -138,6 +178,7 @@ describe("VesselForm.vue", (): void => {
           description: "Desc",
           image: "a.jpg",
           object: "a.glb",
+          category: "Test",
         },
       },
     });
