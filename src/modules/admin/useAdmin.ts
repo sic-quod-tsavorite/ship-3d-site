@@ -31,6 +31,7 @@ export const useAdmin = (): {
     description: string;
     imageFile: File | null;
     objectFile: File | null;
+    category: string;
   }) => Promise<void>;
   handleDelete: (id: string) => Promise<void>;
   handleBatchDelete: (ids: string[]) => Promise<void>;
@@ -114,6 +115,7 @@ export const useAdmin = (): {
     description: string;
     imageFile: File | null;
     objectFile: File | null;
+    category: string;
   }): Promise<void> => {
     let success = false;
 
@@ -125,6 +127,7 @@ export const useAdmin = (): {
         description: data.description,
         imageFile: data.imageFile,
         objectFile: data.objectFile,
+        category: data.category,
       });
     } else {
       // Create new vessel
@@ -133,6 +136,7 @@ export const useAdmin = (): {
         description: data.description,
         imageFile: data.imageFile,
         objectFile: data.objectFile,
+        category: data.category,
       });
     }
 

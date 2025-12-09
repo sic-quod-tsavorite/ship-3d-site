@@ -43,6 +43,17 @@
             class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
         </div>
+        <div class="min-w-40">
+          <select
+            v-model="categoryFilter"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+          >
+            <option value="">All Categories</option>
+            <option v-for="cat in availableCategories" :key="cat" :value="cat">
+              {{ cat }}
+            </option>
+          </select>
+        </div>
         <div v-if="selectedIds.size > 0" class="flex items-center gap-2">
           <span class="text-xs font-medium text-slate-600">
             {{ selectedIds.size }} selected
@@ -102,6 +113,11 @@
               <th
                 class="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
               >
+                Category
+              </th>
+              <th
+                class="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+              >
                 Preview
               </th>
               <th
@@ -145,9 +161,18 @@
                 </span>
               </td>
               <td class="border-b border-slate-200 px-4 py-3">
-                <span class="line-clamp-2 text-xs text-slate-600">
+                <span class="line-clamp-2 text-xs text-slate-600 max-w-60">
                   {{ vessel.description }}
                 </span>
+              </td>
+              <td class="border-b border-slate-200 px-4 py-3">
+                <span
+                  v-if="vessel.category"
+                  class="inline-block bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium"
+                >
+                  {{ vessel.category }}
+                </span>
+                <span v-else class="text-slate-400 text-xs">—</span>
               </td>
               <td class="border-b border-slate-200 px-4 py-3">
                 <button
@@ -242,6 +267,7 @@ import { XMarkIcon } from "@heroicons/vue/24/outline";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { useVesselList } from "@/modules/vessels/useVesselList";
+import { useCategoryList } from "@/modules/vessels/useCategoryList";
 import { useModelPreload } from "@/modules/three/useModelPreload";
 
 interface Props {
@@ -268,6 +294,7 @@ const {
   sortDirection,
   selectedIds,
   selectedModel,
+  categoryFilter,
   filteredAndSortedVessels,
   allSelected,
   someSelected,
@@ -278,6 +305,11 @@ const {
   openModelViewer,
   closeModelViewer,
 } = useVesselList(toRef(props, "vessels"));
+
+// Category list
+const { categories: availableCategories } = useCategoryList(
+  toRef(props, "vessels")
+);
 
 // Model preloading on hover
 const { handleHover } = useModelPreload();

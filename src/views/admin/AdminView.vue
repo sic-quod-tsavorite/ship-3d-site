@@ -51,6 +51,7 @@
       <VesselForm
         v-if="showForm"
         :vessel="selectedVessel"
+        :vessels="vessels"
         :loading="loading"
         :validate-image-file="validateImageFile"
         :validate-object-file="validateObjectFile"
