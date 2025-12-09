@@ -4,6 +4,7 @@ export interface Vessel {
   description: string;
   image: string;
   object: string;
+  category: string;
 }
 
 export interface VesselFormData {
@@ -11,6 +12,7 @@ export interface VesselFormData {
   description: string;
   imageFile: File | null;
   objectFile: File | null;
+  category: string;
 }
 
 export interface VesselUpdateData extends VesselFormData {
