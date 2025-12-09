@@ -54,6 +54,85 @@
           ></textarea>
         </div>
 
+        <!-- Category Field -->
+        <div>
+          <label for="category" class="mb-1 block text-sm font-medium">
+            Category
+            <span class="text-red-600">*</span>
+          </label>
+
+          <!-- Category Input -->
+          <div class="relative">
+            <input
+              id="category"
+              v-model="categorySearchInput"
+              type="text"
+              placeholder="Search or create category..."
+              @focus="showCategoryDropdown = true"
+              @blur="handleCategoryBlur"
+              class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+            />
+
+            <!-- Category Dropdown -->
+            <div
+              v-if="showCategoryDropdown"
+              class="absolute top-full left-0 right-0 z-10 mt-1 border border-slate-300 rounded-xl bg-white shadow-lg max-h-40 overflow-y-auto"
+            >
+              <!-- Existing categories -->
+              <button
+                v-for="cat in filteredCategories"
+                :key="cat"
+                type="button"
+                @click="selectCategory(cat)"
+                class="w-full px-3 py-2 text-left text-sm hover:bg-indigo-50 transition text-slate-900"
+              >
+                {{ cat }}
+              </button>
+
+              <!-- Create new option -->
+              <div
+                v-if="
+                  categorySearchInput &&
+                  !filteredCategories.includes(categorySearchInput)
+                "
+                class="border-t border-slate-200"
+              >
+                <button
+                  type="button"
+                  @click="createNewCategory()"
+                  class="w-full px-3 py-2 text-left text-sm bg-indigo-50 hover:bg-indigo-100 font-medium text-indigo-900 transition"
+                >
+                  + Create "{{ categorySearchInput }}"
+                </button>
+              </div>
+
+              <!-- Empty state -->
+              <div
+                v-if="availableCategories.length === 0 && !categorySearchInput"
+                class="px-3 py-2 text-sm text-slate-500 text-center"
+              >
+                No categories yet
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected category display -->
+          <div v-if="formData.category" class="mt-2">
+            <span
+              class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {{ formData.category }}
+              <button
+                type="button"
+                @click="clearCategory"
+                class="hover:text-indigo-900 font-bold"
+              >
+                ×
+              </button>
+            </span>
+          </div>
+        </div>
+
         <!-- Image Upload -->
         <div>
           <label for="image" class="mb-1 block text-sm font-medium">
@@ -162,17 +241,19 @@
 
 <script setup lang="ts">
 // Imports
-import { computed, unref } from "vue";
+import { computed, unref, ref, toRef, watch } from "vue";
 import type { Ref } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 // Project imports
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import { useVesselForm } from "@/modules/vessels/useVesselForm";
+import { useCategoryList } from "@/modules/vessels/useCategoryList";
 import { formatFileSize } from "@/utils/fileHelpers";
 
 interface Props {
   vessel?: Vessel;
+  vessels: Vessel[];
   loading: boolean | Ref<boolean>;
   validateImageFile: (file: File | null) => string | null;
   validateObjectFile: (file: File | null) => string | null;
@@ -188,6 +269,7 @@ interface Emits {
       description: string;
       imageFile: File | null;
       objectFile: File | null;
+      category: string;
     }
   ): void;
 }
@@ -213,6 +295,63 @@ const {
   props.validateImageFile,
   props.validateObjectFile
 );
+
+// Category management
+const { categories: availableCategories } = useCategoryList(
+  toRef(props, "vessels")
+);
+const categorySearchInput = ref<string>("");
+const showCategoryDropdown = ref<boolean>(false);
+
+const filteredCategories = computed<string[]>(() => {
+  if (!categorySearchInput.value.trim()) {
+    return availableCategories.value;
+  }
+
+  const query = categorySearchInput.value.toLowerCase();
+  return availableCategories.value.filter((cat: string): boolean =>
+    cat.toLowerCase().includes(query)
+  );
+});
+
+// Watch formData.category and sync with categorySearchInput when editing
+let isInitializing = true;
+watch(
+  (): string => formData.category,
+  (newValue: string): void => {
+    if (isInitializing && newValue) {
+      categorySearchInput.value = newValue;
+      isInitializing = false;
+    }
+  }
+);
+
+const selectCategory = (category: string): void => {
+  formData.category = category;
+  categorySearchInput.value = category;
+  showCategoryDropdown.value = false;
+};
+
+const createNewCategory = (): void => {
+  const newCategory = categorySearchInput.value.trim();
+  if (newCategory) {
+    formData.category = newCategory;
+    categorySearchInput.value = newCategory;
+    showCategoryDropdown.value = false;
+  }
+};
+
+const clearCategory = (): void => {
+  formData.category = "";
+  categorySearchInput.value = "";
+};
+
+const handleCategoryBlur = (): void => {
+  // Delay closing dropdown to allow click event to register
+  setTimeout((): void => {
+    showCategoryDropdown.value = false;
+  }, 200);
+};
 
 const handleSubmit = (): void => {
   if (validateForm()) {

@@ -35,6 +35,7 @@ export const useVesselForm = (
     description: "",
     imageFile: null,
     objectFile: null,
+    category: "",
   });
 
   const imagePreview = ref<string | null>(null);
@@ -47,6 +48,7 @@ export const useVesselForm = (
     if (vessel) {
       formData.name = vessel.name;
       formData.description = vessel.description;
+      formData.category = vessel.category;
     }
   });
 
@@ -130,6 +132,12 @@ export const useVesselForm = (
       }
     }
 
+    // Validate category
+    if (!formData.category.trim()) {
+      submitError.value = "Category is required";
+      return false;
+    }
+
     return true;
   };
 
@@ -139,6 +147,7 @@ export const useVesselForm = (
       description: formData.description,
       imageFile: formData.imageFile,
       objectFile: formData.objectFile,
+      category: formData.category,
     };
   };
 
