@@ -12,6 +12,7 @@ export const useVesselList = (
   sortDirection: Ref<"asc" | "desc">;
   selectedIds: Ref<Set<string>>;
   selectedModel: Ref<Vessel | null>;
+  categoryFilter: Ref<string>;
   filteredAndSortedVessels: ComputedRef<Vessel[]>;
   allSelected: ComputedRef<boolean>;
   someSelected: ComputedRef<boolean>;
@@ -28,16 +29,24 @@ export const useVesselList = (
   const sortDirection = ref<"asc" | "desc">("asc");
   const selectedIds = ref<Set<string>>(new Set());
   const selectedModel = ref<Vessel | null>(null);
+  const categoryFilter = ref<string>("");
 
   // Computed: filtered and sorted vessels
-  const filteredAndSortedVessels = computed(() => {
+  const filteredAndSortedVessels = computed<Vessel[]>(() => {
     let result = [...vessels.value];
+
+    // Filter by category
+    if (categoryFilter.value.trim()) {
+      result = result.filter(
+        (v): boolean => v.category === categoryFilter.value
+      );
+    }
 
     // Filter by search query
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase();
       result = result.filter(
-        (v) =>
+        (v): boolean =>
           v.name.toLowerCase().includes(query) ||
           v.description.toLowerCase().includes(query)
       );
@@ -45,7 +54,7 @@ export const useVesselList = (
 
     // Sort
     if (sortField.value) {
-      result.sort((a, b) => {
+      result.sort((a: Vessel, b: Vessel): number => {
         const fieldName = sortField.value;
         if (fieldName === null) return 0;
         const aVal = a[fieldName].toLowerCase();
@@ -126,6 +135,7 @@ export const useVesselList = (
     sortDirection,
     selectedIds,
     selectedModel,
+    categoryFilter,
 
     // Computed
     filteredAndSortedVessels,

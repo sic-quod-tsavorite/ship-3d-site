@@ -10,6 +10,7 @@ import type {
   VesselResponse,
   VesselErrorResponse,
 } from "@/interfaces/vesselInterfaces";
+import { useVesselsStore } from "@/stores/vessels";
 
 export const useVessels = (): {
   vessels: Ref<Vessel[]>;
@@ -180,6 +181,7 @@ export const useVessels = (): {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("description", formData.description);
+      formDataToSend.append("category", formData.category);
       formDataToSend.append("image", formData.imageFile);
       formDataToSend.append("object", formData.objectFile);
 
@@ -199,6 +201,9 @@ export const useVessels = (): {
       }
 
       await fetchVessels();
+      // Refresh the vessels store for navigation
+      const store = useVesselsStore();
+      await store.fetchVessels();
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
@@ -237,6 +242,7 @@ export const useVessels = (): {
       const formDataToSend = new FormData();
       formDataToSend.append("name", updateData.name);
       formDataToSend.append("description", updateData.description);
+      formDataToSend.append("category", updateData.category);
 
       if (updateData.imageFile) {
         formDataToSend.append("image", updateData.imageFile);
@@ -262,6 +268,9 @@ export const useVessels = (): {
       }
 
       await fetchVessels();
+      // Refresh the vessels store for navigation
+      const store = useVesselsStore();
+      await store.fetchVessels();
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
@@ -291,6 +300,9 @@ export const useVessels = (): {
       }
 
       await fetchVessels();
+      // Refresh the vessels store for navigation
+      const store = useVesselsStore();
+      await store.fetchVessels();
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
