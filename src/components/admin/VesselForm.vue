@@ -52,6 +52,20 @@
             class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
             placeholder="Enter vessel description"
           ></textarea>
+          <p class="mt-1 text-xs text-slate-500">
+            Formatting:
+            <strong title="__bold__">**bold**</strong>
+            •
+            <em title="_italic_">*italic*</em>
+            •
+            <code
+              class="bg-slate-100 py-0.5 rounded"
+              title="[link](https://www.link.com)"
+            >
+              [link](url)
+            </code>
+            • Line breaks preserved
+          </p>
         </div>
 
         <!-- Category Field -->
