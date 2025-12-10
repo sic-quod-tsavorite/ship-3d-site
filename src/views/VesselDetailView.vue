@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 // Imports
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 
@@ -104,10 +104,21 @@ const handleModelHover = (): void => {
   }
 };
 
-onMounted(async (): Promise<void> => {
-  await fetchVessels();
+const updateVessel = (): void => {
   const id = route.params.id as string;
   vessel.value =
     vessels.value.find((v: Vessel): boolean => v._id === id) ?? null;
+};
+
+onMounted(async (): Promise<void> => {
+  await fetchVessels();
+  updateVessel();
 });
+
+watch(
+  () => route.params.id,
+  (): void => {
+    updateVessel();
+  }
+);
 </script>
