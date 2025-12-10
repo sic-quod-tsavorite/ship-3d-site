@@ -113,7 +113,7 @@
         </p>
 
         <!-- Auth buttons -->
-        <div class="flex flex-col gap-2 mb-6">
+        <div v-if="isDev || auth.isLoggedIn" class="flex flex-col gap-2 mb-6">
           <RouterLink
             v-if="!auth.isLoggedIn"
             to="/login"
@@ -254,6 +254,8 @@ import { useVesselCategories } from "@/modules/vessels/useVesselCategories";
 const auth = useAuthStore();
 const route = useRoute();
 const { categories, loading, error, fetchCategories } = useVesselCategories();
+
+const isDev = import.meta.env.DEV;
 
 // State
 const isLocked = ref(false);
