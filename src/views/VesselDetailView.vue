@@ -41,9 +41,10 @@
         </h1>
 
         <!-- Vessel Description -->
-        <p class="text-sm sm:text-base text-slate-200 mb-6 leading-relaxed">
-          {{ vessel.description }}
-        </p>
+        <div
+          class="text-sm sm:text-base text-slate-200 mb-6 leading-relaxed markdown-content"
+          v-html="parseMarkdown(vessel.description)"
+        ></div>
 
         <!-- Open 3D View Button -->
         <button
@@ -83,6 +84,7 @@ import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { useVessels } from "@/modules/vessels/useVessels";
 import { useModelPreload } from "@/modules/three/useModelPreload";
+import { parseMarkdown } from "@/utils/markdownHelpers";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import NotFound from "./NotFound.vue";
 
@@ -122,3 +124,14 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+.markdown-content a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: #93c5fd;
+}
+</style>
