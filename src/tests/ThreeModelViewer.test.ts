@@ -436,7 +436,7 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     // Overlay should be hidden after model loads
     expect(wrapper.find(".loading-overlay").exists()).toBe(false);
 
-    const container = wrapper.find(".model-container").element;
+    const container = wrapper.find(".three-model-container").element;
     const canvases = container.getElementsByTagName("canvas");
     expect(canvases.length).toBeGreaterThanOrEqual(1);
 
