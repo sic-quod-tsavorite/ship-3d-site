@@ -1,8 +1,6 @@
 <template>
   <!-- Loading State -->
-  <div v-if="loading" class="flex items-center justify-center h-screen">
-    <div class="text-lg text-white">Loading vessel...</div>
-  </div>
+  <div v-if="loading"></div>
 
   <!-- Error State -->
   <div v-else-if="error" class="flex items-center justify-center h-screen">
