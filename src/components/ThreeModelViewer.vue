@@ -18,7 +18,7 @@
         <p v-if="instructions" class="mb-4 text-center text-xs text-slate-600">
           {{ instructions }}
         </p>
-        <div ref="container" class="model-container flex-1">
+        <div ref="container" class="three-model-container flex-1">
           <div v-if="isLoading" class="loading-overlay">
             <div class="loading-spinner"></div>
             <p>Loading... {{ loadingProgress }}%</p>
@@ -38,7 +38,7 @@
   </Teleport>
 
   <!-- Standalone Viewer (default) -->
-  <div v-else ref="container" class="model-container">
+  <div v-else ref="container" class="three-model-container">
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <p>Loading... {{ loadingProgress }}%</p>
@@ -84,28 +84,4 @@ const closeModal = (): void => {
 };
 </script>
 
-<style lang="scss" scoped>
-.model-container {
-  width: 100%;
-  max-width: 960px;
-  aspect-ratio: 16 / 9;
-  min-height: 400px;
-  position: relative;
-  margin: 0 auto;
-}
-
-.slide-in-scale {
-  animation: slideInScale 0.3s ease-out;
-}
-
-@keyframes slideInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-</style>
+<style lang="scss" scoped></style>

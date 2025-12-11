@@ -31,12 +31,5 @@ const path = computed(() =>
     font-size: 5rem;
     margin-bottom: 1rem;
   }
-
-  code {
-    background-color: #f0f0f0;
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    color: #e01e5a;
-  }
 }
 </style>

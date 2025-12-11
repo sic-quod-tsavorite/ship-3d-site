@@ -245,7 +245,7 @@
         @click.self="closePasswordModal"
       >
         <div
-          class="slide-in-scale relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+          class="slide-in-scale-modal relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
         >
           <h3 class="mb-4 text-xl font-semibold text-slate-900">
             Reset Password for {{ selectedUser.name }}
@@ -294,7 +294,7 @@
         @click.self="closeCreateUserModal"
       >
         <div
-          class="slide-in-scale relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+          class="slide-in-scale-modal relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
         >
           <h3 class="mb-4 text-xl font-semibold text-slate-900">
             Create New User
@@ -453,19 +453,4 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss" scoped>
-.slide-in-scale {
-  animation: slideInScale 0.2s ease-out;
-}
-
-@keyframes slideInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-</style>
+<style lang="scss" scoped></style>

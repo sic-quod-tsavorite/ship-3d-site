@@ -124,3 +124,37 @@ $service-area-red: #e53935;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
+
+/* Code element styling */
+code {
+  background-color: #f0f0f0;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  color: #e01e5a;
+}
+
+/* 3D Model container sizing */
+.three-model-container {
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 16 / 9;
+  min-height: 400px;
+  position: relative;
+  margin: 0 auto;
+}
+
+/* Modal slide-in animation variant (with translateY) */
+.slide-in-scale-modal {
+  animation: slideInScaleModal 0.2s ease-out;
+}
+
+@keyframes slideInScaleModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
