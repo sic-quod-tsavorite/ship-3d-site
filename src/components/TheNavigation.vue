@@ -237,7 +237,7 @@
 
 <script setup lang="ts">
 // Imports
-import { computed, ref, onMounted, onUnmounted, watch } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import {
   ArrowLeftIcon,
@@ -250,18 +250,30 @@ import {
 // Project imports
 import { useAuthStore } from "@/stores/auth";
 import { useVesselCategories } from "@/modules/vessels/useVesselCategories";
+import { useNavigationState } from "@/modules/navigation/useNavigationState";
 
 const auth = useAuthStore();
 const route = useRoute();
 const { categories, loading, error, fetchCategories } = useVesselCategories();
 
+// Navigation state composable
+const {
+  isLocked,
+  isVisible,
+  showGlowAnimation,
+  hasEntered,
+  toggleLock,
+  handleContainerEnter,
+  handleContainerLeave,
+  setupMouseTracking,
+  cleanupMouseTracking,
+  triggerEntranceAnimation,
+  startGlowTimeout,
+} = useNavigationState();
+
 const isDev = import.meta.env.DEV;
 
-// State
-const isLocked = ref(false);
-const isHovering = ref(false);
-const showGlowAnimation = ref(true);
-const hasEntered = ref(false);
+// Local state
 const isAboutOpen = ref(false);
 
 const toggleAbout = (): void => {
@@ -276,82 +288,18 @@ const toggleCategory = (categoryName: string): void => {
   }
 };
 
-// Navigation is visible when locked OR when hovering
-const isVisible = computed<boolean>(() => isLocked.value || isHovering.value);
-
-// Stop glow animation
-const stopGlowAnimation = (): void => {
-  showGlowAnimation.value = false;
-};
-
-// Stop animation when navigation becomes visible
-watch(isVisible, (visible) => {
-  if (visible && showGlowAnimation.value) {
-    stopGlowAnimation();
-  }
-});
-
-// Track mouse position for hover zone detection
-const HOVER_ZONE_WIDTH = 350;
-
-const handleMouseMove = (e: MouseEvent): void => {
-  if (isLocked.value) return;
-
-  const isInHoverZone = e.clientX <= HOVER_ZONE_WIDTH;
-  if (isInHoverZone && !isHovering.value) {
-    isHovering.value = true;
-  } else if (!isInHoverZone && isHovering.value) {
-    isHovering.value = false;
-  }
-};
-
-let glowTimeout: ReturnType<typeof setTimeout> | null = null;
-
 onMounted(() => {
-  document.addEventListener("mousemove", handleMouseMove);
-
-  // Fetch vessel categories
+  setupMouseTracking();
   void fetchCategories();
-
-  // Trigger entrance animation after initial render
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      hasEntered.value = true;
-    });
-  });
-
-  // Stop glow animation after 10 seconds
-  glowTimeout = setTimeout(() => {
-    stopGlowAnimation();
-  }, 10000);
+  triggerEntranceAnimation();
+  startGlowTimeout();
 });
 
 onUnmounted(() => {
-  document.removeEventListener("mousemove", handleMouseMove);
-  if (glowTimeout) {
-    clearTimeout(glowTimeout);
-  }
+  cleanupMouseTracking();
 });
 
 const isHomePage = computed<boolean>(() => route.path === "/");
-
-// Toggle lock state
-const toggleLock = (): void => {
-  isLocked.value = !isLocked.value;
-};
-
-// Container hover handlers (to keep nav open while interacting with it)
-const handleContainerEnter = (): void => {
-  if (!isLocked.value) {
-    isHovering.value = true;
-  }
-};
-
-const handleContainerLeave = (): void => {
-  if (!isLocked.value) {
-    isHovering.value = false;
-  }
-};
 
 const handleLogout = (): void => {
   void auth.logout();
