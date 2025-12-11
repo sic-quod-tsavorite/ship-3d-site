@@ -1,26 +1,12 @@
 <template>
-  <!-- Loading State -->
-  <div v-if="loading" class="flex items-center justify-center h-screen">
-    <div class="text-lg text-white">Loading vessel...</div>
-  </div>
-
-  <!-- Error State -->
-  <div v-else-if="error" class="flex items-center justify-center h-screen">
-    <div class="text-lg text-red-400">{{ error }}</div>
-  </div>
-
-  <!-- Vessel Not Found -->
-  <div v-else-if="!vessel" class="flex items-center justify-center h-screen">
-    <NotFound />
-  </div>
-
   <!-- Main Content -->
-  <div v-else class="relative h-screen w-full overflow-hidden">
+  <div v-if="vessel" class="relative h-screen w-full overflow-hidden">
     <!-- Background Image -->
-    <div class="absolute inset-0 z-0">
+    <div v-if="imageLoaded" class="absolute inset-0 z-0">
       <img
         :src="getImageUrl(vessel.image)"
         :alt="vessel.name"
+        @load="handleImageLoad"
         class="h-full w-full object-cover"
       />
     </div>
@@ -72,6 +58,16 @@
       modal
     />
   </div>
+
+  <!-- Error State -->
+  <div v-else-if="error" class="flex items-center justify-center h-screen">
+    <div class="text-lg text-red-400">{{ error }}</div>
+  </div>
+
+  <!-- Vessel Not Found -->
+  <div v-else class="flex items-center justify-center h-screen">
+    <NotFound />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -84,17 +80,20 @@ import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 import ThreeModelViewer from "@/components/ThreeModelViewer.vue";
 import { useVessels } from "@/modules/vessels/useVessels";
 import { useModelPreload } from "@/modules/three/useModelPreload";
+import { useImageLoadingStore } from "@/stores/imageLoading";
 import { parseMarkdown } from "@/utils/markdownHelpers";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 import NotFound from "./NotFound.vue";
 
 const route = useRoute();
-const { vessels, loading, error, fetchVessels, getImageUrl, getObjectUrl } =
+const { vessels, error, fetchVessels, getImageUrl, getObjectUrl } =
   useVessels();
 const { handleHover } = useModelPreload();
+const imageLoadingStore = useImageLoadingStore();
 
 const vessel = ref<Vessel | null>(null);
 const isModelViewerOpen = ref<boolean>(false);
+const imageLoaded = ref<boolean>(false);
 
 const openModelViewer = (): void => {
   isModelViewerOpen.value = true;
@@ -106,21 +105,60 @@ const handleModelHover = (): void => {
   }
 };
 
-const updateVessel = (): void => {
+const handleImageLoad = (): void => {
+  imageLoaded.value = true;
+};
+
+const preloadVesselImage = (): Promise<void> => {
+  const currentVessel = vessel.value;
+  if (!currentVessel) {
+    imageLoaded.value = true;
+    imageLoadingStore.setVesselImageLoaded(true);
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve): void => {
+    const img = new Image();
+    img.onload = (): void => {
+      imageLoaded.value = true;
+      imageLoadingStore.setVesselImageLoaded(true);
+      resolve();
+    };
+    img.onerror = (): void => {
+      imageLoaded.value = true;
+      imageLoadingStore.setVesselImageLoaded(true);
+      resolve();
+    };
+    img.src = getImageUrl(currentVessel.image);
+  });
+};
+
+const updateVessel = async (): Promise<void> => {
+  imageLoaded.value = false;
   const id = route.params.id as string;
   vessel.value =
     vessels.value.find((v: Vessel): boolean => v._id === id) ?? null;
+  await preloadVesselImage();
 };
 
 onMounted(async (): Promise<void> => {
   await fetchVessels();
-  updateVessel();
+  await updateVessel();
 });
 
 watch(
   () => route.params.id,
+  async (): Promise<void> => {
+    await updateVessel();
+  }
+);
+
+watch(
+  () => route.name,
   (): void => {
-    updateVessel();
+    if (route.name !== "vessel-detail") {
+      imageLoadingStore.setVesselImageLoaded(false);
+    }
   }
 );
 </script>

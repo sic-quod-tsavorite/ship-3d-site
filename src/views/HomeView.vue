@@ -1,14 +1,5 @@
 <template>
   <div class="relative h-screen w-full overflow-hidden">
-    <!-- Background image -->
-    <div class="absolute inset-0 z-0">
-      <img
-        :src="backgroundImage"
-        alt="Offshore vessel with turbine"
-        class="h-full w-full object-cover"
-      />
-    </div>
-
     <!-- Content layer -->
     <div
       class="relative z-10 flex h-full w-full flex-col justify-between p-6 sm:px-12 sm:py-8"
@@ -56,9 +47,6 @@
 </template>
 
 <script setup lang="ts">
-// Asset paths
-const backgroundImage = "/assets/images/Vessel_turbine_6_Edited-expanded.jpg";
-
 // Company info from environment
 const company1 = {
   name: import.meta.env.VITE_COMPANY1_NAME as string,
