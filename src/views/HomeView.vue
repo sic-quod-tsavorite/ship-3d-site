@@ -2,6 +2,7 @@
   <div class="relative h-screen w-full overflow-hidden">
     <!-- Background image -->
     <div class="absolute inset-0 z-0">
+      <div class="bg-[#142637]/70 h-screen w-screen absolute"></div>
       <img
         :src="backgroundImage"
         alt="Offshore vessel with turbine"
@@ -57,7 +58,7 @@
 
 <script setup lang="ts">
 // Asset paths
-const backgroundImage = "/assets/images/Vessel_turbine_6_Edited-expanded.jpg";
+const backgroundImage = "/assets/images/Render_03_red.jpg";
 
 // Company info from environment
 const company1 = {

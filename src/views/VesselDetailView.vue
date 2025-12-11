@@ -123,13 +123,4 @@ watch(
 );
 </script>
 
-<style scoped>
-.markdown-content a {
-  color: #60a5fa;
-  text-decoration: underline;
-}
-
-.markdown-content a:hover {
-  color: #93c5fd;
-}
-</style>
+<style scoped></style>
