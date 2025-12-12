@@ -1,6 +1,6 @@
 // Imports
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 
@@ -465,5 +465,146 @@ describe("ThreeModelViewer – keyboard navigation hooks", (): void => {
 
     wrapper.unmount();
     vi.useRealTimers();
+  });
+});
+
+describe("Fullscreen keyboard shortcut", (): void => {
+  beforeEach((): void => {
+    // Mock Fullscreen API
+    Object.defineProperty(document, "fullscreenEnabled", {
+      writable: true,
+      value: true,
+    });
+    Object.defineProperty(document, "fullscreenElement", {
+      writable: true,
+      value: null,
+    });
+  });
+
+  it("toggles fullscreen when F key is pressed", async (): Promise<void> => {
+    const mockRequestFullscreen = vi.fn((): Promise<void> => Promise.resolve());
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: { modelPath: "/models/test.gltf" },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+    await nextTick();
+
+    const container = wrapper.find(".three-model-container")
+      .element as HTMLElement & {
+      requestFullscreen: () => Promise<void>;
+    };
+    container.requestFullscreen = mockRequestFullscreen;
+
+    // Dispatch F key event
+    const ev = new KeyboardEvent("keydown", {
+      key: "f",
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(ev);
+
+    // Note: The actual preventDefault and mockRequestFullscreen call happens async
+    // Wait for promises
+    await flushPromises();
+    await nextTick();
+
+    expect(ev.defaultPrevented).toBe(true);
+
+    wrapper.unmount();
+  });
+
+  it("toggles fullscreen when uppercase F key is pressed", async (): Promise<void> => {
+    const mockRequestFullscreen = vi.fn((): Promise<void> => Promise.resolve());
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: { modelPath: "/models/test.gltf" },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+    await nextTick();
+
+    const container = wrapper.find(".three-model-container")
+      .element as HTMLElement & {
+      requestFullscreen: () => Promise<void>;
+    };
+    container.requestFullscreen = mockRequestFullscreen;
+
+    // Dispatch uppercase F key event
+    const ev = new KeyboardEvent("keydown", {
+      key: "F",
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(ev);
+
+    await flushPromises();
+    await nextTick();
+
+    expect(ev.defaultPrevented).toBe(true);
+
+    wrapper.unmount();
+  });
+
+  it("exits fullscreen when F key is pressed while in fullscreen", async (): Promise<void> => {
+    const mockExitFullscreen = vi.fn((): Promise<void> => Promise.resolve());
+    document.exitFullscreen = mockExitFullscreen;
+
+    const wrapper = mount(ThreeModelViewer, {
+      props: { modelPath: "/models/test.gltf" },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+    await nextTick();
+
+    // Simulate being in fullscreen
+    const container = wrapper.find(".three-model-container").element;
+    Object.defineProperty(document, "fullscreenElement", {
+      writable: true,
+      value: container,
+    });
+
+    // Trigger fullscreenchange to update component state
+    document.dispatchEvent(new Event("fullscreenchange"));
+    await nextTick();
+
+    // Press F key to exit
+    const ev = new KeyboardEvent("keydown", {
+      key: "f",
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(ev);
+
+    await flushPromises();
+    await nextTick();
+
+    expect(ev.defaultPrevented).toBe(true);
+
+    wrapper.unmount();
+  });
+
+  it("removes keydown listener on unmount", async (): Promise<void> => {
+    const wrapper = mount(ThreeModelViewer, {
+      props: { modelPath: "/models/test.gltf" },
+      attachTo: document.body,
+    });
+
+    await nextTick();
+    await nextTick();
+
+    wrapper.unmount();
+
+    const removeCalls: unknown[][] = (
+      removeSpy as { mock: { calls: unknown[][] } }
+    ).mock.calls;
+    const removedKeydown: boolean = removeCalls.some(
+      (c: unknown[]): boolean => c[0] === "keydown"
+    );
+    expect(removedKeydown).toBe(true);
   });
 });
