@@ -569,4 +569,220 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     vi.useRealTimers();
     vi.unstubAllEnvs();
   });
+
+  describe("Fullscreen functionality", (): void => {
+    beforeEach((): void => {
+      // Mock Fullscreen API
+      Object.defineProperty(document, "fullscreenEnabled", {
+        writable: true,
+        value: true,
+      });
+      Object.defineProperty(document, "fullscreenElement", {
+        writable: true,
+        value: null,
+      });
+    });
+
+    it("shows fullscreen button in standalone mode", async (): Promise<void> => {
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      const fsButton = wrapper.find('button[title*="fullscreen"]');
+      expect(fsButton.exists()).toBe(true);
+      expect(fsButton.attributes("title")).toContain("fullscreen");
+
+      wrapper.unmount();
+    });
+
+    it("toggles fullscreen state when button clicked", async (): Promise<void> => {
+      const mockRequestFullscreen = vi.fn(
+        (): Promise<void> => Promise.resolve()
+      );
+      const mockExitFullscreen = vi.fn((): Promise<void> => Promise.resolve());
+
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      const container = wrapper.find(".three-model-container")
+        .element as HTMLElement & {
+        requestFullscreen: () => Promise<void>;
+      };
+      container.requestFullscreen = mockRequestFullscreen;
+      document.exitFullscreen = mockExitFullscreen;
+
+      // Click fullscreen button
+      const fsButton = wrapper.find('button[title*="fullscreen"]');
+      await fsButton.trigger("click");
+
+      expect(mockRequestFullscreen).toHaveBeenCalledTimes(1);
+
+      wrapper.unmount();
+    });
+
+    it("changes icon when fullscreen state changes", async (): Promise<void> => {
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      // Initially should show expand icon
+      let fsButton = wrapper.find('button[title*="fullscreen"]');
+      expect(fsButton.attributes("title")).toContain("Enter fullscreen");
+
+      // Simulate entering fullscreen
+      const container = wrapper.find(".three-model-container").element;
+      Object.defineProperty(document, "fullscreenElement", {
+        writable: true,
+        value: container,
+      });
+
+      // Trigger fullscreenchange event
+      const event = new Event("fullscreenchange");
+      document.dispatchEvent(event);
+
+      await nextTick();
+
+      // Should now show compress icon
+      fsButton = wrapper.find('button[title*="fullscreen"]');
+      expect(fsButton.attributes("title")).toContain("Exit fullscreen");
+
+      wrapper.unmount();
+    });
+
+    it("adds and removes fullscreenchange event listener", async (): Promise<void> => {
+      const addSpy = vi.spyOn(document, "addEventListener");
+      const removeSpy = vi.spyOn(document, "removeEventListener");
+
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      expect(addSpy).toHaveBeenCalledWith(
+        "fullscreenchange",
+        expect.any(Function)
+      );
+
+      wrapper.unmount();
+
+      expect(removeSpy).toHaveBeenCalledWith(
+        "fullscreenchange",
+        expect.any(Function)
+      );
+    });
+
+    it("cleans up event listeners on unmount", async (): Promise<void> => {
+      const addSpy = vi.spyOn(document, "addEventListener");
+      const removeSpy = vi.spyOn(document, "removeEventListener");
+
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      // Clear the spies to track only unmount behavior
+      addSpy.mockClear();
+      removeSpy.mockClear();
+
+      wrapper.unmount();
+
+      // Verify listeners were removed
+      expect(removeSpy).toHaveBeenCalledWith(
+        "fullscreenchange",
+        expect.any(Function)
+      );
+      expect(removeSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+    });
+
+    it("handles unsupported fullscreen gracefully", async (): Promise<void> => {
+      Object.defineProperty(document, "fullscreenEnabled", {
+        writable: true,
+        value: false,
+      });
+
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation((): void => {});
+
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      const fsButton = wrapper.find('button[title*="fullscreen"]');
+      await fsButton.trigger("click");
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        "Fullscreen mode is not supported by this browser"
+      );
+
+      consoleWarnSpy.mockRestore();
+      wrapper.unmount();
+    });
+
+    it("handles fullscreen request errors", async (): Promise<void> => {
+      const mockRequestFullscreen = vi.fn(
+        (): Promise<void> => Promise.reject(new Error("Fullscreen denied"))
+      );
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation((): void => {});
+
+      const wrapper = mount(ThreeModelViewer, {
+        props: {
+          modelPath: "/models/test.gltf",
+        },
+        attachTo: document.body,
+      });
+
+      await nextTick();
+
+      const container = wrapper.find(".three-model-container")
+        .element as HTMLElement & {
+        requestFullscreen: () => Promise<void>;
+      };
+      container.requestFullscreen = mockRequestFullscreen;
+
+      const fsButton = wrapper.find('button[title*="fullscreen"]');
+      await fsButton.trigger("click");
+
+      await flushPromises();
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to enter fullscreen:",
+        "Fullscreen denied"
+      );
+
+      consoleErrorSpy.mockRestore();
+      wrapper.unmount();
+    });
+  });
 });
