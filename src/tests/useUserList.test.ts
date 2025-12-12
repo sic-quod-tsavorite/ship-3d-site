@@ -242,17 +242,47 @@ describe("useUserList", (): void => {
     expect(api.modalPassword.value).toBe("");
   });
 
-  it("maintains current user password state separately", (): void => {
+  it("validates update own password form correctly", (): void => {
     const api = useUserList(ref([]));
 
-    expect(api.currentUserPassword.value).toBe("");
+    // Initially invalid (empty fields)
+    expect(api.isUpdateOwnPasswordValid.value).toBe(false);
+    expect(api.updateOwnPasswordError.value).toBeNull();
 
-    api.currentUserPassword.value = "mypassword";
-    expect(api.currentUserPassword.value).toBe("mypassword");
+    // Fill in current password only
+    api.currentPassword.value = "oldpass123";
+    expect(api.isUpdateOwnPasswordValid.value).toBe(false);
 
-    // Opening modal shouldn't affect currentUserPassword
+    // Fill in new password
+    api.newPassword.value = "NewPass123!";
+    expect(api.isUpdateOwnPasswordValid.value).toBe(false);
+
+    // Passwords don't match
+    expect(api.updateOwnPasswordError.value).toBe("Passwords don't match");
+
+    // Match passwords - should be valid
+    api.confirmNewPassword.value = "NewPass123!";
+    expect(api.isUpdateOwnPasswordValid.value).toBe(true);
+    expect(api.updateOwnPasswordError.value).toBeNull();
+
+    // Mismatch passwords - should be invalid
+    api.confirmNewPassword.value = "DifferentPass123!";
+    expect(api.isUpdateOwnPasswordValid.value).toBe(false);
+    expect(api.updateOwnPasswordError.value).toBe("Passwords don't match");
+  });
+
+  it("maintains own password state separately from modal password", (): void => {
+    const api = useUserList(ref([]));
+
+    // Set passwords
+    api.currentPassword.value = "current";
+    api.newPassword.value = "NewPass123!";
+    api.confirmNewPassword.value = "NewPass123!";
+
+    // Opening modal shouldn't affect password update fields
     api.openPasswordModal(usersSample[0]);
-    expect(api.currentUserPassword.value).toBe("mypassword");
+    expect(api.currentPassword.value).toBe("current");
+    expect(api.newPassword.value).toBe("NewPass123!");
     expect(api.modalPassword.value).toBe("");
   });
 });

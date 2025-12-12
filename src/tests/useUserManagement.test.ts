@@ -173,13 +173,19 @@ describe("useUserManagement", (): void => {
 
     const { updateCurrentUserPassword } = useUserManagement();
 
-    const result = await updateCurrentUserPassword("newPassword");
+    const result = await updateCurrentUserPassword(
+      "currentPassword",
+      "newPassword"
+    );
 
     expect(global.fetch).toHaveBeenCalledWith(
-      `${API}/user/currentUserId/password`,
+      `${API}/user/update-password`,
       expect.objectContaining({
         method: "PUT",
-        body: JSON.stringify({ newPassword: "newPassword" }),
+        body: JSON.stringify({
+          currentPassword: "currentPassword",
+          newPassword: "newPassword",
+        }),
       })
     );
 

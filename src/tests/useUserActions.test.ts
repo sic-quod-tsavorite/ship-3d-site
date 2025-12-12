@@ -11,7 +11,9 @@ describe("useUserActions", (): void => {
     typeof vi.fn<(userId: string, newPassword: string) => Promise<boolean>>
   >;
   let updateCurrentUserPasswordMock: ReturnType<
-    typeof vi.fn<(newPassword: string) => Promise<boolean>>
+    typeof vi.fn<
+      (currentPassword: string, newPassword: string) => Promise<boolean>
+    >
   >;
   let createUserMock: ReturnType<
     typeof vi.fn<
@@ -29,7 +31,10 @@ describe("useUserActions", (): void => {
   let closePasswordModalMock: ReturnType<typeof vi.fn<() => void>>;
   let closeCreateUserModalMock: ReturnType<typeof vi.fn<() => void>>;
   let errorRef: Ref<string | null>;
-  let currentUserPasswordRef: Ref<string>;
+  let currentPasswordRef: Ref<string>;
+  let newPasswordRef: Ref<string>;
+  let confirmNewPasswordRef: Ref<string>;
+  let isUpdateOwnPasswordValidRef: Ref<boolean>;
   let selectedUserRef: Ref<User | null>;
   let modalPasswordRef: Ref<string>;
   let newUserRef: Ref<{
@@ -53,7 +58,10 @@ describe("useUserActions", (): void => {
 
     // Reset refs
     errorRef = ref<string | null>(null);
-    currentUserPasswordRef = ref("");
+    currentPasswordRef = ref("");
+    newPasswordRef = ref("");
+    confirmNewPasswordRef = ref("");
+    isUpdateOwnPasswordValidRef = ref(false);
     selectedUserRef = ref<User | null>(null);
     modalPasswordRef = ref("");
     newUserRef = ref({
@@ -71,7 +79,10 @@ describe("useUserActions", (): void => {
 
   it("handles update own password successfully", async (): Promise<void> => {
     updateCurrentUserPasswordMock.mockResolvedValueOnce(true);
-    currentUserPasswordRef.value = "newPassword123";
+    isUpdateOwnPasswordValidRef.value = true;
+    currentPasswordRef.value = "oldPassword123";
+    newPasswordRef.value = "newPassword123";
+    confirmNewPasswordRef.value = "newPassword123";
 
     const { handleUpdateOwnPassword } = useUserActions(
       updatePasswordMock,
@@ -79,7 +90,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -91,16 +105,22 @@ describe("useUserActions", (): void => {
     await handleUpdateOwnPassword();
 
     expect(updateCurrentUserPasswordMock).toHaveBeenCalledWith(
+      "oldPassword123",
       "newPassword123"
     );
     expect(global.alert).toHaveBeenCalledWith("Password updated successfully!");
-    expect(currentUserPasswordRef.value).toBe("");
+    expect(currentPasswordRef.value).toBe("");
+    expect(newPasswordRef.value).toBe("");
+    expect(confirmNewPasswordRef.value).toBe("");
   });
 
   it("handles update own password failure", async (): Promise<void> => {
     updateCurrentUserPasswordMock.mockResolvedValueOnce(false);
     errorRef.value = "Password too weak";
-    currentUserPasswordRef.value = "weak";
+    currentPasswordRef.value = "oldPassword";
+    newPasswordRef.value = "weak";
+    confirmNewPasswordRef.value = "weak";
+    isUpdateOwnPasswordValidRef.value = true;
 
     const { handleUpdateOwnPassword } = useUserActions(
       updatePasswordMock,
@@ -108,7 +128,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -122,11 +145,11 @@ describe("useUserActions", (): void => {
     expect(global.alert).toHaveBeenCalledWith(
       "Failed to update password: Password too weak"
     );
-    expect(currentUserPasswordRef.value).toBe("weak");
+    expect(currentPasswordRef.value).toBe("oldPassword");
   });
 
   it("does not update own password if field is empty", async (): Promise<void> => {
-    currentUserPasswordRef.value = "";
+    isUpdateOwnPasswordValidRef.value = false;
 
     const { handleUpdateOwnPassword } = useUserActions(
       updatePasswordMock,
@@ -134,7 +157,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -167,7 +193,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -208,7 +237,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -235,7 +267,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -267,7 +302,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -297,7 +335,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -336,7 +377,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -372,7 +416,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -404,7 +451,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -436,7 +486,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -475,7 +528,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
@@ -508,7 +564,10 @@ describe("useUserActions", (): void => {
       createUserMock,
       deleteUserMock,
       errorRef,
-      currentUserPasswordRef,
+      currentPasswordRef,
+      newPasswordRef,
+      confirmNewPasswordRef,
+      isUpdateOwnPasswordValidRef,
       selectedUserRef,
       modalPasswordRef,
       newUserRef,
