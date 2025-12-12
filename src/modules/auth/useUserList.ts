@@ -4,11 +4,14 @@ import { ref, computed, type Ref, type ComputedRef } from "vue";
 // Project imports
 import type { User } from "@/interfaces/userInterfaces";
 import { useAuthStore } from "@/stores/auth";
+import { validatePassword } from "@/utils/validationHelpers";
 
 export const useUserList = (
   users: Ref<User[]>
 ): {
-  currentUserPassword: Ref<string>;
+  currentPassword: Ref<string>;
+  newPassword: Ref<string>;
+  confirmNewPassword: Ref<string>;
   selectedUser: Ref<User | null>;
   modalPassword: Ref<string>;
   showCreateUserModal: Ref<boolean>;
@@ -20,6 +23,8 @@ export const useUserList = (
   }>;
   sortedUsers: ComputedRef<User[]>;
   isCreateUserFormValid: ComputedRef<boolean>;
+  isUpdateOwnPasswordValid: ComputedRef<boolean>;
+  updateOwnPasswordError: ComputedRef<string | null>;
   canModifyUser: (targetUser: User) => boolean;
   openPasswordModal: (user: User) => void;
   closePasswordModal: () => void;
@@ -29,8 +34,12 @@ export const useUserList = (
 } => {
   const auth = useAuthStore();
 
-  // State
-  const currentUserPassword = ref<string>("");
+  // State for updating own password
+  const currentPassword = ref<string>("");
+  const newPassword = ref<string>("");
+  const confirmNewPassword = ref<string>("");
+
+  // State for other functionality
   const selectedUser = ref<User | null>(null);
   const modalPassword = ref<string>("");
   const showCreateUserModal = ref<boolean>(false);
@@ -68,6 +77,48 @@ export const useUserList = (
       newUser.value.email.trim() !== "" &&
       newUser.value.password.trim() !== ""
     );
+  });
+
+  /**
+   * Check if own password update form is valid
+   */
+  const isUpdateOwnPasswordValid = computed((): boolean => {
+    // All fields must be non-empty
+    if (
+      !currentPassword.value.trim() ||
+      !newPassword.value.trim() ||
+      !confirmNewPassword.value.trim()
+    ) {
+      return false;
+    }
+
+    // New passwords must match
+    if (newPassword.value !== confirmNewPassword.value) {
+      return false;
+    }
+
+    // New password must pass validation
+    const validation = validatePassword(newPassword.value);
+    return validation.isValid;
+  });
+
+  /**
+   * Get error message for own password update form
+   */
+  const updateOwnPasswordError = computed((): string | null => {
+    // Don't show errors for empty form
+    if (!newPassword.value && !confirmNewPassword.value) {
+      return null;
+    }
+
+    // Check if passwords match
+    if (newPassword.value !== confirmNewPassword.value) {
+      return "Passwords don't match";
+    }
+
+    // Check password validation
+    const validation = validatePassword(newPassword.value);
+    return validation.error;
   });
 
   /**
@@ -137,8 +188,12 @@ export const useUserList = (
   };
 
   return {
-    // State
-    currentUserPassword,
+    // State for updating own password
+    currentPassword,
+    newPassword,
+    confirmNewPassword,
+
+    // State for other functionality
     selectedUser,
     modalPassword,
     showCreateUserModal,
@@ -147,6 +202,8 @@ export const useUserList = (
     // Computed
     sortedUsers,
     isCreateUserFormValid,
+    isUpdateOwnPasswordValid,
+    updateOwnPasswordError,
 
     // Methods
     canModifyUser,

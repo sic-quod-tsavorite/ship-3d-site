@@ -6,7 +6,10 @@ import type { User } from "@/interfaces/userInterfaces";
 
 export const useUserActions = (
   updatePassword: (userId: string, newPassword: string) => Promise<boolean>,
-  updateCurrentUserPassword: (newPassword: string) => Promise<boolean>,
+  updateCurrentUserPassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<boolean>,
   createUser: (
     name: string,
     email: string,
@@ -15,7 +18,10 @@ export const useUserActions = (
   ) => Promise<boolean>,
   deleteUser: (userId: string) => Promise<boolean>,
   error: Ref<string | null>,
-  currentUserPassword: Ref<string>,
+  currentPassword: Ref<string>,
+  newPassword: Ref<string>,
+  confirmNewPassword: Ref<string>,
+  isUpdateOwnPasswordValid: Ref<boolean>,
   selectedUser: Ref<User | null>,
   modalPassword: Ref<string>,
   newUser: Ref<{
@@ -37,13 +43,18 @@ export const useUserActions = (
    * Handle updating current user's password
    */
   const handleUpdateOwnPassword = async (): Promise<void> => {
-    if (!currentUserPassword.value) return;
+    if (!isUpdateOwnPasswordValid.value) return;
 
-    const success = await updateCurrentUserPassword(currentUserPassword.value);
+    const success = await updateCurrentUserPassword(
+      currentPassword.value,
+      newPassword.value
+    );
 
     if (success) {
       alert("Password updated successfully!");
-      currentUserPassword.value = "";
+      currentPassword.value = "";
+      newPassword.value = "";
+      confirmNewPassword.value = "";
     } else {
       alert(`Failed to update password: ${error.value ?? "Unknown error"}`);
     }

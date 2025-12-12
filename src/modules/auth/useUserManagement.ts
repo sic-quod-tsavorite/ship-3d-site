@@ -12,7 +12,10 @@ export const useUserManagement = (): {
   error: Ref<string | null>;
   fetchUsers: () => Promise<void>;
   updatePassword: (userId: string, newPassword: string) => Promise<boolean>;
-  updateCurrentUserPassword: (newPassword: string) => Promise<boolean>;
+  updateCurrentUserPassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   createUser: (
     name: string,
@@ -103,8 +106,11 @@ export const useUserManagement = (): {
 
   /**
    * Update password for the currently logged-in user
+   * Uses endpoint: PUT /user/update-password
+   * Requires current password for verification
    */
   const updateCurrentUserPassword = async (
+    currentPassword: string,
     newPassword: string
   ): Promise<boolean> => {
     if (!auth.userId) {
@@ -112,7 +118,31 @@ export const useUserManagement = (): {
       return false;
     }
 
-    return await updatePassword(auth.userId, newPassword);
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await fetch(API_URL + "/user/update-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error ?? "Failed to update password");
+      }
+
+      return true;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : "An error occurred";
+      return false;
+    } finally {
+      loading.value = false;
+    }
   };
 
   /**
