@@ -38,16 +38,85 @@
         <h3 class="mb-4 text-lg font-semibold text-slate-900">
           Update Your Password
         </h3>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <input
-            v-model="currentUserPassword"
-            type="password"
-            placeholder="Enter new password"
-            class="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-          />
+        <div class="flex flex-col gap-3">
+          <div
+            class="relative flex items-center rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
+          >
+            <input
+              v-model="currentPassword"
+              :type="showCurrentPassword ? 'text' : 'password'"
+              placeholder="Enter current password"
+              class="w-full bg-transparent pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            />
+            <button
+              type="button"
+              @click="showCurrentPassword = !showCurrentPassword"
+              class="rounded-full p-0.5 bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300"
+              :aria-label="
+                showCurrentPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <EyeIcon
+                v-if="!showCurrentPassword"
+                class="h-5 w-5 stroke-current text-white"
+              />
+              <EyeSlashIcon v-else class="h-5 w-5 stroke-current text-white" />
+            </button>
+          </div>
+          <div
+            class="relative flex items-center rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
+          >
+            <input
+              v-model="newPassword"
+              :type="showNewPassword ? 'text' : 'password'"
+              placeholder="Enter new password"
+              class="w-full bg-transparent pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            />
+            <button
+              type="button"
+              @click="showNewPassword = !showNewPassword"
+              class="rounded-full p-0.5 bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300"
+              :aria-label="showNewPassword ? 'Hide password' : 'Show password'"
+            >
+              <EyeIcon
+                v-if="!showNewPassword"
+                class="h-5 w-5 stroke-current text-white"
+              />
+              <EyeSlashIcon v-else class="h-5 w-5 stroke-current text-white" />
+            </button>
+          </div>
+          <div
+            class="relative flex items-center rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
+          >
+            <input
+              v-model="confirmNewPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Confirm new password"
+              class="w-full bg-transparent pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            />
+            <button
+              type="button"
+              @click="showConfirmPassword = !showConfirmPassword"
+              class="rounded-full p-0.5 bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300"
+              :aria-label="
+                showConfirmPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <EyeIcon
+                v-if="!showConfirmPassword"
+                class="h-5 w-5 stroke-current text-white"
+              />
+              <EyeSlashIcon v-else class="h-5 w-5 stroke-current text-white" />
+            </button>
+          </div>
+
+          <div v-if="updateOwnPasswordError" class="text-sm text-red-600">
+            {{ updateOwnPasswordError }}
+          </div>
+
           <button
             @click="handleUpdateOwnPassword"
-            :disabled="!currentUserPassword || loading"
+            :disabled="!isUpdateOwnPasswordValid || loading"
             class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span
@@ -254,13 +323,34 @@
             <label class="mb-2 block text-sm font-medium text-slate-700">
               New Password
             </label>
-            <input
-              v-model="modalPassword"
-              type="password"
-              placeholder="Enter new password"
-              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-              @keyup.enter="handleUpdateUserPassword"
-            />
+            <div
+              class="relative flex items-center rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
+            >
+              <input
+                v-model="modalPassword"
+                :type="showModalPassword ? 'text' : 'password'"
+                placeholder="Enter new password"
+                class="w-full bg-transparent pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                @keyup.enter="handleUpdateUserPassword"
+              />
+              <button
+                type="button"
+                @click="showModalPassword = !showModalPassword"
+                class="rounded-full p-0.5 bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300"
+                :aria-label="
+                  showModalPassword ? 'Hide password' : 'Show password'
+                "
+              >
+                <EyeIcon
+                  v-if="!showModalPassword"
+                  class="h-5 w-5 stroke-current text-white"
+                />
+                <EyeSlashIcon
+                  v-else
+                  class="h-5 w-5 stroke-current text-white"
+                />
+              </button>
+            </div>
           </div>
           <div class="flex justify-end gap-3">
             <button
@@ -326,13 +416,34 @@
               <label class="mb-2 block text-sm font-medium text-slate-700">
                 Password
               </label>
-              <input
-                v-model="newUser.password"
-                type="password"
-                placeholder="Enter password"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                @keyup.enter="handleCreateUser"
-              />
+              <div
+                class="relative flex items-center rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40 transition"
+              >
+                <input
+                  v-model="newUser.password"
+                  :type="showCreateUserPassword ? 'text' : 'password'"
+                  placeholder="Enter password"
+                  class="w-full bg-transparent pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                  @keyup.enter="handleCreateUser"
+                />
+                <button
+                  type="button"
+                  @click="showCreateUserPassword = !showCreateUserPassword"
+                  class="rounded-full p-0.5 bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300"
+                  :aria-label="
+                    showCreateUserPassword ? 'Hide password' : 'Show password'
+                  "
+                >
+                  <EyeIcon
+                    v-if="!showCreateUserPassword"
+                    class="h-5 w-5 stroke-current text-white"
+                  />
+                  <EyeSlashIcon
+                    v-else
+                    class="h-5 w-5 stroke-current text-white"
+                  />
+                </button>
+              </div>
             </div>
             <div>
               <label class="mb-2 block text-sm font-medium text-slate-700">
@@ -383,6 +494,7 @@
 <script setup lang="ts">
 // Imports
 import { ref, onMounted } from "vue";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 
 // Project imports
 import { useUserManagement } from "@/modules/auth/useUserManagement";
@@ -406,13 +518,17 @@ const {
 
 // UI state composable
 const {
-  currentUserPassword,
+  currentPassword,
+  newPassword,
+  confirmNewPassword,
   selectedUser,
   modalPassword,
   showCreateUserModal,
   newUser,
   sortedUsers,
   isCreateUserFormValid,
+  isUpdateOwnPasswordValid,
+  updateOwnPasswordError,
   canModifyUser,
   openPasswordModal,
   closePasswordModal,
@@ -433,7 +549,10 @@ const {
   createUser,
   deleteUser,
   error,
-  currentUserPassword,
+  currentPassword,
+  newPassword,
+  confirmNewPassword,
+  isUpdateOwnPasswordValid,
   selectedUser,
   modalPassword,
   newUser,
@@ -444,6 +563,13 @@ const {
 
 // Local component state
 const isExpanded = ref(false);
+
+// Show/hide password state
+const showCurrentPassword = ref(false);
+const showNewPassword = ref(false);
+const showConfirmPassword = ref(false);
+const showModalPassword = ref(false);
+const showCreateUserPassword = ref(false);
 
 // Fetch users on mount if user is super
 onMounted(async () => {
