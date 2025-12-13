@@ -1,6 +1,7 @@
 // Imports
 import { ref, computed, watch } from "vue";
 import type { Ref, ComputedRef } from "vue";
+import { useInputMode } from "./useInputMode";
 
 // Constants
 const HOVER_ZONE_WIDTH = 350;
@@ -13,6 +14,8 @@ interface UseNavigationStateReturn {
   isVisible: ComputedRef<boolean>;
   showGlowAnimation: Ref<boolean>;
   hasEntered: Ref<boolean>;
+  isTouchMode: Ref<boolean>;
+  isOpen: Ref<boolean>;
   // Handlers
   toggleLock: () => void;
   handleContainerEnter: () => void;
@@ -26,14 +29,23 @@ interface UseNavigationStateReturn {
 }
 
 export const useNavigationState = (): UseNavigationStateReturn => {
+  // Get touch mode detection
+  const { isTouchMode } = useInputMode();
+
   // State refs
   const isLocked = ref(false);
   const isHovering = ref(false);
+  const isOpen = ref(false);
   const showGlowAnimation = ref(true);
   const hasEntered = ref(false);
 
-  // Navigation is visible when locked OR when hovering
-  const isVisible = computed<boolean>(() => isLocked.value || isHovering.value);
+  // Navigation is visible based on input mode
+  const isVisible = computed<boolean>(() => {
+    if (isTouchMode.value) {
+      return isOpen.value; // Touch mode: simple open/close
+    }
+    return isLocked.value || isHovering.value; // Mouse mode: hover + lock
+  });
 
   // Glow timeout handle
   let glowTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -50,6 +62,37 @@ export const useNavigationState = (): UseNavigationStateReturn => {
     }
   });
 
+  // Watch for input mode changes - setup/cleanup mouse tracking accordingly
+  watch(isTouchMode, (touchMode) => {
+    if (touchMode) {
+      cleanupMouseTracking();
+    } else {
+      setupMouseTracking();
+    }
+  });
+
+  // Preserve state when switching between touch and mouse modes
+  watch(isTouchMode, (newTouchMode, oldTouchMode) => {
+    // When switching from touch to mouse mode
+    if (oldTouchMode === true && !newTouchMode) {
+      // Preserve open state as locked state
+      if (isOpen.value) {
+        isLocked.value = true;
+        isOpen.value = false;
+      }
+    }
+    // When switching from mouse to touch mode
+    else if (oldTouchMode === false && newTouchMode) {
+      // Preserve visibility as open state
+      const wasVisible = isLocked.value || isHovering.value;
+      if (wasVisible) {
+        isOpen.value = true;
+      }
+      isLocked.value = false;
+      isHovering.value = false;
+    }
+  });
+
   // Track mouse position for hover zone detection
   const handleMouseMove = (e: MouseEvent): void => {
     if (isLocked.value) return;
@@ -62,9 +105,13 @@ export const useNavigationState = (): UseNavigationStateReturn => {
     }
   };
 
-  // Toggle lock state
+  // Toggle lock state (mode-aware)
   const toggleLock = (): void => {
-    isLocked.value = !isLocked.value;
+    if (isTouchMode.value) {
+      isOpen.value = !isOpen.value; // Touch mode: toggle open/close
+    } else {
+      isLocked.value = !isLocked.value; // Mouse mode: toggle lock
+    }
   };
 
   // Container hover handlers (to keep nav open while interacting with it)
@@ -82,6 +129,7 @@ export const useNavigationState = (): UseNavigationStateReturn => {
 
   // Lifecycle: setup mouse tracking
   const setupMouseTracking = (): void => {
+    if (isTouchMode.value) return; // Skip in touch mode
     document.addEventListener("mousemove", handleMouseMove);
   };
 
@@ -116,6 +164,8 @@ export const useNavigationState = (): UseNavigationStateReturn => {
     isVisible,
     showGlowAnimation,
     hasEntered,
+    isTouchMode,
+    isOpen,
     // Handlers
     toggleLock,
     handleContainerEnter,

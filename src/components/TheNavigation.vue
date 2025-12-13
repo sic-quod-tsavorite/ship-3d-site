@@ -4,8 +4,8 @@
     <div
       class="nav-container fixed top-0 h-screen"
       :class="{ 'container-visible': isVisible }"
-      @mouseenter="handleContainerEnter"
-      @mouseleave="handleContainerLeave"
+      @mouseenter="!isTouchMode ? handleContainerEnter : undefined"
+      @mouseleave="!isTouchMode ? handleContainerLeave : undefined"
     >
       <!-- Sidebar -->
       <aside
@@ -202,33 +202,56 @@
         @click="toggleLock"
         class="-ml-px nav-toggle-btn absolute top-4 left-[280px] w-8 h-8 bg-white border border-gray-200 border-l-0 rounded-tr-md rounded-br-md flex items-center justify-center cursor-pointer hover:bg-gray-50 focus:outline-none"
         :class="{
-          'toggle-locked': isLocked,
+          'toggle-locked': !isTouchMode && isLocked,
           'glow-active': showGlowAnimation,
           'has-entered': hasEntered,
         }"
         :aria-expanded="isVisible"
         aria-controls="navigation-sidebar"
-        aria-label="Toggle navigation menu"
+        :aria-label="
+          isTouchMode
+            ? isVisible
+              ? 'Close navigation menu'
+              : 'Open navigation menu'
+            : 'Toggle navigation menu lock'
+        "
       >
         <Transition name="icon-fade" mode="out-in">
-          <!-- Burger menu when nav is hidden -->
-          <Bars3Icon
-            v-if="!isVisible"
-            key="bars"
-            class="absolute w-4 h-4 text-gray-700"
-          />
-          <!-- Open lock when visible but not locked (state: unlocked) -->
-          <LockOpenIcon
-            v-else-if="!isLocked"
-            key="lock-open"
-            class="absolute w-4 h-4 text-gray-700"
-          />
-          <!-- Closed lock when locked (state: locked) -->
-          <LockClosedIcon
-            v-else
-            key="lock-closed"
-            class="absolute w-4 h-4 text-gray-700"
-          />
+          <!-- Touch mode: burger → X -->
+          <template v-if="isTouchMode">
+            <Bars3Icon
+              v-if="!isVisible"
+              key="bars-touch"
+              class="absolute w-4 h-4 text-gray-700"
+            />
+            <XMarkIcon
+              v-else
+              key="x-mark"
+              class="absolute w-4 h-4 text-gray-700"
+            />
+          </template>
+
+          <!-- Mouse mode: burger → open lock → closed lock -->
+          <template v-else>
+            <!-- Burger menu when nav is hidden -->
+            <Bars3Icon
+              v-if="!isVisible"
+              key="bars-mouse"
+              class="absolute w-4 h-4 text-gray-700"
+            />
+            <!-- Open lock when visible but not locked (state: unlocked) -->
+            <LockOpenIcon
+              v-else-if="!isLocked"
+              key="lock-open"
+              class="absolute w-4 h-4 text-gray-700"
+            />
+            <!-- Closed lock when locked (state: locked) -->
+            <LockClosedIcon
+              v-else
+              key="lock-closed"
+              class="absolute w-4 h-4 text-gray-700"
+            />
+          </template>
         </Transition>
       </button>
     </div>
@@ -245,6 +268,7 @@ import {
   ChevronUpIcon,
   LockClosedIcon,
   LockOpenIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 
 // Project imports
@@ -262,6 +286,7 @@ const {
   isVisible,
   showGlowAnimation,
   hasEntered,
+  isTouchMode,
   toggleLock,
   handleContainerEnter,
   handleContainerLeave,
