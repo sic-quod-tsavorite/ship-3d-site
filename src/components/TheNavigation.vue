@@ -2,6 +2,7 @@
   <div class="navigation-wrapper fixed left-0 top-0 z-50 h-screen">
     <!-- Sliding container - holds both sidebar and toggle button -->
     <div
+      ref="navContainerRef"
       class="nav-container fixed top-0 h-screen"
       :class="{ 'container-visible': isVisible }"
       @mouseenter="!isTouchMode ? handleContainerEnter : undefined"
@@ -17,6 +18,7 @@
           <RouterLink
             v-if="!isHomePage"
             to="/"
+            @click="handleNavLinkClick"
             class="inline-flex items-center gap-2 text-black text-sm no-underline nav-link-transition hover:text-gray-700"
           >
             <ArrowLeftIcon class="w-4 h-4" />
@@ -93,6 +95,7 @@
                       v-for="vessel in category.vessels"
                       :key="vessel._id"
                       :to="`/vessel/${vessel._id}`"
+                      @click="handleNavLinkClick"
                       class="block text-black text-sm no-underline py-2 nav-link-transition hover:text-gray-700"
                     >
                       {{ vessel.name }}
@@ -117,6 +120,7 @@
           <RouterLink
             v-if="!auth.isLoggedIn"
             to="/login"
+            @click="handleNavLinkClick"
             class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-4 border-[#BCD5E5] hover:bg-[#BCD5E5] transition-colors"
           >
             Login
@@ -124,6 +128,7 @@
           <template v-else>
             <RouterLink
               to="/admin"
+              @click="handleNavLinkClick"
               class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-4 border-[#BCD5E5] hover:bg-[#BCD5E5] transition-colors"
             >
               Admin
@@ -172,21 +177,36 @@
 
           <!-- Logos -->
           <div class="flex justify-around items-center gap-4 px-6 pb-6">
-            <a :href="company1.url" target="_blank" rel="noopener noreferrer">
+            <a
+              :href="company1.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="handleNavLinkClick"
+            >
               <img
                 :src="company1.logo"
                 :alt="`${company1.name} Logo`"
                 class="h-[30px] w-auto object-contain"
               />
             </a>
-            <a :href="company2.url" target="_blank" rel="noopener noreferrer">
+            <a
+              :href="company2.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="handleNavLinkClick"
+            >
               <img
                 :src="company2.logo"
                 :alt="`${company2.name} Logo`"
                 class="h-[30px] w-auto object-contain"
               />
             </a>
-            <a :href="company3.url" target="_blank" rel="noopener noreferrer">
+            <a
+              :href="company3.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="handleNavLinkClick"
+            >
               <img
                 :src="company3.logo"
                 :alt="`${company3.name} Logo`"
@@ -199,6 +219,7 @@
 
       <!-- Toggle button -->
       <button
+        ref="toggleButtonRef"
         @click="toggleLock"
         class="-ml-px nav-toggle-btn absolute top-4 left-[280px] w-8 h-8 bg-white border border-gray-200 border-l-0 rounded-tr-md rounded-br-md flex items-center justify-center cursor-pointer hover:bg-gray-50 focus:outline-none"
         :class="{
@@ -294,9 +315,16 @@ const {
   cleanupMouseTracking,
   triggerEntranceAnimation,
   startGlowTimeout,
+  closeNavigation,
+  handleNavLinkClick,
+  setupClickListeners,
 } = useNavigationState();
 
 const isDev = import.meta.env.DEV;
+
+// Template refs for click-outside detection
+const navContainerRef = ref<HTMLElement | null>(null);
+const toggleButtonRef = ref<HTMLElement | null>(null);
 
 // Local state
 const isAboutOpen = ref(false);
@@ -318,6 +346,7 @@ onMounted(() => {
   void fetchCategories();
   triggerEntranceAnimation();
   startGlowTimeout();
+  setupClickListeners(navContainerRef, toggleButtonRef)();
 });
 
 onUnmounted(() => {
@@ -328,6 +357,7 @@ const isHomePage = computed<boolean>(() => route.path === "/");
 
 const handleLogout = (): void => {
   void auth.logout();
+  closeNavigation();
 };
 
 // About us text from environment

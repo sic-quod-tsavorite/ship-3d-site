@@ -1,5 +1,5 @@
 // Imports
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import type { Ref, ComputedRef } from "vue";
 import { useInputMode } from "./useInputMode";
 
@@ -21,6 +21,17 @@ interface UseNavigationStateReturn {
   handleContainerEnter: () => void;
   handleContainerLeave: () => void;
   handleMouseMove: (e: MouseEvent) => void;
+  closeNavigation: () => void;
+  handleClickOutside: (
+    event: MouseEvent,
+    navContainer: HTMLElement | null,
+    toggleButton: HTMLElement | null
+  ) => void;
+  handleNavLinkClick: () => void;
+  setupClickListeners: (
+    navContainerRef: Ref<HTMLElement | null>,
+    toggleButtonRef: Ref<HTMLElement | null>
+  ) => () => void;
   // Lifecycle
   setupMouseTracking: () => void;
   cleanupMouseTracking: () => void;
@@ -114,6 +125,72 @@ export const useNavigationState = (): UseNavigationStateReturn => {
     }
   };
 
+  // Close navigation (touch mode only)
+  const closeNavigation = (): void => {
+    if (isTouchMode.value && isOpen.value) {
+      isOpen.value = false;
+    }
+  };
+
+  // Click-outside handler for touch mode
+  const handleClickOutside = (
+    event: MouseEvent,
+    navContainer: HTMLElement | null,
+    toggleButton: HTMLElement | null
+  ): void => {
+    if (!isTouchMode.value || !isVisible.value) return;
+
+    const target = event.target as Node;
+
+    // Close if click is outside both nav container and toggle button
+    if (
+      navContainer &&
+      toggleButton &&
+      !navContainer.contains(target) &&
+      !toggleButton.contains(target)
+    ) {
+      closeNavigation();
+    }
+  };
+
+  // Close navigation on link click (touch mode only)
+  const handleNavLinkClick = (): void => {
+    closeNavigation();
+  };
+
+  // Setup click-outside listener lifecycle
+  const setupClickListeners = (
+    navContainerRef: Ref<HTMLElement | null>,
+    toggleButtonRef: Ref<HTMLElement | null>
+  ): (() => void) => {
+    // Return a cleanup function
+    return () => {
+      watchEffect((onCleanup) => {
+        if (isTouchMode.value && isVisible.value) {
+          // Use setTimeout to avoid immediate closure from the click that opened it
+          const timeoutId = setTimeout(() => {
+            const handleClick = (event: MouseEvent): void => {
+              handleClickOutside(
+                event,
+                navContainerRef.value,
+                toggleButtonRef.value
+              );
+            };
+            document.addEventListener("click", handleClick);
+
+            onCleanup(() => {
+              document.removeEventListener("click", handleClick);
+            });
+          }, 0);
+
+          onCleanup(() => {
+            clearTimeout(timeoutId);
+          });
+        }
+      });
+    };
+  };
+
   // Container hover handlers (to keep nav open while interacting with it)
   const handleContainerEnter = (): void => {
     if (!isLocked.value) {
@@ -171,6 +248,10 @@ export const useNavigationState = (): UseNavigationStateReturn => {
     handleContainerEnter,
     handleContainerLeave,
     handleMouseMove,
+    closeNavigation,
+    handleClickOutside,
+    handleNavLinkClick,
+    setupClickListeners,
     // Lifecycle
     setupMouseTracking,
     cleanupMouseTracking,
