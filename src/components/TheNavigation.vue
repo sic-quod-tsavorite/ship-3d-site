@@ -39,81 +39,78 @@
           </h2>
         </div>
 
-        <!-- Navigation links - Dynamic vessel categories -->
-        <nav class="flex flex-col" aria-label="Main navigation">
-          <!-- Loading state -->
-          <div v-if="loading" class="py-3 text-sm text-gray-500">
-            Loading vessels...
-          </div>
-
-          <!-- Error state -->
-          <div v-else-if="error" class="py-3 text-sm text-red-600">
-            Failed to load vessels
-          </div>
-
-          <!-- Empty state -->
-          <div
-            v-else-if="categories.length === 0"
-            class="py-3 text-sm text-gray-500"
-          >
-            No vessels available
-          </div>
-
-          <!-- Category sections -->
-          <template v-else>
-            <div
-              v-for="category in categories"
-              :key="category.name"
-              class="category-section"
-            >
-              <!-- Category button with chevron -->
-              <button
-                @click="toggleCategory(category.name)"
-                type="button"
-                class="flex items-center justify-start gap-2 w-full py-3 px-0! text-black text-sm font-normal text-left cursor-pointer border-none bg-transparent hover:text-gray-700 transition-colors"
-              >
-                <span class="flex items-center justify-center w-4 h-4 shrink-0">
-                  <ChevronUpIcon
-                    class="w-3.5 h-3.5 transition-transform duration-300 ease-out"
-                    :class="{
-                      'rotate-90': !category.isOpen.value,
-                      'rotate-180': category.isOpen.value,
-                    }"
-                  />
-                </span>
-                {{ category.name }}
-              </button>
-
-              <!-- Animated folddown with vessel links -->
-              <Transition name="category-slide">
-                <div v-show="category.isOpen.value" class="overflow-hidden">
-                  <!-- Separator between category and vessels -->
-                  <div class="h-px bg-gray-300 my-2 mx-6"></div>
-
-                  <div class="ml-6">
-                    <RouterLink
-                      v-for="vessel in category.vessels"
-                      :key="vessel._id"
-                      :to="`/vessel/${vessel._id}`"
-                      @click="handleNavLinkClick"
-                      class="block text-black text-sm no-underline py-2 nav-link-transition hover:text-gray-700"
-                    >
-                      {{ vessel.name }}
-                    </RouterLink>
-                  </div>
-                </div>
-              </Transition>
+        <!-- Scrollable navigation area -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+          <!-- Navigation links - Dynamic vessel categories -->
+          <nav class="flex flex-col" aria-label="Main navigation">
+            <!-- Loading state -->
+            <div v-if="loading" class="py-3 text-sm text-gray-500">
+              Loading vessels...
             </div>
-          </template>
-        </nav>
 
-        <!-- Spacer to push buttons and logos to bottom -->
-        <div class="flex-1"></div>
+            <!-- Error state -->
+            <div v-else-if="error" class="py-3 text-sm text-red-600">
+              Failed to load vessels
+            </div>
 
-        <p class="text-center text-xs text-gray-500 italic mb-6">
-          *Kun menupunkter markeret med rød pil er interaktive i nuværrende
-          version af siden.
-        </p>
+            <!-- Empty state -->
+            <div
+              v-else-if="categories.length === 0"
+              class="py-3 text-sm text-gray-500"
+            >
+              No vessels available
+            </div>
+
+            <!-- Category sections -->
+            <template v-else>
+              <div
+                v-for="category in categories"
+                :key="category.name"
+                class="category-section"
+              >
+                <!-- Category button with chevron -->
+                <button
+                  @click="toggleCategory(category.name)"
+                  type="button"
+                  class="flex items-center justify-start gap-2 w-full py-3 px-0! text-black text-sm font-normal text-left cursor-pointer border-none bg-transparent hover:text-gray-700 transition-colors"
+                >
+                  <span
+                    class="flex items-center justify-center w-4 h-4 shrink-0"
+                  >
+                    <ChevronUpIcon
+                      class="w-3.5 h-3.5 transition-transform duration-300 ease-out"
+                      :class="{
+                        'rotate-90': !category.isOpen.value,
+                        'rotate-180': category.isOpen.value,
+                      }"
+                    />
+                  </span>
+                  {{ category.name }}
+                </button>
+
+                <!-- Animated folddown with vessel links -->
+                <Transition name="category-slide">
+                  <div v-show="category.isOpen.value" class="overflow-hidden">
+                    <!-- Separator between category and vessels -->
+                    <div class="h-px bg-gray-300 my-2 mx-6"></div>
+
+                    <div class="ml-6">
+                      <RouterLink
+                        v-for="vessel in category.vessels"
+                        :key="vessel._id"
+                        :to="`/vessel/${vessel._id}`"
+                        @click="handleNavLinkClick"
+                        class="block text-black text-sm no-underline py-2 nav-link-transition hover:text-gray-700"
+                      >
+                        {{ vessel.name }}
+                      </RouterLink>
+                    </div>
+                  </div>
+                </Transition>
+              </div>
+            </template>
+          </nav>
+        </div>
 
         <!-- Auth buttons -->
         <div v-if="isDev || auth.isLoggedIn" class="flex flex-col gap-2 mb-6">
