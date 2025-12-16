@@ -118,7 +118,7 @@
             v-if="!auth.isLoggedIn"
             to="/login"
             @click="handleNavLinkClick"
-            class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-4 border-[#BCD5E5] hover:bg-[#BCD5E5] transition-colors"
+            class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/20 transition-colors"
           >
             Login
           </RouterLink>
@@ -126,14 +126,14 @@
             <RouterLink
               to="/admin"
               @click="handleNavLinkClick"
-              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-4 border-[#BCD5E5] hover:bg-[#BCD5E5] transition-colors"
+              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
             >
               Admin
             </RouterLink>
             <button
               @click="handleLogout"
               type="button"
-              class="block text-center py-2.5 px-4 text-sm font-medium no-underline border-none cursor-pointer bg-red-600 text-white! hover:opacity-90 transition-opacity"
+              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#DC2626] rounded-md hover:bg-[#DC2626]/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/50"
             >
               Logout
             </button>
@@ -154,7 +154,7 @@
                 class="flex items-center justify-center w-5 h-5 bg-red-600 rounded-full"
               >
                 <ChevronUpIcon
-                  class="w-3 h-3 transition-transform duration-300 ease-out"
+                  class="w-3 h-3 transition-transform duration-300 ease-out text-white stroke-2"
                   :class="{ 'rotate-180': isAboutOpen }"
                 />
               </span>
