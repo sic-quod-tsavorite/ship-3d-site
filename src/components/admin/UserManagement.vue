@@ -117,14 +117,9 @@
           <button
             @click="handleUpdateOwnPassword"
             :disabled="!isUpdateOwnPasswordValid || loading"
-            class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
           >
-            <span
-              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-            ></span>
-            <span class="relative">
-              {{ loading ? "Updating..." : "Update Password" }}
-            </span>
+            {{ loading ? "Updating..." : "Update Password" }}
           </button>
         </div>
       </div>
@@ -136,17 +131,14 @@
           <div class="flex gap-2">
             <button
               @click="openCreateUserModal"
-              class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-4 py-2 text-xs font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
             >
-              <span
-                class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-              ></span>
-              <span class="relative">Create New User</span>
+              Create New User
             </button>
             <button
               @click="fetchUsers"
               :disabled="loading"
-              class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+              class="rounded-md bg-white text-slate-900 border-3 border-slate-400 px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
               {{ loading ? "Loading..." : "Refresh" }}
             </button>
@@ -254,24 +246,18 @@
                     <button
                       v-if="canModifyUser(user)"
                       @click="openPasswordModal(user)"
-                      class="group relative overflow-hidden rounded-xl bg-linear-to-r from-amber-500 via-amber-400 to-orange-500 px-4 py-2 text-xs font-medium text-white shadow-lg shadow-amber-500/30 transition hover:from-amber-400 hover:via-orange-400 hover:to-orange-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                      class="rounded-xl bg-white text-black border-3 border-[#E5BDC2] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#E5BDC2]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5BDC2]/50"
                     >
-                      <span
-                        class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-                      ></span>
-                      <span class="relative">Reset Password</span>
+                      Reset Password
                     </button>
 
                     <!-- Delete Button (only for admins) -->
                     <button
                       v-if="user.role !== 'super' && user._id !== auth.userId"
                       @click="handleDeleteUser(user)"
-                      class="group relative overflow-hidden rounded-xl bg-linear-to-r from-red-500 via-red-400 to-pink-500 px-4 py-2 text-xs font-medium text-white shadow-lg shadow-red-500/30 transition hover:from-red-400 hover:via-pink-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      class="rounded-xl bg-white text-black border-3 border-[#DC2626] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#DC2626]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/50"
                     >
-                      <span
-                        class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-                      ></span>
-                      <span class="relative">Delete</span>
+                      Delete
                     </button>
 
                     <!-- Protected indicator for other super users -->
@@ -355,21 +341,16 @@
           <div class="flex justify-end gap-3">
             <button
               @click="closePasswordModal"
-              class="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              class="rounded-xl bg-white text-slate-900 border-3 border-slate-400 px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
             >
               Cancel
             </button>
             <button
               @click="handleUpdateUserPassword"
               :disabled="!modalPassword || loading"
-              class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
-              <span
-                class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-              ></span>
-              <span class="relative">
-                {{ loading ? "Resetting..." : "Reset Password" }}
-              </span>
+              {{ loading ? "Resetting..." : "Reset Password" }}
             </button>
           </div>
         </div>
@@ -468,21 +449,16 @@
           <div class="mt-6 flex justify-end gap-3">
             <button
               @click="closeCreateUserModal"
-              class="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              class="rounded-xl bg-white text-slate-900 border-3 border-slate-400 px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
             >
               Cancel
             </button>
             <button
               @click="handleCreateUser"
               :disabled="!isCreateUserFormValid || loading"
-              class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
-              <span
-                class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-              ></span>
-              <span class="relative">
-                {{ loading ? "Creating..." : "Create User" }}
-              </span>
+              {{ loading ? "Creating..." : "Create User" }}
             </button>
           </div>
         </div>

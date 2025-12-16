@@ -6,12 +6,9 @@
       </h2>
       <button
         @click="$emit('create')"
-        class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
       >
-        <span
-          class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-        ></span>
-        <span class="relative">Add New Vessel</span>
+        Add New Vessel
       </button>
     </div>
 
@@ -60,13 +57,13 @@
           </span>
           <button
             @click="handleBatchDelete"
-            class="rounded-lg bg-red-600 px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            class="rounded-md bg-white text-black border-3 border-[#DC2626] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#DC2626]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/50"
           >
             Delete Selected
           </button>
           <button
             @click="selectedIds.clear()"
-            class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            class="rounded-md bg-white text-slate-900 border-3 border-slate-400 px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
           >
             Clear Selection
           </button>
@@ -178,33 +175,24 @@
                 <button
                   @click="openModelViewer(vessel)"
                   @mouseenter="handleHover(getObjectUrl(vessel.object))"
-                  class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
                 >
-                  <span
-                    class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-                  ></span>
-                  <span class="relative">View 3D</span>
+                  View 3D
                 </button>
               </td>
               <td class="border-b border-slate-200 px-4 py-3 text-right">
                 <div class="flex justify-end gap-2">
                   <button
                     @click="$emit('edit', vessel)"
-                    class="group relative overflow-hidden rounded-xl bg-linear-to-r from-amber-500 via-amber-400 to-orange-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-amber-500/30 transition hover:from-amber-400 hover:via-orange-400 hover:to-orange-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    class="rounded-xl bg-white text-black border-3 border-[#E5BDC2] px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#E5BDC2]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5BDC2]/50"
                   >
-                    <span
-                      class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-                    ></span>
-                    <span class="relative">Edit</span>
+                    Edit
                   </button>
                   <button
                     @click="handleDelete(vessel)"
-                    class="group relative overflow-hidden rounded-xl bg-linear-to-r from-red-500 via-red-400 to-pink-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-red-500/30 transition hover:from-red-400 hover:via-pink-400 hover:to-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    class="rounded-xl bg-white text-black border-3 border-[#DC2626] px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#DC2626]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/50"
                   >
-                    <span
-                      class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-                    ></span>
-                    <span class="relative">Delete</span>
+                    Delete
                   </button>
                 </div>
               </td>
@@ -245,11 +233,8 @@
           />
           <button
             @click="closeImageViewer"
-            class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+            class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
           >
-            <span
-              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-            ></span>
             <XMarkIcon class="h-6 w-6" />
           </button>
         </div>

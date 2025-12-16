@@ -12,11 +12,8 @@
         </h2>
         <button
           @click="$emit('close')"
-          class="group relative overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+          class="rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
         >
-          <span
-            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-          ></span>
           <XMarkIcon class="relative h-6 w-6" />
         </button>
       </div>
@@ -114,7 +111,7 @@
                 <button
                   type="button"
                   @click="createNewCategory()"
-                  class="w-full px-3 py-2 text-left text-sm bg-indigo-50 hover:bg-indigo-100 font-medium text-indigo-900 transition"
+                  class="w-full px-3 py-2 text-left text-sm bg-white text-black border-3 border-[#BCD5E5] rounded-md font-medium transition-colors hover:bg-[#BCD5E5]/20"
                 >
                   + Create "{{ categorySearchInput }}"
                 </button>
@@ -228,24 +225,16 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="group relative overflow-hidden rounded-xl bg-linear-to-r from-slate-500 via-slate-400 to-slate-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-slate-500/30 transition hover:from-slate-400 hover:via-slate-300 hover:to-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+            class="rounded-xl bg-white text-slate-900 border-3 border-slate-400 px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50"
           >
-            <span
-              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-            ></span>
-            <span class="relative">Cancel</span>
+            Cancel
           </button>
           <button
             type="submit"
             :disabled="loading"
-            class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
           >
-            <span
-              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-            ></span>
-            <span class="relative">
-              {{ loading ? "Saving..." : isEditMode ? "Update" : "Create" }}
-            </span>
+            {{ loading ? "Saving..." : isEditMode ? "Update" : "Create" }}
           </button>
         </div>
       </form>
