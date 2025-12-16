@@ -2,13 +2,18 @@ $font-stack: system-ui, Avenir, Helvetica, Arial, sans-serif;
 $line-height: 1.5;
 $font-weight-default: 400;
 
-$text-color-dark: rgba(255, 255, 255, 0.87);
-$bg-color-dark: #242424;
-$primary: #646cff;
-$primary-hover: #535bf2;
-$primary-hover-light: #747bff;
-$button-bg-dark: #1a1a1a;
-$button-bg-light: #f9f9f9;
+$primary: oklch(78.5% 0.062 220);
+$brand-darkblue: oklch(17.5% 0.082 255);
+$brand-red: oklch(57.7% 0.245 27.325);
+$secondary: oklch(97.2% 0.018 215);
+$success: oklch(76.8% 0.063 290);
+$info: oklch(78.5% 0.06 285);
+$warning: oklch(80.5% 0.053 305);
+$danger: oklch(78.8% 0.062 25);
+$light: oklch(95.2% 0.008 220);
+$dark: oklch(24.8% 0.048 250);
+$body-bg: oklch(95% 0.01 210);
+$body-color: oklch(22.8% 0 0);
 
 :root {
   font-family: $font-stack;
@@ -16,8 +21,8 @@ $button-bg-light: #f9f9f9;
   font-weight: $font-weight-default;
 
   color-scheme: light dark;
-  color: $text-color-dark;
-  background-color: $bg-color-dark;
+  color: $body-color;
+  background-color: $body-bg;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -41,16 +46,6 @@ a {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-button {
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.25s;
 }
 
 #app {
@@ -89,18 +84,18 @@ button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(240, 240, 240, 0.8);
+  background-color: rgba(242, 242, 242, 0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #333;
+  color: $dark;
   z-index: 10;
 }
 
 .loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid $light;
+  border-top: 4px solid $primary;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -108,12 +103,9 @@ button {
   margin-bottom: 1rem;
 }
 
-/* Custom colors for service area branding */
-$service-area-red: #e53935;
-
 /* Service area text styles - shared between navigation and home */
 .service-area-label {
-  color: $service-area-red;
+  color: $brand-red;
   letter-spacing: 0.15em;
 }
 
@@ -127,10 +119,10 @@ $service-area-red: #e53935;
 
 /* Code element styling */
 code {
-  background-color: #f0f0f0;
+  background-color: $light;
   padding: 0.2em 0.4em;
   border-radius: 3px;
-  color: #e01e5a;
+  color: $brand-red;
 }
 
 /* 3D Model container sizing */
