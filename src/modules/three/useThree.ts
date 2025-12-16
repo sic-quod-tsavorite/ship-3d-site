@@ -171,7 +171,9 @@ export function useThree(
 
     // Clear container
     if (container.value) {
-      container.value.innerHTML = "";
+      while (container.value.firstChild) {
+        container.value.removeChild(container.value.firstChild);
+      }
     }
 
     // Retry init after brief delay
