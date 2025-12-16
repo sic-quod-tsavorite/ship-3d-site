@@ -25,27 +25,21 @@
           </div>
           <button
             @click="toggleFullscreen"
-            class="absolute bottom-3 right-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600 z-10"
+            class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
             :title="
               isFullscreen
                 ? 'Exit fullscreen (F or Esc)'
                 : 'Enter fullscreen (F)'
             "
           >
-            <span
-              class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-            ></span>
             <ArrowsPointingInIcon v-if="isFullscreen" class="h-6 w-6" />
             <ArrowsPointingOutIcon v-else class="h-6 w-6" />
           </button>
         </div>
         <button
           @click="closeModal"
-          class="absolute right-3 top-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600"
+          class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
         >
-          <span
-            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-          ></span>
           <XMarkIcon class="h-6 w-6" />
         </button>
       </div>
@@ -60,14 +54,11 @@
     </div>
     <button
       @click="toggleFullscreen"
-      class="absolute bottom-3 right-3 group overflow-hidden rounded-xl bg-linear-to-r from-slate-600 via-slate-500 to-slate-600 p-1.5 text-white transition hover:from-slate-500 hover:via-slate-400 hover:to-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600 z-10"
+      class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
       :title="
         isFullscreen ? 'Exit fullscreen (F or Esc)' : 'Enter fullscreen (F)'
       "
     >
-      <span
-        class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-      ></span>
       <ArrowsPointingInIcon v-if="isFullscreen" class="h-6 w-6" />
       <ArrowsPointingOutIcon v-else class="h-6 w-6" />
     </button>

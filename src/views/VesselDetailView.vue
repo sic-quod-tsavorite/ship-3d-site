@@ -48,12 +48,9 @@
         <button
           @click="openModelViewer"
           @mouseenter="handleModelHover"
-          class="group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-500 via-indigo-400 to-sky-500 px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base font-medium text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-400 hover:via-sky-400 hover:to-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          class="rounded-xl bg-white/80 text-black border-3 border-[#BCD5E5] px-4 py-2 text-sm sm:px-5 sm:py-3 sm:text-base font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
         >
-          <span
-            class="absolute inset-0 -translate-x-full bg-white/20 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100"
-          ></span>
-          <span class="relative flex items-center gap-2">
+          <span class="flex items-center gap-2">
             OPEN 3D VIEW
             <ChevronRightIcon class="h-5 w-5" />
           </span>
