@@ -55,4 +55,10 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    headers: {
+      "Content-Security-Policy":
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http://localhost:4000 https://api-ship-3d.onrender.com/; font-src 'self'; connect-src 'self' blob: http://localhost:4000 https://api-ship-3d.onrender.com/; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;",
+    },
+  },
 });
