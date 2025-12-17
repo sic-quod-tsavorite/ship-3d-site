@@ -32,7 +32,7 @@
     <div v-else>
       <!-- Search and Filters -->
       <div class="mb-4 flex flex-wrap items-center gap-4">
-        <div class="flex-1 min-w-[200px]">
+        <div class="flex-1 min-w-50">
           <input
             v-model="searchQuery"
             type="text"

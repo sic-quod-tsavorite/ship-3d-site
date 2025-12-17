@@ -20,21 +20,21 @@
           <img
             :src="company1.logo"
             :alt="`${company1.name} Logo`"
-            class="h-[30px] w-auto object-contain sm:h-10"
+            class="h-7.5 w-auto object-contain sm:h-10"
           />
         </a>
         <a :href="company2.url" target="_blank" rel="noopener noreferrer">
           <img
             :src="company2.logo"
             :alt="`${company2.name} Logo`"
-            class="h-[30px] w-auto object-contain sm:h-10"
+            class="h-7.5 w-auto object-contain sm:h-10"
           />
         </a>
         <a :href="company3.url" target="_blank" rel="noopener noreferrer">
           <img
             :src="company3.logo"
             :alt="`${company3.name} Logo`"
-            class="h-[30px] w-auto object-contain sm:h-10"
+            class="h-7.5 w-auto object-contain sm:h-10"
           />
         </a>
       </div>

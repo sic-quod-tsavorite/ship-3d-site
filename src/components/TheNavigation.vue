@@ -11,7 +11,7 @@
       <!-- Sidebar -->
       <aside
         id="navigation-sidebar"
-        class="absolute left-0 top-0 w-[280px] h-screen bg-white flex flex-col py-8 px-6 border-r border-gray-200"
+        class="absolute left-0 top-0 w-70 h-screen bg-white flex flex-col py-8 px-6 border-r border-gray-200"
       >
         <!-- Back to front page -->
         <div class="mb-8">
@@ -183,7 +183,7 @@
               <img
                 :src="company1.logo"
                 :alt="`${company1.name} Logo`"
-                class="h-[30px] w-auto object-contain"
+                class="h-7.5 w-auto object-contain"
               />
             </a>
             <a
@@ -195,7 +195,7 @@
               <img
                 :src="company2.logo"
                 :alt="`${company2.name} Logo`"
-                class="h-[30px] w-auto object-contain"
+                class="h-7.5 w-auto object-contain"
               />
             </a>
             <a
@@ -207,7 +207,7 @@
               <img
                 :src="company3.logo"
                 :alt="`${company3.name} Logo`"
-                class="h-[30px] w-auto object-contain"
+                class="h-7.5 w-auto object-contain"
               />
             </a>
           </div>
@@ -218,7 +218,7 @@
       <button
         ref="toggleButtonRef"
         @click="toggleLock"
-        class="-ml-px nav-toggle-btn absolute top-4 left-[280px] w-8 h-8 bg-white border border-gray-200 border-l-0 rounded-tr-md rounded-br-md flex items-center justify-center cursor-pointer hover:bg-gray-50 focus:outline-none"
+        class="-ml-px nav-toggle-btn absolute top-4 left-70 w-8 h-8 bg-white border border-gray-200 border-l-0 rounded-tr-md rounded-br-md flex items-center justify-center cursor-pointer hover:bg-gray-50 focus:outline-none"
         :class="{
           'toggle-locked': !isTouchMode && isLocked,
           'glow-active': showGlowAnimation,
