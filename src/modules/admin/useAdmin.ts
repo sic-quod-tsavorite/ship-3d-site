@@ -1,5 +1,5 @@
 // Imports
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import type { Ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -57,6 +57,10 @@ export const useAdmin = (): {
   const showForm = ref<boolean>(false);
   const selectedVessel = ref<Vessel | undefined>(undefined);
 
+  // Session check interval (check every 60 seconds)
+  const SESSION_CHECK_INTERVAL = 60 * 1000;
+  let sessionCheckTimer: ReturnType<typeof setInterval> | null = null;
+
   /**
    * Initialize admin view - check auth and fetch vessels
    */
@@ -69,7 +73,35 @@ export const useAdmin = (): {
   };
 
   /**
+   * Periodically check if session is still valid
+   * Redirects to login if session has expired
+   */
+  const startSessionCheck = (): void => {
+    sessionCheckTimer = setInterval((): void => {
+      const checkSession = async (): Promise<void> => {
+        await auth.initAuth();
+        if (!auth.isLoggedIn) {
+          stopSessionCheck();
+          await router.push("/login");
+        }
+      };
+      void checkSession();
+    }, SESSION_CHECK_INTERVAL);
+  };
+
+  /**
+   * Stop the session check interval
+   */
+  const stopSessionCheck = (): void => {
+    if (sessionCheckTimer) {
+      clearInterval(sessionCheckTimer);
+      sessionCheckTimer = null;
+    }
+  };
+
+  /**
    * Watch for auth changes and refetch vessels when logged in
+   * Redirects to login if session expires
    */
   const setupAuthWatcher = (): void => {
     watch(
@@ -77,6 +109,10 @@ export const useAdmin = (): {
       async (val) => {
         if (val) {
           await fetchVessels();
+        } else {
+          // Session expired - redirect to login
+          stopSessionCheck();
+          await router.push("/login");
         }
       },
       { immediate: false }
@@ -165,6 +201,12 @@ export const useAdmin = (): {
   onMounted(async () => {
     await initializeAdminView();
     setupAuthWatcher();
+    startSessionCheck();
+  });
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    stopSessionCheck();
   });
 
   return {

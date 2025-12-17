@@ -45,8 +45,14 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next): Promise<void> => {
   const auth = useAuthStore();
+
+  // Initialize auth on first navigation (checks server session cookie)
+  if (!auth.authInitialized) {
+    await auth.initAuth();
+  }
+
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
   if (requiresAuth && !auth.isLoggedIn) {

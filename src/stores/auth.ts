@@ -9,12 +9,14 @@ import type { AuthCheckResponse } from "@/interfaces/authInterfaces";
 export const useAuthStore = defineStore("auth", () => {
   const API_URL = import.meta.env.VITE_API_URL as string;
   const _isLoggedIn = ref<boolean>(false);
+  const _authInitialized = ref<boolean>(false);
   const userId = ref<string | null>(null);
   const userName = ref<string | null>(null);
   const userEmail = ref<string | null>(null);
   const userRole = ref<"super" | "admin" | null>(null);
 
   const isLoggedIn = computed(() => _isLoggedIn.value);
+  const authInitialized = computed(() => _authInitialized.value);
 
   const isAuthCheckResponse = (obj: unknown): obj is AuthCheckResponse =>
     typeof obj === "object" && obj !== null && "isAuthenticated" in obj;
@@ -50,6 +52,8 @@ export const useAuthStore = defineStore("auth", () => {
       userName.value = null;
       userEmail.value = null;
       userRole.value = null;
+    } finally {
+      _authInitialized.value = true;
     }
   }
 
@@ -86,6 +90,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   return {
     isLoggedIn,
+    authInitialized,
     userId,
     userName,
     userEmail,
