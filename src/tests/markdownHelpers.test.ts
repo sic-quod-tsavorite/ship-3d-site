@@ -96,13 +96,13 @@ describe("markdownHelpers", () => {
     describe("links", () => {
       it("should convert [text](url) to <a> tag", () => {
         expect(parseMarkdown("[Google](https://google.com)")).toBe(
-          '<a href="https://google.com" rel="noopener noreferrer">Google</a>'
+          '<a href="https://google.com" target="_blank" rel="noopener noreferrer">Google</a>'
         );
       });
 
       it("should handle relative URLs", () => {
         expect(parseMarkdown("[Link](/about)")).toBe(
-          '<a href="/about" rel="noopener noreferrer">Link</a>'
+          '<a href="/about" target="_blank" rel="noopener noreferrer">Link</a>'
         );
       });
 
@@ -130,7 +130,7 @@ describe("markdownHelpers", () => {
         expect(
           parseMarkdown("[Link1](http://a.com) and [Link2](http://b.com)")
         ).toBe(
-          '<a href="http://a.com" rel="noopener noreferrer">Link1</a> and <a href="http://b.com" rel="noopener noreferrer">Link2</a>'
+          '<a href="http://a.com" target="_blank" rel="noopener noreferrer">Link1</a> and <a href="http://b.com" target="_blank" rel="noopener noreferrer">Link2</a>'
         );
       });
     });
@@ -144,7 +144,7 @@ describe("markdownHelpers", () => {
         const result = parseMarkdown("**[Bold Link](https://example.com)**");
         expect(result).toContain("<strong>");
         expect(result).toContain(
-          '<a href="https://example.com" rel="noopener noreferrer">'
+          '<a href="https://example.com" target="_blank" rel="noopener noreferrer">'
         );
       });
 
@@ -155,7 +155,7 @@ describe("markdownHelpers", () => {
         expect(result).toContain("<strong>Vessel Details</strong>");
         expect(result).toContain("Length: 100m");
         expect(result).toContain(
-          '<a href="https://example.com" rel="noopener noreferrer">'
+          '<a href="https://example.com" target="_blank" rel="noopener noreferrer">'
         );
       });
     });

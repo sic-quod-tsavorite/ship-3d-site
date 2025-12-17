@@ -56,7 +56,7 @@ export const parseMarkdown = (text: string): string => {
     /\[([^\[\]]*)\]\(([^)]+)\)/g,
     (_match: string, text: string, url: string): string => {
       if (isValidUrl(url)) {
-        return `<a href="${escapeHtml(url)}" rel="noopener noreferrer">${text}</a>`;
+        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
       }
       // If URL is invalid, return the text without link
       return text;
