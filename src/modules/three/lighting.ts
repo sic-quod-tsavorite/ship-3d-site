@@ -14,15 +14,15 @@ export function createLights(scene: THREE.Scene): {
   ambientLight: THREE.AmbientLight;
 } {
   // Hemisphere Light
-  const hemisphereLight = new THREE.HemisphereLight(0xafafaf, 0xafafaf, 5.3);
+  const hemisphereLight = new THREE.HemisphereLight(0xafafaf, 0xafafaf, 3);
   scene.add(hemisphereLight);
 
   // Ambient Light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
   scene.add(ambientLight);
 
   // Main Directional Light
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
   directionalLight.position.set(5, 10, 7);
   directionalLight.castShadow = true;
 
@@ -64,9 +64,9 @@ export function createLights(scene: THREE.Scene): {
   };
 
   const initialSettings: LightSettings = {
-    hemisphere: { intensity: 5.3 },
-    ambient: { intensity: 1.4 },
-    directional: { intensity: 1.8, castShadow: true },
+    hemisphere: { intensity: 3 },
+    ambient: { intensity: 1 },
+    directional: { intensity: 1.5, castShadow: true },
     top: { intensity: 0.8 },
     angle: { intensity: 0.8 },
     fill: { intensity: 0.8 },
