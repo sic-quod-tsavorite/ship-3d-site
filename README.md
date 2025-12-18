@@ -64,7 +64,9 @@ yarn install
 Create a `.env` file in the root of the project with the following variables:
 
 ```Environment Variables
-VITE_API_URL=http://example.api/api-ship-3d
+VITE_API_URL=https://example.api/api-ship-3d
+VITE_BACKEND=https://example.api
+VITE_LAUNCH_EDITOR=customCodeEditor
 VITE_PATH=/assets/models/
 VITE_ROUTER_PREFIX=/prefix
 
@@ -83,6 +85,8 @@ VITE_ABOUT_US=Company description text here
 
 **Variables:**
 - `VITE_API_URL`: Backend API endpoint
+- `VITE_BACKEND`: Backend API root endpoint used in vite.config.ts (will default to "http://localhost:4000" if not specified)
+- `VITE_LAUNCH_EDITOR`: If you want to change code editor used with vue devtools (will default to vs code if not specified)
 - `VITE_PATH`: Path to 3D model assets
 - `VITE_ROUTER_PREFIX`: Router base path (leave empty for root)
 - `VITE_COMPANY*_*`: Company branding and information
