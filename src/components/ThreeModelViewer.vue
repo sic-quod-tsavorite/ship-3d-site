@@ -25,7 +25,7 @@
           </div>
           <button
             @click="toggleFullscreen"
-            class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
+            class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-[#BCD5E5] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
             :title="
               isFullscreen
                 ? 'Exit fullscreen (F or Esc)'
@@ -38,7 +38,7 @@
         </div>
         <button
           @click="closeModal"
-          class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
+          class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
         >
           <XMarkIcon class="h-6 w-6" />
         </button>
@@ -54,7 +54,7 @@
     </div>
     <button
       @click="toggleFullscreen"
-      class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
+      class="absolute bottom-3 right-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-[#BCD5E5] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 z-10"
       :title="
         isFullscreen ? 'Exit fullscreen (F or Esc)' : 'Enter fullscreen (F)'
       "

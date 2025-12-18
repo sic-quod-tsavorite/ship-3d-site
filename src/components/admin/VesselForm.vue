@@ -12,7 +12,7 @@
         </h2>
         <button
           @click="$emit('close')"
-          class="rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
+          class="rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
         >
           <XMarkIcon class="relative h-6 w-6" />
         </button>

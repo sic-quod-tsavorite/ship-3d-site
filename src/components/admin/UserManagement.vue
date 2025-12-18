@@ -3,7 +3,7 @@
     <!-- Collapsible Header -->
     <button
       @click="isExpanded = !isExpanded"
-      class="mb-4 flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-5 py-4 text-left transition hover:bg-slate-100/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+      class="mb-4 flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-5 py-4 text-left transition hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
     >
       <h2 class="text-2xl font-semibold tracking-tight text-slate-900">
         User Management
@@ -117,7 +117,7 @@
           <button
             @click="handleUpdateOwnPassword"
             :disabled="!isUpdateOwnPasswordValid || loading"
-            class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
           >
             {{ loading ? "Updating..." : "Update Password" }}
           </button>
@@ -131,14 +131,14 @@
           <div class="flex gap-2">
             <button
               @click="openCreateUserModal"
-              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
             >
               Create New User
             </button>
             <button
               @click="fetchUsers"
               :disabled="loading"
-              class="rounded-md bg-white text-slate-900 border-3 border-slate-400 px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+              class="rounded-md bg-white text-slate-900 border-3 border-slate-400 px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
               {{ loading ? "Loading..." : "Refresh" }}
             </button>
@@ -246,7 +246,7 @@
                     <button
                       v-if="canModifyUser(user)"
                       @click="openPasswordModal(user)"
-                      class="rounded-xl bg-white text-black border-3 border-[#E5BDC2] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#E5BDC2]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5BDC2]/50"
+                      class="rounded-xl bg-white text-black border-3 border-[#E5BDC2] px-4 py-2 text-xs font-medium shadow-sm transition-colors hover:bg-[#E5BDC2]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5BDC2]/50"
                     >
                       Reset Password
                     </button>
@@ -348,7 +348,7 @@
             <button
               @click="handleUpdateUserPassword"
               :disabled="!modalPassword || loading"
-              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
               {{ loading ? "Resetting..." : "Reset Password" }}
             </button>
@@ -456,7 +456,7 @@
             <button
               @click="handleCreateUser"
               :disabled="!isCreateUserFormValid || loading"
-              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+              class="rounded-xl bg-white text-black border-3 border-[#BCD5E5] px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
             >
               {{ loading ? "Creating..." : "Create User" }}
             </button>

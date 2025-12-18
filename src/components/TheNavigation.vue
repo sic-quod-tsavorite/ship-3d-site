@@ -118,7 +118,7 @@
             v-if="!auth.isLoggedIn"
             to="/login"
             @click="handleNavLinkClick"
-            class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/20 transition-colors"
+            class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/40 transition-colors"
           >
             Login
           </RouterLink>
@@ -126,7 +126,7 @@
             <RouterLink
               to="/admin"
               @click="handleNavLinkClick"
-              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
+              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
             >
               Admin
             </RouterLink>

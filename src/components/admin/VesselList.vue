@@ -92,7 +92,7 @@
                 Image
               </th>
               <th
-                class="cursor-pointer border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:bg-slate-100"
+                class="cursor-pointer border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:bg-[#BCD5E5]/40"
                 @click="toggleSort('name')"
               >
                 <div class="flex items-center gap-1">
@@ -233,7 +233,7 @@
           />
           <button
             @click="closeImageViewer"
-            class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
+            class="absolute right-3 top-3 rounded-xl bg-white text-slate-900 border-3 border-slate-500 p-1.5 transition-colors hover:bg-[#BCD5E5]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
           >
             <XMarkIcon class="h-6 w-6" />
           </button>
