@@ -113,7 +113,7 @@
         </div>
 
         <!-- Auth buttons -->
-        <div v-if="isDev || auth.isLoggedIn" class="flex flex-col gap-2 mb-6">
+        <div class="flex flex-col gap-2 mb-6">
           <RouterLink
             v-if="!auth.isLoggedIn"
             to="/login"
@@ -316,8 +316,6 @@ const {
   handleNavLinkClick,
   setupClickListeners,
 } = useNavigationState();
-
-const isDev = import.meta.env.DEV;
 
 // Template refs for click-outside detection
 const navContainerRef = ref<HTMLElement | null>(null);
