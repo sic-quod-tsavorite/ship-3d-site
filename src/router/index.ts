@@ -10,29 +10,27 @@ import VesselDetailView from "@/views/VesselDetailView.vue";
 import NotFound from "@/views/NotFound.vue";
 import { useAuthStore } from "@/stores/auth";
 
-const routePrefix = (import.meta.env.VITE_ROUTER_PREFIX as string) || "";
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: `${routePrefix}/`,
+      path: "/",
       name: "home",
       component: HomeView as Component,
     },
     {
-      path: `${routePrefix}/login`,
+      path: "/login",
       name: "login",
       component: LoginView as Component,
     },
     {
-      path: `${routePrefix}/admin`,
+      path: "/admin",
       name: "admin",
       component: AdminView as Component,
       meta: { requiresAuth: true },
     },
     {
-      path: `${routePrefix}/vessel/:id`,
+      path: "/vessel/:id",
       name: "vessel-detail",
       component: VesselDetailView as Component,
       props: true,

@@ -1,13 +1,14 @@
 {
   "name": "ship-3d-site",
   "private": true,
-  "version": "1.4.7",
+  "version": "1.4.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "build-dev": "vue-tsc -b && vite build --mode moove",
     "preview": "vite preview",
+    "preview-dev": "rm -rf dist-preview && mkdir -p dist-preview/3d && cp -r dist/* dist-preview/3d/ && cp serve.json dist-preview/ && npx serve dist-preview",
     "lint": "eslint src --fix",
     "test": "vitest --ui"
   },

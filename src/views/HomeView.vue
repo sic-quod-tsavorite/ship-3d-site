@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 // Asset paths
-const backgroundImage = "/assets/images/Render_03_red.jpg";
+const backgroundImage = `${import.meta.env.BASE_URL}assets/images/Render_03_red.jpg`;
 
 // Company info from environment
 const company1 = {

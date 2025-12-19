@@ -9,9 +9,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const launchEditor = env.VITE_LAUNCH_EDITOR || "code";
   const backend = env.VITE_BACKEND || "http://localhost:4000";
+  const baseUrl = env.BASE_URL || "/";
 
   return {
-    base: "./",
+    base: baseUrl,
     plugins: [
       vue(),
       tailwindcss(),
@@ -67,6 +68,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      headers: {
+        "Content-Security-Policy": `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ${backend}; font-src 'self'; connect-src 'self' blob: ${backend}; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;`,
+      },
+    },
+    preview: {
+      middlewareMode: false,
       headers: {
         "Content-Security-Policy": `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ${backend}; font-src 'self'; connect-src 'self' blob: ${backend}; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;`,
       },
