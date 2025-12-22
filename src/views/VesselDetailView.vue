@@ -29,18 +29,18 @@
     >
       <!-- Semi-transparent Box -->
       <div
-        class="max-w-full sm:max-w-lg rounded-2xl bg-[#0D2638]/80 backdrop-blur-md p-6 sm:p-8 shadow-xl shadow-slate-900/20"
+        class="max-w-full sm:max-w-lg max-h-[95vh] rounded-2xl bg-[#0D2638]/80 backdrop-blur-md p-6 sm:p-8 shadow-xl shadow-slate-900/20 flex flex-col overflow-y-auto"
       >
         <!-- Vessel Name -->
         <h1
-          class="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight"
+          class="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight shrink-0"
         >
           {{ vessel.name }}
         </h1>
 
         <!-- Vessel Description -->
         <div
-          class="text-sm sm:text-base text-slate-200 mb-6 leading-relaxed markdown-content"
+          class="text-sm sm:text-base text-slate-200 mb-6 leading-relaxed markdown-content flex-1 overflow-y-auto"
           v-html="parseMarkdown(vessel.description)"
         ></div>
 
@@ -48,7 +48,7 @@
         <button
           @click="openModelViewer"
           @mouseenter="handleModelHover"
-          class="rounded-xl bg-white/80 text-black border-3 border-[#BCD5E5] px-4 py-2 text-sm sm:px-5 sm:py-3 sm:text-base font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
+          class="rounded-xl bg-white/80 text-black border-3 border-[#BCD5E5] px-4 py-2 text-sm sm:px-5 sm:py-3 sm:text-base font-medium shadow-sm transition-colors hover:bg-[#BCD5E5]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50 shrink-0 max-w-max"
         >
           <span class="flex items-center gap-2">
             OPEN 3D VIEW
