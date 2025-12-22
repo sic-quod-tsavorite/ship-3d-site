@@ -1,4 +1,43 @@
-$font-stack: system-ui, Avenir, Helvetica, Arial, sans-serif;
+/* Font imports */
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/stylesheets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/stylesheets/fonts/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/assets/stylesheets/fonts/Public_Sans/PublicSans-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/assets/stylesheets/fonts/Public_Sans/PublicSans-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+$font-stack: "Open Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+$font-stack-headers:
+  "Public Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
 $line-height: 1.5;
 $font-weight-default: 400;
 
@@ -45,6 +84,15 @@ button {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-stack-headers;
 }
 
 h1 {
