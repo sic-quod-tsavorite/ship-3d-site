@@ -279,9 +279,19 @@ const toggleAbout = (): void => {
 
 // Toggle category open/closed state
 const toggleCategory = (categoryName: string): void => {
-  const category = categories.value.find((c) => c.name === categoryName);
-  if (category) {
-    category.isOpen.value = !category.isOpen.value;
+  const wasOpen = categories.value.find(
+    (c) => c.name === categoryName
+  )?.isOpen.value;
+  // Close all categories
+  for (const c of categories.value) {
+    c.isOpen.value = false;
+  }
+  // Toggle the clicked one
+  if (!wasOpen) {
+    const category = categories.value.find((c) => c.name === categoryName);
+    if (category) {
+      category.isOpen.value = true;
+    }
   }
 };
 
