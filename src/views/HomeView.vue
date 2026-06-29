@@ -14,26 +14,12 @@
     <div
       class="relative z-10 flex h-full w-full flex-col justify-between p-6 sm:px-12 sm:py-8"
     >
-      <!-- Top right logos -->
+      <!-- Top right logo -->
       <div class="flex items-center justify-end gap-4 sm:gap-6">
-        <a :href="company1.url" target="_blank" rel="noopener noreferrer">
+        <a :href="company.url" target="_blank" rel="noopener noreferrer">
           <img
-            :src="company1.logo"
-            :alt="`${company1.name} Logo`"
-            class="h-7.5 w-auto object-contain sm:h-10"
-          />
-        </a>
-        <a :href="company2.url" target="_blank" rel="noopener noreferrer">
-          <img
-            :src="company2.logo"
-            :alt="`${company2.name} Logo`"
-            class="h-7.5 w-auto object-contain sm:h-10"
-          />
-        </a>
-        <a :href="company3.url" target="_blank" rel="noopener noreferrer">
-          <img
-            :src="company3.logo"
-            :alt="`${company3.name} Logo`"
+            :src="company.logo"
+            :alt="`${company.name} Logo`"
             class="h-7.5 w-auto object-contain sm:h-10"
           />
         </a>
@@ -64,20 +50,10 @@ const resolveUrl = (path: string): string =>
   `${import.meta.env.BASE_URL}${path.startsWith("/") ? path.slice(1) : path}`;
 
 // Company info from environment
-const company1 = {
+const company = {
   name: import.meta.env.VITE_COMPANY1_NAME as string,
   url: import.meta.env.VITE_COMPANY1_URL as string,
   logo: resolveUrl(import.meta.env.VITE_COMPANY1_LOGO as string),
-};
-const company2 = {
-  name: import.meta.env.VITE_COMPANY2_NAME as string,
-  url: import.meta.env.VITE_COMPANY2_URL as string,
-  logo: resolveUrl(import.meta.env.VITE_COMPANY2_LOGO as string),
-};
-const company3 = {
-  name: import.meta.env.VITE_COMPANY3_NAME as string,
-  url: import.meta.env.VITE_COMPANY3_URL as string,
-  logo: resolveUrl(import.meta.env.VITE_COMPANY3_LOGO as string),
 };
 </script>
 
