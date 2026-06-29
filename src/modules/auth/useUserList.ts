@@ -43,11 +43,16 @@ export const useUserList = (
   const selectedUser = ref<User | null>(null);
   const modalPassword = ref<string>("");
   const showCreateUserModal = ref<boolean>(false);
-  const newUser = ref({
+  const newUser = ref<{
+    name: string;
+    email: string;
+    password: string;
+    role: "super" | "admin";
+  }>({
     name: "",
     email: "",
     password: "",
-    role: "admin" as "super" | "admin",
+    role: "admin",
   });
 
   /**
