@@ -26,5 +26,6 @@ dist-ssr
 *.sln
 *.sw?
 *.glb
+!public/static-assets/objects/*.glb
 tsconfig.tsbuildinfo
 public/assets/*
