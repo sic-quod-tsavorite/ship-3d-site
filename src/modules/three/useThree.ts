@@ -446,10 +446,5 @@ export function useThree(
     loadingProgress,
     ...(currentFPS && { currentFPS }),
     ...(currentQuality && { currentQuality }),
-  } as {
-    isLoading: Ref<boolean>;
-    loadingProgress: Ref<number>;
-    currentFPS?: Ref<number>;
-    currentQuality?: Ref<QualityLevel>;
   };
 }
