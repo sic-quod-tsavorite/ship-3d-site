@@ -18,7 +18,7 @@ vi.mock(
     return {
       ...actual,
       useRouter: () => ({ push: mockRouterPush }),
-    } as Record<string, unknown>;
+    };
   }
 );
 

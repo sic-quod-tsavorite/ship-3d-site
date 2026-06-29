@@ -601,8 +601,8 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     });
 
     it("toggles fullscreen state when button clicked", async (): Promise<void> => {
-      const mockRequestFullscreen = vi.fn(
-        (): Promise<void> => Promise.resolve()
+      const mockRequestFullscreen = vi.fn((): Promise<void> =>
+        Promise.resolve()
       );
       const mockExitFullscreen = vi.fn((): Promise<void> => Promise.resolve());
 
@@ -749,8 +749,8 @@ describe("ThreeModelViewer.vue + useThree composable", (): void => {
     });
 
     it("handles fullscreen request errors", async (): Promise<void> => {
-      const mockRequestFullscreen = vi.fn(
-        (): Promise<void> => Promise.reject(new Error("Fullscreen denied"))
+      const mockRequestFullscreen = vi.fn((): Promise<void> =>
+        Promise.reject(new Error("Fullscreen denied"))
       );
       const consoleErrorSpy = vi
         .spyOn(console, "error")

@@ -68,13 +68,13 @@ describe("useUserActions", (): void => {
       name: "",
       email: "",
       password: "",
-      role: "admin" as "super" | "admin",
+      role: "admin",
     });
     isCreateUserFormValidRef = ref(false);
 
     // Mock global functions
-    global.alert = vi.fn() as unknown as typeof alert;
-    global.confirm = vi.fn() as unknown as typeof confirm;
+    global.alert = vi.fn();
+    global.confirm = vi.fn();
   });
 
   it("handles update own password successfully", async (): Promise<void> => {

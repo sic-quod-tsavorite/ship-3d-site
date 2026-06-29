@@ -202,7 +202,7 @@ describe("useVesselCategories", (): void => {
 
     const { loading, error } = useVesselCategories();
 
-    expect((loading as unknown as Ref<boolean>).value).toBe(true);
+    expect(loading.value).toBe(true);
     expect((error as unknown as Ref<string>).value).toBe("Test error");
   });
 

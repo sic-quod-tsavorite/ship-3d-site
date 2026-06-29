@@ -6,8 +6,8 @@ import { mount } from "@vue/test-utils";
 import VesselForm from "@/components/admin/VesselForm.vue";
 
 vi.mock("@/utils/fileHelpers", (): object => ({
-  createImagePreview: vi.fn(
-    (): Promise<string> => Promise.resolve("data:image/png;base64,preview")
+  createImagePreview: vi.fn((): Promise<string> =>
+    Promise.resolve("data:image/png;base64,preview")
   ),
   formatFileSize: (n: number): string => `${n}B`,
 }));

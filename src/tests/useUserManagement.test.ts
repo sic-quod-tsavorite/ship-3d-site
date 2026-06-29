@@ -351,7 +351,7 @@ describe("useUserManagement", (): void => {
     resolvePromise?.({
       ok: true,
       json: (): Promise<object> => Promise.resolve({ data: [] }),
-    } as object);
+    });
 
     await fetchPromise;
     expect(loading.value).toBe(false);

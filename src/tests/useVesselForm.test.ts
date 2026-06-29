@@ -8,9 +8,8 @@ import { useVesselForm } from "@/modules/vessels/useVesselForm";
 import type { Vessel } from "@/interfaces/vesselInterfaces";
 
 vi.mock("@/utils/fileHelpers", () => ({
-  createImagePreview: vi.fn(
-    (file: File): Promise<string> =>
-      Promise.resolve(`data:image;base64,mock-${file.name}`)
+  createImagePreview: vi.fn((file: File): Promise<string> =>
+    Promise.resolve(`data:image;base64,mock-${file.name}`)
   ),
 }));
 

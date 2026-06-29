@@ -162,12 +162,11 @@ describe("useVessels", (): void => {
     ];
 
     let idx = 0;
-    vi.spyOn(global, "fetch").mockImplementation(
-      (): Promise<Response> =>
-        Promise.resolve({
-          ok: cases[idx].ok,
-          json: cases[idx].json,
-        } as Response)
+    vi.spyOn(global, "fetch").mockImplementation((): Promise<Response> =>
+      Promise.resolve({
+        ok: cases[idx].ok,
+        json: cases[idx].json,
+      } as Response)
     );
 
     for (idx = 0; idx < cases.length; idx++) {
