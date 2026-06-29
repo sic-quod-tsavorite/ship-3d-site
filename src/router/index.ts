@@ -4,11 +4,8 @@ import type { Component } from "vue";
 
 // Project imports
 import HomeView from "@/views/HomeView.vue";
-import AdminView from "@/views/admin/AdminView.vue";
-import LoginView from "@/views/admin/LoginView.vue";
 import VesselDetailView from "@/views/VesselDetailView.vue";
 import NotFound from "@/views/NotFound.vue";
-import { useAuthStore } from "@/stores/auth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,17 +14,6 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView as Component,
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: LoginView as Component,
-    },
-    {
-      path: "/admin",
-      name: "admin",
-      component: AdminView as Component,
-      meta: { requiresAuth: true },
     },
     {
       path: "/vessel/:id",
@@ -41,23 +27,6 @@ const router = createRouter({
       component: NotFound as Component,
     },
   ],
-});
-
-router.beforeEach(async (to, _from, next): Promise<void> => {
-  const auth = useAuthStore();
-
-  // Initialize auth on first navigation (checks server session cookie)
-  if (!auth.authInitialized) {
-    await auth.initAuth();
-  }
-
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-
-  if (requiresAuth && !auth.isLoggedIn) {
-    next("/login");
-  } else {
-    next();
-  }
 });
 
 export default router;

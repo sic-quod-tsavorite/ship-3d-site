@@ -29,13 +29,13 @@
 
         <!-- Service area heading -->
         <div class="mb-8">
-          <p class="service-area-label text-xs mb-2">SERVICE AREA | ONE</p>
+          <p class="service-area-label text-xs mb-2">FLEET CATALOG</p>
           <h2
             class="text-gray-900 text-xl font-normal leading-tight tracking-wide m-0"
           >
-            OFFSHORE SERVICE
+            MARITIME ASSETS
             <br />
-            & OPERATIONS
+            & SOLUTIONS
           </h2>
         </div>
 
@@ -112,36 +112,11 @@
           </nav>
         </div>
 
-        <!-- Auth buttons -->
-        <div class="flex flex-col gap-2 mb-6">
-          <RouterLink
-            v-if="!auth.isLoggedIn"
-            to="/login"
-            @click="handleNavLinkClick"
-            class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/40 transition-colors"
-          >
-            Login
-          </RouterLink>
-          <template v-else>
-            <RouterLink
-              to="/admin"
-              @click="handleNavLinkClick"
-              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#BCD5E5] rounded-md hover:bg-[#BCD5E5]/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BCD5E5]/50"
-            >
-              Admin
-            </RouterLink>
-            <button
-              @click="handleLogout"
-              type="button"
-              class="block text-center py-2.5 px-4 text-sm font-medium no-underline cursor-pointer bg-white text-black border-3 border-[#DC2626] rounded-md hover:bg-[#DC2626]/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/50"
-            >
-              Logout
-            </button>
-          </template>
-        </div>
+        <!-- Spacer -->
+        <div class="mb-6"></div>
 
         <!-- Logos section -->
-        <div class="bg-[#0D2638] -mx-6 -mb-8">
+        <div class="bg-[#172554] -mx-6 -mb-8">
           <!-- About Us foldout -->
           <div class="px-6 pt-4">
             <button
@@ -151,7 +126,7 @@
             >
               ABOUT US
               <span
-                class="flex items-center justify-center w-5 h-5 bg-red-600 rounded-full"
+                class="flex items-center justify-center w-5 h-5 bg-[#f2823b] rounded-full"
               >
                 <ChevronUpIcon
                   class="w-3 h-3 transition-transform duration-300 ease-out text-white stroke-2"
@@ -290,11 +265,9 @@ import {
 } from "@heroicons/vue/24/outline";
 
 // Project imports
-import { useAuthStore } from "@/stores/auth";
 import { useVesselCategories } from "@/modules/vessels/useVesselCategories";
 import { useNavigationState } from "@/modules/navigation/useNavigationState";
 
-const auth = useAuthStore();
 const route = useRoute();
 const { categories, loading, error, fetchCategories } = useVesselCategories();
 
@@ -312,7 +285,7 @@ const {
   cleanupMouseTracking,
   triggerEntranceAnimation,
   startGlowTimeout,
-  closeNavigation,
+  closeNavigation: _closeNavigation,
   handleNavLinkClick,
   setupClickListeners,
 } = useNavigationState();
@@ -350,29 +323,27 @@ onUnmounted(() => {
 
 const isHomePage = computed<boolean>(() => route.path === "/");
 
-const handleLogout = (): void => {
-  void auth.logout();
-  closeNavigation();
-};
-
 // About us text from environment
 const aboutUsText = import.meta.env.VITE_ABOUT_US as string;
+
+const resolveUrl = (path: string): string =>
+  `${import.meta.env.BASE_URL}${path.startsWith("/") ? path.slice(1) : path}`;
 
 // Company info from environment
 const company1 = {
   name: import.meta.env.VITE_COMPANY1_NAME as string,
   url: import.meta.env.VITE_COMPANY1_URL as string,
-  logo: import.meta.env.VITE_COMPANY1_LOGO as string,
+  logo: resolveUrl(import.meta.env.VITE_COMPANY1_LOGO as string),
 };
 const company2 = {
   name: import.meta.env.VITE_COMPANY2_NAME as string,
   url: import.meta.env.VITE_COMPANY2_URL as string,
-  logo: import.meta.env.VITE_COMPANY2_LOGO as string,
+  logo: resolveUrl(import.meta.env.VITE_COMPANY2_LOGO as string),
 };
 const company3 = {
   name: import.meta.env.VITE_COMPANY3_NAME as string,
   url: import.meta.env.VITE_COMPANY3_URL as string,
-  logo: import.meta.env.VITE_COMPANY3_LOGO as string,
+  logo: resolveUrl(import.meta.env.VITE_COMPANY3_LOGO as string),
 };
 </script>
 
