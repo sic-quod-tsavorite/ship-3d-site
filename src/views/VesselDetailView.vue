@@ -29,7 +29,7 @@
     >
       <!-- Semi-transparent Box -->
       <div
-        class="max-w-full sm:max-w-lg max-h-[95vh] rounded-2xl bg-[#0D2638]/80 backdrop-blur-md p-6 sm:p-8 shadow-xl shadow-slate-900/20 flex flex-col overflow-y-auto"
+        class="max-w-full sm:max-w-lg max-h-[95vh] rounded-2xl bg-[#172554]/80 backdrop-blur-md p-6 sm:p-8 shadow-xl shadow-slate-900/20 flex flex-col overflow-y-auto"
       >
         <!-- Vessel Name -->
         <h1

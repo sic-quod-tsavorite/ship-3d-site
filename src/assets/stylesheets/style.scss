@@ -1,49 +1,12 @@
-/* Font imports */
-@font-face {
-  font-family: "Open Sans";
-  src: url("/assets/stylesheets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf")
-    format("truetype");
-  font-weight: 100 900;
-  font-stretch: 75% 100%;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sans";
-  src: url("/assets/stylesheets/fonts/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf")
-    format("truetype");
-  font-weight: 100 900;
-  font-stretch: 75% 100%;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Public Sans";
-  src: url("/assets/stylesheets/fonts/Public_Sans/PublicSans-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Public Sans";
-  src: url("/assets/stylesheets/fonts/Public_Sans/PublicSans-Italic-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-}
-
-$font-stack: "Open Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+$font-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 $font-stack-headers:
-  "Public Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 $line-height: 1.5;
 $font-weight-default: 400;
 
 $primary: oklch(78.5% 0.062 220);
-$brand-darkblue: oklch(17.5% 0.082 255);
-$brand-red: oklch(57.7% 0.245 27.325);
+$brand-darkblue: oklch(17.5% 0.065 260);
+$brand-red: oklch(72% 0.16 50);
 $secondary: oklch(97.2% 0.018 215);
 $success: oklch(76.8% 0.063 290);
 $info: oklch(78.5% 0.06 285);
