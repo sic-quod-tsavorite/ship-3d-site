@@ -7,10 +7,8 @@ import type {
   Vessel,
   VesselFormData,
   VesselUpdateData,
-  VesselResponse,
-  VesselErrorResponse,
 } from "@/interfaces/vesselInterfaces";
-import { useVesselsStore } from "@/stores/vessels";
+import { staticVessels } from "@/data/staticVessels";
 
 export const useVessels = (): {
   vessels: Ref<Vessel[]>;
@@ -25,7 +23,6 @@ export const useVessels = (): {
   getImageUrl: (imagePath: string) => string;
   getObjectUrl: (objectPath: string) => string;
 } => {
-  const API_URL = import.meta.env.VITE_API_URL as string;
   const vessels = ref<Vessel[]>([]);
   const loading = ref<boolean>(false);
   const error = ref<string | null>(null);
@@ -72,244 +69,30 @@ export const useVessels = (): {
     return objectPath;
   };
 
-  const fetchVessels = async (): Promise<void> => {
+  const fetchVessels = (): Promise<void> => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await fetch(`${API_URL}/vessels`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const raw = (await response.json()) as
-        | Vessel[]
-        | { vessels: Vessel[] }
-        | { data: Vessel[] }
-        | { vessel: Vessel }
-        | { error?: string; message?: string };
-      // console.debug("[vessels] raw fetch response", raw);
-
-      if (!response.ok) {
-        let errorMessage = "Failed to fetch vessels";
-        if (
-          typeof raw === "object" &&
-          "error" in raw &&
-          typeof raw.error === "string"
-        ) {
-          errorMessage = raw.error;
-        } else if (
-          typeof raw === "object" &&
-          "message" in raw &&
-          typeof raw.message === "string"
-        ) {
-          errorMessage = raw.message;
-        }
-        throw new Error(errorMessage);
-      }
-
-      let list: Vessel[] = [];
-      // Accept several shapes: array root, { vessels: [] }, { data: [] }
-      if (Array.isArray(raw)) {
-        list = raw;
-      } else if (
-        typeof raw === "object" &&
-        "vessels" in raw &&
-        Array.isArray(raw.vessels)
-      ) {
-        list = raw.vessels;
-      } else if (
-        typeof raw === "object" &&
-        "data" in raw &&
-        Array.isArray(raw.data)
-      ) {
-        list = raw.data;
-      } else if (
-        typeof raw === "object" &&
-        "vessel" in raw &&
-        typeof raw.vessel === "object"
-      ) {
-        // Single vessel returned; wrap in array
-        list = [raw.vessel];
-      }
-
-      vessels.value = list;
-      // console.debug("[vessels] parsed list length", list.length);
+      vessels.value = staticVessels;
     } catch (err) {
       error.value = err instanceof Error ? err.message : "An error occurred";
       vessels.value = [];
-      // console.error("[vessels] fetch error", error.value);
     } finally {
       loading.value = false;
     }
+    return Promise.resolve();
   };
 
-  const createVessel = async (formData: VesselFormData): Promise<boolean> => {
-    loading.value = true;
-    error.value = null;
-
-    // Validate files
-    if (!formData.imageFile) {
-      error.value = "Image is required";
-      loading.value = false;
-      return false;
-    }
-
-    if (!formData.objectFile) {
-      error.value = "3D model is required";
-      loading.value = false;
-      return false;
-    }
-
-    const imageError = validateImageFile(formData.imageFile);
-    if (imageError) {
-      error.value = imageError;
-      loading.value = false;
-      return false;
-    }
-
-    const objectError = validateObjectFile(formData.objectFile);
-    if (objectError) {
-      error.value = objectError;
-      loading.value = false;
-      return false;
-    }
-
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("description", formData.description);
-      formDataToSend.append("category", formData.category);
-      formDataToSend.append("image", formData.imageFile);
-      formDataToSend.append("object", formData.objectFile);
-
-      const response = await fetch(`${API_URL}/vessels`, {
-        method: "POST",
-        body: formDataToSend,
-        credentials: "include",
-      });
-
-      const data = (await response.json()) as
-        | VesselResponse
-        | VesselErrorResponse;
-
-      if (!response.ok) {
-        const errorResponse = data as VesselErrorResponse;
-        throw new Error(errorResponse.error || "Failed to create vessel");
-      }
-
-      await fetchVessels();
-      // Refresh the vessels store for navigation
-      const store = useVesselsStore();
-      await store.fetchVessels();
-      return true;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : "An error occurred";
-      return false;
-    } finally {
-      loading.value = false;
-    }
+  const createVessel = (_formData: VesselFormData): Promise<boolean> => {
+    return Promise.resolve(false);
   };
 
-  const updateVessel = async (
-    updateData: VesselUpdateData
-  ): Promise<boolean> => {
-    loading.value = true;
-    error.value = null;
-
-    // Validate files if provided
-    if (updateData.imageFile) {
-      const imageError = validateImageFile(updateData.imageFile);
-      if (imageError) {
-        error.value = imageError;
-        loading.value = false;
-        return false;
-      }
-    }
-
-    if (updateData.objectFile) {
-      const objectError = validateObjectFile(updateData.objectFile);
-      if (objectError) {
-        error.value = objectError;
-        loading.value = false;
-        return false;
-      }
-    }
-
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", updateData.name);
-      formDataToSend.append("description", updateData.description);
-      formDataToSend.append("category", updateData.category);
-
-      if (updateData.imageFile) {
-        formDataToSend.append("image", updateData.imageFile);
-      }
-
-      if (updateData.objectFile) {
-        formDataToSend.append("object", updateData.objectFile);
-      }
-
-      const response = await fetch(`${API_URL}/vessels/${updateData._id}`, {
-        method: "PUT",
-        body: formDataToSend,
-        credentials: "include",
-      });
-
-      const data = (await response.json()) as
-        | VesselResponse
-        | VesselErrorResponse;
-
-      if (!response.ok) {
-        const errorResponse = data as VesselErrorResponse;
-        throw new Error(errorResponse.error || "Failed to update vessel");
-      }
-
-      await fetchVessels();
-      // Refresh the vessels store for navigation
-      const store = useVesselsStore();
-      await store.fetchVessels();
-      return true;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : "An error occurred";
-      return false;
-    } finally {
-      loading.value = false;
-    }
+  const updateVessel = (_updateData: VesselUpdateData): Promise<boolean> => {
+    return Promise.resolve(false);
   };
 
-  const deleteVessel = async (id: string): Promise<boolean> => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const response = await fetch(`${API_URL}/vessels/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      const data = (await response.json()) as
-        | VesselResponse
-        | VesselErrorResponse;
-
-      if (!response.ok) {
-        const errorResponse = data as VesselErrorResponse;
-        throw new Error(errorResponse.error || "Failed to delete vessel");
-      }
-
-      await fetchVessels();
-      // Refresh the vessels store for navigation
-      const store = useVesselsStore();
-      await store.fetchVessels();
-      return true;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : "An error occurred";
-      return false;
-    } finally {
-      loading.value = false;
-    }
+  const deleteVessel = (_id: string): Promise<boolean> => {
+    return Promise.resolve(false);
   };
 
   return {
