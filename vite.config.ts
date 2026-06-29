@@ -8,7 +8,7 @@ import vueDevTools from "vite-plugin-vue-devtools";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const launchEditor = env.VITE_LAUNCH_EDITOR || "code";
-  const backend = env.VITE_BACKEND || "http://localhost:4000";
+  // const backend = env.VITE_BACKEND || "http://localhost:4000";
   const baseUrl = env.BASE_URL || "/";
 
   return {
@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      outDir: mode === "static" ? "docs" : "dist",
       rollupOptions: {
         output: {
           manualChunks(id: string): string | undefined {
@@ -65,17 +66,6 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: `assets/[name].js`,
           assetFileNames: `assets/[name].[ext]`,
         },
-      },
-    },
-    server: {
-      headers: {
-        "Content-Security-Policy": `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ${backend}; font-src 'self'; connect-src 'self' blob: ${backend}; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;`,
-      },
-    },
-    preview: {
-      middlewareMode: false,
-      headers: {
-        "Content-Security-Policy": `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ${backend}; font-src 'self'; connect-src 'self' blob: ${backend}; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;`,
       },
     },
   };
