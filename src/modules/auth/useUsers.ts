@@ -47,8 +47,7 @@ export const useUsers = (): {
       });
 
       const responseData = (await response.json()) as
-        | AuthResponse
-        | ErrorResponse;
+        AuthResponse | ErrorResponse;
 
       if (!response.ok) {
         // Handle different HTTP status codes with error messages

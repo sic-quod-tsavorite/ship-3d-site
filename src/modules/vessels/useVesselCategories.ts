@@ -41,18 +41,15 @@ export const useVesselCategories = (): UseVesselCategoriesReturn => {
 
     // Convert to array and sort categories alphabetically
     const result: VesselCategory[] = Array.from(grouped.entries())
-      .map(
-        ([name, vesselList]: [string, VesselNavItem[]]): VesselCategory => ({
-          name,
-          // Sort vessels within category alphabetically by name
-          vessels: vesselList.sort(
-            (a: VesselNavItem, b: VesselNavItem): number =>
-              a.name.localeCompare(b.name)
-          ),
-          // Initialize open state, default to false
-          isOpen: ref<boolean>(categoryStates.value[name] ?? false),
-        })
-      )
+      .map(([name, vesselList]: [string, VesselNavItem[]]): VesselCategory => ({
+        name,
+        // Sort vessels within category alphabetically by name
+        vessels: vesselList.sort((a: VesselNavItem, b: VesselNavItem): number =>
+          a.name.localeCompare(b.name)
+        ),
+        // Initialize open state, default to false
+        isOpen: ref<boolean>(categoryStates.value[name] ?? false),
+      }))
       // Sort categories alphabetically
       .sort((a: VesselCategory, b: VesselCategory): number =>
         a.name.localeCompare(b.name)
